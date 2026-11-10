@@ -13,6 +13,7 @@ import {
   SERVICE_CATEGORIES,
   createCategoryImages,
   createServiceItem,
+  normalizeCategory,
   type ServiceCategory,
   type ServiceItem,
 } from '../data/services';
@@ -28,10 +29,12 @@ export type CategoryInput = {
   icon: ServiceIconType;
   images: string[];
   services: ServiceItem[];
+  tags: string[];
 };
 
 export type ServiceItemInput = {
   name: string;
+  tags?: string[];
 };
 
 type ServicesContextValue = {
@@ -66,7 +69,10 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
 
   const refreshCategories = useCallback(async () => {
     const data = await apiRequest<ServiceCategory[]>('/api/categories');
-    setCategories(data);
+    const normalized = data
+      .map((item) => normalizeCategory(item))
+      .filter((item): item is ServiceCategory => Boolean(item));
+    setCategories(normalized.length ? normalized : SERVICE_CATEGORIES);
   }, []);
 
   useEffect(() => {

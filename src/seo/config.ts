@@ -37,6 +37,29 @@ export type SeoPageConfig = {
   noindex?: boolean;
 };
 
+export function mergeKeywords(...parts: Array<string | string[] | undefined>) {
+  const seen = new Set<string>();
+  const keywords: string[] = [];
+
+  for (const part of parts) {
+    const values = Array.isArray(part)
+      ? part
+      : typeof part === 'string'
+        ? part.split(',')
+        : [];
+    for (const value of values) {
+      const keyword = value.trim();
+      if (!keyword) continue;
+      const key = keyword.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      keywords.push(keyword);
+    }
+  }
+
+  return keywords.join(', ');
+}
+
 /** Editable public page SEO defaults (path → meta). */
 export const PAGE_SEO: Record<string, SeoPageConfig> = {
   '/': {
@@ -85,11 +108,15 @@ export function absoluteUrl(path = '/') {
   return `${SITE_URL.replace(/\/$/, '')}${normalized === '/' ? '/' : normalized}`;
 }
 
-export function serviceCategorySeo(categoryName: string, categoryId: string): SeoPageConfig {
+export function serviceCategorySeo(
+  categoryName: string,
+  categoryId: string,
+  seoTags: string[] = [],
+): SeoPageConfig {
   return {
     path: `/services/${categoryId}`,
     title: `${categoryName} | ${SITE_NAME}`,
     description: `Professional ${categoryName.toLowerCase()} in Dhaka Metro. Book trusted technicians with ${SITE_NAME}.`,
-    keywords: `${categoryName}, ${DEFAULT_KEYWORDS}`,
+    keywords: mergeKeywords(categoryName, seoTags, DEFAULT_KEYWORDS),
   };
 }

@@ -7,6 +7,8 @@ import {
   SERVICE_IMAGE_PRESETS,
   createCategoryImages,
   createServiceItem,
+  formatTagsInput,
+  parseTagsInput,
   type ServiceCategory,
   type ServiceItem,
 } from '../../data/services';
@@ -37,6 +39,7 @@ type Draft = {
   icon: ServiceIconType;
   images: string[];
   services: ServiceItem[];
+  tagsInput: string;
   newService: string;
 };
 
@@ -48,6 +51,7 @@ const emptyDraft = (): Draft => ({
   icon: 'ac',
   images: createCategoryImages(0),
   services: [],
+  tagsInput: '',
   newService: '',
 });
 
@@ -59,7 +63,11 @@ function toDraft(category: ServiceCategory): Draft {
     details: category.details,
     icon: category.icon,
     images: [...category.images],
-    services: category.services.map((service) => ({ ...service })),
+    services: category.services.map((service) => ({
+      ...service,
+      tags: [...(service.tags ?? [])],
+    })),
+    tagsInput: formatTagsInput(category.tags),
     newService: '',
   };
 }
@@ -87,7 +95,12 @@ export function AdminServicesPage() {
       (c) =>
         c.name.toLowerCase().includes(q) ||
         c.description.toLowerCase().includes(q) ||
-        c.services.some((s) => s.name.toLowerCase().includes(q)),
+        (c.tags ?? []).some((tag) => tag.toLowerCase().includes(q)) ||
+        c.services.some(
+          (s) =>
+            s.name.toLowerCase().includes(q) ||
+            (s.tags ?? []).some((tag) => tag.toLowerCase().includes(q)),
+        ),
     );
   }, [categories, query]);
 
@@ -213,6 +226,7 @@ export function AdminServicesPage() {
       .map((service) => ({
         ...service,
         name: service.name.trim(),
+        tags: parseTagsInput(formatTagsInput(service.tags)),
       }))
       .filter((service) => service.name);
 
@@ -230,6 +244,7 @@ export function AdminServicesPage() {
       icon: draft.icon,
       images: images.slice(0, CATEGORY_IMAGE_COUNT),
       services,
+      tags: parseTagsInput(draft.tagsInput),
     };
 
     try {
@@ -411,6 +426,20 @@ export function AdminServicesPage() {
                 </select>
               </label>
 
+              <label className="admin-services__seo-tags">
+                <span>SEO Tags (category)</span>
+                <textarea
+                  rows={3}
+                  value={draft.tagsInput}
+                  onChange={(e) => setDraft((d) => ({ ...d, tagsInput: e.target.value }))}
+                  placeholder="ac repair Dhaka, split AC servicing, gas refill near me"
+                />
+                <em className="admin-services__seo-note">
+                  Not shown to customers. Used in search metadata so Google can match these
+                  phrases to this service page. Separate tags with commas.
+                </em>
+              </label>
+
               <div className="admin-services__images">
                 <div className="admin-services__images-head">
                   <span>Category Images</span>
@@ -495,6 +524,20 @@ export function AdminServicesPage() {
                           <Trash2 size={15} />
                         </button>
                       </div>
+                      <label className="admin-services__item-tags">
+                        <span>SEO tags</span>
+                        <input
+                          type="text"
+                          value={formatTagsInput(service.tags)}
+                          onChange={(e) =>
+                            updateDraftService(service.id, {
+                              tags: parseTagsInput(e.target.value),
+                            })
+                          }
+                          placeholder="e.g. AC gas refill Dhaka, AC servicing price"
+                          aria-label={`SEO tags for ${service.name || 'service'}`}
+                        />
+                      </label>
                     </li>
                   ))}
                 </ul>

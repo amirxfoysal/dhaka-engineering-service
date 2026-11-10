@@ -4,6 +4,7 @@ const serviceItemSchema = new Schema(
   {
     id: { type: String, required: true },
     name: { type: String, required: true },
+    tags: { type: [String], default: [] },
   },
   { _id: false },
 );
@@ -22,6 +23,7 @@ const categorySchema = new Schema(
     },
     images: { type: [String], required: true },
     services: { type: [serviceItemSchema], required: true },
+    tags: { type: [String], default: [] },
   },
   { timestamps: true },
 );

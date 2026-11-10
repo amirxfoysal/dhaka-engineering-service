@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useServices } from '../context/ServicesContext';
+import { collectCategorySeoTags } from '../data/services';
 import {
   ADMIN_SEO,
   DEFAULT_DESCRIPTION,
@@ -14,6 +15,7 @@ import {
   SITE_NAME,
   SITE_TAGLINE,
   absoluteUrl,
+  mergeKeywords,
   serviceCategorySeo,
   type SeoPageConfig,
 } from './config';
@@ -58,40 +60,56 @@ function resolvePageSeo(
   pathname: string,
   categoryName?: string,
   categoryId?: string,
+  categoryTags: string[] = [],
+  siteTags: string[] = [],
 ): SeoPageConfig {
   if (pathname.startsWith('/admin')) return ADMIN_SEO;
 
   if (categoryId && categoryName) {
-    return serviceCategorySeo(categoryName, categoryId);
+    return serviceCategorySeo(categoryName, categoryId, categoryTags);
   }
 
   const exact = PAGE_SEO[pathname];
-  if (exact) return exact;
+  if (exact) {
+    return {
+      ...exact,
+      keywords: mergeKeywords(exact.keywords, siteTags, DEFAULT_KEYWORDS),
+    };
+  }
 
   return {
     path: pathname,
     title: SITE_NAME,
     description: DEFAULT_DESCRIPTION,
-    keywords: DEFAULT_KEYWORDS,
+    keywords: mergeKeywords(siteTags, DEFAULT_KEYWORDS),
   };
 }
 
 export function Seo() {
   const { pathname } = useLocation();
-  const { getCategoryById } = useServices();
+  const { categories, getCategoryById } = useServices();
 
   const categoryId = useMemo(() => categoryIdFromPath(pathname), [pathname]);
   const category = categoryId ? getCategoryById(categoryId) : undefined;
+  const categoryTags = useMemo(
+    () => (category ? collectCategorySeoTags(category) : []),
+    [category],
+  );
+  const siteTags = useMemo(
+    () => categories.flatMap((item) => collectCategorySeoTags(item)),
+    [categories],
+  );
 
   useEffect(() => {
-    const page = resolvePageSeo(pathname, category?.name, categoryId);
+    const page = resolvePageSeo(pathname, category?.name, categoryId, categoryTags, siteTags);
     const url = absoluteUrl(page.path);
     const robots = page.noindex ? 'noindex, nofollow' : 'index, follow';
+    const keywords = page.keywords ?? DEFAULT_KEYWORDS;
 
     document.title = page.title;
 
     upsertMeta('name', 'description', page.description);
-    upsertMeta('name', 'keywords', page.keywords ?? DEFAULT_KEYWORDS);
+    upsertMeta('name', 'keywords', keywords);
     upsertMeta('name', 'robots', robots);
     upsertMeta('name', 'author', SITE_NAME);
     upsertMeta('name', 'application-name', SITE_NAME);
@@ -136,6 +154,7 @@ export function Seo() {
         addressCountry: 'BD',
       },
       openingHours: 'Mo-Su 09:00-21:00',
+      keywords,
       sameAs: [],
     });
 
@@ -151,11 +170,12 @@ export function Seo() {
         },
         areaServed: 'Dhaka Metro, Bangladesh',
         url: absoluteUrl(`/services/${category.id}`),
+        keywords: categoryTags.join(', '),
       });
     } else {
       document.getElementById('seo-service')?.remove();
     }
-  }, [pathname, category, categoryId]);
+  }, [pathname, category, categoryId, categoryTags, siteTags]);
 
   return null;
 }

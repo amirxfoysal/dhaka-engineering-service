@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { normalizeTags } from '../../../src/data/services.ts';
 import { Category } from '../models/Category.js';
 import { requireAdmin } from '../middleware/auth.js';
 import { slugify } from '../utils/ids.js';
@@ -9,6 +10,7 @@ const router = Router();
 const serviceItemSchema = z.object({
   id: z.string().optional(),
   name: z.string().trim().min(1),
+  tags: z.array(z.string()).optional(),
 });
 
 const categorySchema = z.object({
@@ -19,9 +21,21 @@ const categorySchema = z.object({
   icon: z.enum(['ac', 'electrical', 'lift', 'appliances', 'motor', 'commercial']),
   images: z.array(z.string()).min(1),
   services: z.array(serviceItemSchema).default([]),
+  tags: z.array(z.string()).optional(),
 });
 
 function mapCategory(doc: Record<string, unknown>) {
+  const services = Array.isArray(doc.services)
+    ? doc.services.map((service) => {
+        const item = service as { id: string; name: string; tags?: string[] };
+        return {
+          id: item.id,
+          name: item.name,
+          tags: normalizeTags(item.tags),
+        };
+      })
+    : [];
+
   return {
     id: doc.id,
     name: doc.name,
@@ -30,7 +44,8 @@ function mapCategory(doc: Record<string, unknown>) {
     details: doc.details,
     icon: doc.icon,
     images: doc.images,
-    services: doc.services,
+    services,
+    tags: normalizeTags(doc.tags),
   };
 }
 
@@ -61,9 +76,11 @@ router.post('/', requireAdmin, async (req, res) => {
     details: parsed.data.details,
     icon: parsed.data.icon,
     images: parsed.data.images.slice(0, 5),
+    tags: normalizeTags(parsed.data.tags),
     services: parsed.data.services.map((service, index) => ({
       id: service.id || `${id}-${slugify(service.name)}-${index}`,
       name: service.name,
+      tags: normalizeTags(service.tags),
     })),
   };
 
@@ -86,10 +103,12 @@ router.patch('/:id', requireAdmin, async (req, res) => {
   if (parsed.data.details !== undefined) existing.details = parsed.data.details;
   if (parsed.data.icon !== undefined) existing.icon = parsed.data.icon;
   if (parsed.data.images !== undefined) existing.images = parsed.data.images.slice(0, 5);
+  if (parsed.data.tags !== undefined) existing.tags = normalizeTags(parsed.data.tags);
   if (parsed.data.services !== undefined) {
     existing.services = parsed.data.services.map((service, index) => ({
       id: service.id || `${existing.id}-${slugify(service.name)}-${index}`,
       name: service.name,
+      tags: normalizeTags(service.tags),
     }));
   }
 

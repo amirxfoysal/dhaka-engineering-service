@@ -3,6 +3,8 @@ export type ServiceIconId = 'ac' | 'electrical' | 'lift' | 'appliances' | 'motor
 export type ServiceItem = {
   id: string;
   name: string;
+  /** SEO-only tags; never shown in the public UI. */
+  tags: string[];
 };
 
 export type ServiceCategory = {
@@ -14,7 +16,49 @@ export type ServiceCategory = {
   icon: ServiceIconId;
   images: string[];
   services: ServiceItem[];
+  /** SEO-only tags; never shown in the public UI. */
+  tags: string[];
 };
+
+const MAX_SEO_TAGS = 40;
+
+export function normalizeTags(raw: unknown): string[] {
+  const source = Array.isArray(raw)
+    ? raw
+    : typeof raw === 'string'
+      ? raw.split(/[\n,]+/)
+      : [];
+
+  const seen = new Set<string>();
+  const tags: string[] = [];
+
+  for (const item of source) {
+    const tag = String(item).trim().replace(/\s+/g, ' ');
+    if (!tag) continue;
+    const key = tag.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tags.push(tag);
+    if (tags.length >= MAX_SEO_TAGS) break;
+  }
+
+  return tags;
+}
+
+export function parseTagsInput(value: string): string[] {
+  return normalizeTags(value);
+}
+
+export function formatTagsInput(tags: string[] | undefined): string {
+  return (tags ?? []).join(', ');
+}
+
+export function collectCategorySeoTags(category: Pick<ServiceCategory, 'tags' | 'services'>): string[] {
+  return normalizeTags([
+    ...(category.tags ?? []),
+    ...category.services.flatMap((service) => service.tags ?? []),
+  ]);
+}
 
 export const SERVICE_IMAGE_PRESETS = [
   '/images/ac-indoor.jpg',
@@ -42,11 +86,21 @@ export function createCategoryImages(seed = 0): string[] {
   });
 }
 
-export function createServiceItem(name: string, id?: string): ServiceItem {
+export function createServiceItem(name: string, id?: string, tags: string[] = []): ServiceItem {
   return {
     id: id ?? slugify(name),
     name,
+    tags: normalizeTags(tags),
   };
+}
+
+function defaultItemTags(itemName: string, categoryName: string): string[] {
+  return normalizeTags([
+    itemName,
+    `${itemName} Dhaka`,
+    `${itemName} Bangladesh`,
+    `${categoryName} Dhaka`,
+  ]);
 }
 
 function makeCategory(
@@ -57,6 +111,7 @@ function makeCategory(
   details: string,
   icon: ServiceIconId,
   items: string[],
+  tags: string[] = [],
 ): ServiceCategory {
   return {
     id,
@@ -66,7 +121,8 @@ function makeCategory(
     details,
     icon,
     images: createCategoryImages(id.length),
-    services: items.map((item) => createServiceItem(item)),
+    services: items.map((item) => createServiceItem(item, undefined, defaultItemTags(item, name))),
+    tags: normalizeTags(tags.length ? tags : [`${name} Dhaka`, `${name} Bangladesh`, name]),
   };
 }
 
@@ -184,6 +240,7 @@ export function normalizeServiceItem(raw: unknown): ServiceItem | null {
   return {
     id: item.id?.trim() || slugify(name),
     name,
+    tags: normalizeTags(item.tags),
   };
 }
 
@@ -212,7 +269,10 @@ export function normalizeCategory(raw: Partial<ServiceCategory> & { id?: string 
       images.length >= CATEGORY_IMAGE_COUNT
         ? images.slice(0, CATEGORY_IMAGE_COUNT)
         : createCategoryImages(id.length),
-    services: services.length ? services : seed?.services.map((service) => ({ ...service })) || [],
+    services: services.length
+      ? services
+      : seed?.services.map((service) => ({ ...service, tags: [...service.tags] })) || [],
+    tags: normalizeTags(raw.tags ?? seed?.tags ?? []),
   };
 }
 
