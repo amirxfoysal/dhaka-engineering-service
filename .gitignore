@@ -12,7 +12,9 @@ dist
 dist-ssr
 *.local
 .env
+.env.local
 .env.*.local
+!.env.example
 .vercel
 
 # Editor directories and files
