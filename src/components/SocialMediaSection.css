@@ -1,0 +1,114 @@
+.social-media {
+  background:
+    linear-gradient(180deg, #f3f7ff 0%, #eaf1fb 100%);
+  border-top: 1px solid #d9e4f4;
+  padding: 28px var(--page-gutter);
+}
+
+.social-media__inner {
+  width: min(100%, var(--content-max));
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.social-media__eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-blue);
+  margin-bottom: 6px;
+}
+
+.social-media__copy h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-navy);
+  line-height: 1.25;
+}
+
+.social-media__copy p {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  max-width: 42ch;
+}
+
+.social-media__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+
+.social-media__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #dbe5f3;
+  color: var(--primary-navy);
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 8px 18px rgba(4, 39, 91, 0.05);
+}
+
+.social-media__link:hover {
+  border-color: #bcd0f5;
+  background: #f8fbff;
+}
+
+.social-media__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #eef4ff;
+  color: var(--primary-blue);
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .social-media {
+    padding: 34px 24px;
+  }
+
+  .social-media__inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+  }
+
+  .social-media__copy h2 {
+    font-size: 26px;
+  }
+
+  .social-media__copy p {
+    font-size: 15px;
+  }
+
+  .social-media__list {
+    width: min(100%, 420px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .social-media {
+    padding: 40px 32px;
+  }
+
+  .social-media__list {
+    width: 460px;
+    gap: 12px;
+  }
+}

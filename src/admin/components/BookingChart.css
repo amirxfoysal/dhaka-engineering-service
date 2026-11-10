@@ -1,0 +1,40 @@
+.booking-chart {
+  width: 100%;
+  min-height: 240px;
+}
+
+.booking-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.booking-chart__grid {
+  stroke: #e8eef7;
+  stroke-width: 1;
+}
+
+.booking-chart__tick,
+.booking-chart__label {
+  fill: #98a2b3;
+  font-size: 11px;
+  font-family: var(--font-ui);
+}
+
+.booking-chart__area {
+  fill: rgba(6, 90, 221, 0.08);
+}
+
+.booking-chart__line {
+  fill: none;
+  stroke: #065add;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.booking-chart__dot {
+  fill: #065add;
+  stroke: #fff;
+  stroke-width: 2;
+}

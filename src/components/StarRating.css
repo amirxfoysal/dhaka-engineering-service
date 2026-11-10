@@ -1,0 +1,24 @@
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #f59e0b;
+}
+
+.star-rating .is-off {
+  color: #d0d5dd;
+}
+
+.star-rating.is-editable button {
+  display: inline-flex;
+  padding: 2px;
+  color: inherit;
+}
+
+.star-rating.is-editable button.is-on {
+  color: #f59e0b;
+}
+
+.star-rating.is-editable button.is-off {
+  color: #d0d5dd;
+}

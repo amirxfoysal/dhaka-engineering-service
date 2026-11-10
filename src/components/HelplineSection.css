@@ -1,0 +1,114 @@
+.helpline {
+  margin-top: auto;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(56, 132, 255, 0.22), transparent 42%),
+    radial-gradient(circle at 88% 80%, rgba(14, 78, 168, 0.28), transparent 46%),
+    linear-gradient(135deg, #0a3a7a 0%, #053064 52%, #03244c 100%);
+  color: #fff;
+  padding: 22px var(--page-gutter);
+  border-top: 1px solid rgba(199, 215, 240, 0.16);
+}
+
+.helpline__inner {
+  width: min(100%, var(--content-max));
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.helpline__eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9db6d8;
+  margin-bottom: 4px;
+}
+
+.helpline__copy p {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  max-width: 28ch;
+}
+
+.helpline__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.helpline__call,
+.helpline__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 10px 24px rgba(0, 18, 48, 0.22);
+}
+
+.helpline__call {
+  background: #fff;
+  color: var(--primary-navy);
+}
+
+.helpline__call:hover {
+  background: #f3f7ff;
+}
+
+.helpline__call svg {
+  color: var(--primary-blue);
+  flex-shrink: 0;
+}
+
+.helpline__whatsapp {
+  background: #25d366;
+  color: #06351a;
+}
+
+.helpline__whatsapp:hover {
+  background: #2fe275;
+}
+
+.helpline__whatsapp svg {
+  color: #06351a;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .helpline {
+    padding: 26px 24px;
+  }
+
+  .helpline__inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .helpline__copy p {
+    font-size: 16px;
+    max-width: none;
+  }
+
+  .helpline__call,
+  .helpline__whatsapp {
+    font-size: 16px;
+    padding: 12px 18px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .helpline {
+    padding: 28px 32px;
+  }
+}

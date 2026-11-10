@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /admin/
+Disallow: /bookings
+Disallow: /tracking
+
+Sitemap: https://dhakaengineering.com/sitemap.xml

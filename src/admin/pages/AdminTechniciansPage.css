@@ -1,0 +1,246 @@
+.admin-techs__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.admin-techs__header .admin-page-title {
+  margin-bottom: 0;
+}
+
+.admin-techs__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-techs__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: min(100%, 260px);
+  background: #fff;
+  border: 1px solid #e6ebf3;
+  border-radius: 10px;
+  padding: 0 12px;
+  color: var(--muted-icon);
+}
+
+.admin-techs__search input {
+  width: 100%;
+  min-height: 40px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.admin-techs__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--primary-navy);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-techs__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.admin-techs__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid #e6ebf3;
+  background: #fff;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-techs__chip span {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #eef2f7;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+}
+
+.admin-techs__chip.is-active {
+  background: var(--primary-navy);
+  border-color: var(--primary-navy);
+  color: #fff;
+}
+
+.admin-techs__chip.is-active span {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.admin-techs__person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-techs__person img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.admin-techs__status-select {
+  min-height: 34px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.admin-techs__row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-techs__manage {
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #eef4ff;
+  color: var(--primary-blue);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-techs__drawer-root {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+
+.admin-techs__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 39, 91, 0.4);
+  border: none;
+}
+
+.admin-techs__drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(100%, 420px);
+  height: 100%;
+  background: #fff;
+  box-shadow: -8px 0 30px rgba(4, 39, 91, 0.16);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-techs__drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.admin-techs__drawer-head h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.admin-techs__drawer-head button {
+  color: var(--text-secondary);
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.admin-techs__form {
+  padding: 18px 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-techs__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.admin-techs__form input,
+.admin-techs__form select {
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: #fff;
+}
+
+.admin-techs__error {
+  color: #d92d20;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.admin-techs__form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.admin-techs__form-actions .btn-primary {
+  max-width: none;
+}
+
+.admin-techs__delete {
+  min-height: 42px;
+  border-radius: 10px;
+  background: #fef3f2;
+  color: #b42318;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .admin-techs__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-techs__header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-techs__search {
+    min-width: 0;
+  }
+}
