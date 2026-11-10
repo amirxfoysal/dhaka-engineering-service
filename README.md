@@ -117,6 +117,36 @@ Public endpoints include health, settings, categories, banners, offers, reviews,
 
 Admin endpoints (Bearer JWT) cover credentials, CRUD for content and technicians, booking updates, notifications, settings, and image uploads to Cloudinary.
 
+## Deployment (Vercel)
+
+Production URL: [https://dhaka-engineering-service.vercel.app](https://dhaka-engineering-service.vercel.app)
+
+Custom domain: `dhakaengineering.com` (Hostinger)
+
+### Hostinger DNS (required)
+
+In Hostinger → Domains → `dhakaengineering.com` → DNS / DNS Zone, set:
+
+| Type | Name | Value |
+| --- | --- | --- |
+| A | `@` | `216.198.79.1` |
+| A | `@` | `64.29.17.1` |
+| CNAME | `www` | `cname.vercel-dns.com` |
+
+Remove any conflicting Hostinger parking A/CNAME records first. DNS can take a few minutes to a few hours.
+
+Alternative: change nameservers to `ns1.vercel-dns.com` and `ns2.vercel-dns.com` so Vercel manages DNS.
+
+### MongoDB Atlas for Vercel
+
+Allow Network Access from anywhere (`0.0.0.0/0`) so Vercel serverless functions can connect.
+
+### Redeploy
+
+```bash
+vercel --prod
+```
+
 ## Security Notes
 
 - Keep secrets in `.env` only
