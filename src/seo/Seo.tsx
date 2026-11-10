@@ -6,6 +6,10 @@ import {
   DEFAULT_DESCRIPTION,
   DEFAULT_KEYWORDS,
   DEFAULT_OG_IMAGE,
+  DEFAULT_OG_IMAGE_ALT,
+  DEFAULT_OG_IMAGE_HEIGHT,
+  DEFAULT_OG_IMAGE_TYPE,
+  DEFAULT_OG_IMAGE_WIDTH,
   PAGE_SEO,
   SITE_NAME,
   SITE_TAGLINE,
@@ -98,12 +102,18 @@ export function Seo() {
     upsertMeta('property', 'og:description', page.description);
     upsertMeta('property', 'og:url', url);
     upsertMeta('property', 'og:image', DEFAULT_OG_IMAGE);
+    upsertMeta('property', 'og:image:secure_url', DEFAULT_OG_IMAGE);
+    upsertMeta('property', 'og:image:type', DEFAULT_OG_IMAGE_TYPE);
+    upsertMeta('property', 'og:image:width', DEFAULT_OG_IMAGE_WIDTH);
+    upsertMeta('property', 'og:image:height', DEFAULT_OG_IMAGE_HEIGHT);
+    upsertMeta('property', 'og:image:alt', DEFAULT_OG_IMAGE_ALT);
     upsertMeta('property', 'og:locale', 'en_BD');
 
     upsertMeta('name', 'twitter:card', 'summary_large_image');
     upsertMeta('name', 'twitter:title', page.title);
     upsertMeta('name', 'twitter:description', page.description);
     upsertMeta('name', 'twitter:image', DEFAULT_OG_IMAGE);
+    upsertMeta('name', 'twitter:image:alt', DEFAULT_OG_IMAGE_ALT);
 
     upsertLink('canonical', url);
 

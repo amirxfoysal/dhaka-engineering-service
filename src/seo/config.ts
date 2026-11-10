@@ -22,7 +22,12 @@ export const DEFAULT_KEYWORDS = [
   'engineering service Bangladesh',
 ].join(', ');
 
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/logo.png`;
+/** 1200×630 social share banner (Open Graph / Twitter / WhatsApp). */
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-banner.jpg`;
+export const DEFAULT_OG_IMAGE_WIDTH = '1200';
+export const DEFAULT_OG_IMAGE_HEIGHT = '630';
+export const DEFAULT_OG_IMAGE_ALT = `${SITE_NAME} — ${SITE_TAGLINE}`;
+export const DEFAULT_OG_IMAGE_TYPE = 'image/jpeg';
 
 export type SeoPageConfig = {
   title: string;
