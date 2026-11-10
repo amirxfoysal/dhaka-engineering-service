@@ -1,33 +1,128 @@
-# React + TypeScript + Vite
+# Dhaka Engineering Service
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Your Trusted Engineering & Home Service Partner.
 
-Currently, two official plugins are available:
+A full-stack booking platform for home and commercial engineering services in Dhaka — AC, electrical, lift, appliances, motor, and commercial work. Customers can browse services, book jobs, and track status. Admins manage bookings, content, technicians, and media from a dedicated panel.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Public service catalog with category details and image galleries
+- Booking flow with preferred date/time and problem description
+- Booking tracking and customer reviews
+- Admin panel for bookings, technicians, services, banners, offers, reviews, and settings
+- Image uploads to Cloudinary (services, banners, offers)
+- Persistent data on MongoDB Atlas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the Oxlint configuration
+| Layer | Technology |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite, React Router |
+| Backend | Express, Mongoose, Zod |
+| Database | MongoDB Atlas |
+| Media | Cloudinary |
+| Auth | JWT (admin), bcrypt password hashing |
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Project Structure
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```text
+├── src/                 # React client (public site + admin UI)
+├── server/src/          # Express API, models, routes, seed
+├── public/              # Static assets and SEO files
+├── .env.example         # Environment variable template
+└── package.json
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
-# dhaka-engineering-service
+## Prerequisites
+
+- Node.js 20+ and npm
+- MongoDB Atlas cluster with your current IP allowlisted
+- Cloudinary account (cloud name, API key, API secret)
+
+## Getting Started
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/amirxfoysal/dhaka-engineering-service.git
+cd dhaka-engineering-service
+npm install
+```
+
+### 2. Configure environment
+
+```bash
+cp .env.example .env
+```
+
+Fill in `.env`:
+
+| Variable | Description |
+| --- | --- |
+| `MONGODB_URI` | MongoDB Atlas connection string (include DB name) |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `JWT_SECRET` | Long random string for admin JWT signing |
+| `ADMIN_USERNAME` | Seed admin username (default: `admin`) |
+| `ADMIN_PASSWORD` | Seed admin password (default: `Admin@123`) |
+| `PORT` | API port (default: `5000`) |
+| `CLIENT_ORIGIN` | Frontend origin for CORS (default: `http://localhost:5173`) |
+
+Never commit `.env`. Only `.env.example` belongs in the repository.
+
+### 3. Seed the database
+
+```bash
+npm run seed
+```
+
+This upserts default settings, service categories, banners, offers, reviews, technicians, and a bootstrap admin user. Demo bookings are inserted only when the bookings collection is empty.
+
+### 4. Run locally
+
+```bash
+npm run dev
+```
+
+This starts:
+
+- API on [http://localhost:5000](http://localhost:5000)
+- Vite client on [http://localhost:5173](http://localhost:5173) (or the next free port)
+
+Vite proxies `/api` requests to the Express server.
+
+## Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Run API and client together |
+| `npm run dev:server` | API only (watch mode) |
+| `npm run dev:client` | Vite client only |
+| `npm run seed` | Seed MongoDB with defaults |
+| `npm run build` | Typecheck and production build |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Run Oxlint |
+
+## Admin Access
+
+- URL: `/admin/login`
+- Default credentials (from seed / `.env`): `admin` / `Admin@123`
+
+Change the admin password after first login in **Admin → Settings**.
+
+## API Overview
+
+Public endpoints include health, settings, categories, banners, offers, reviews, and booking create/read.
+
+Admin endpoints (Bearer JWT) cover credentials, CRUD for content and technicians, booking updates, notifications, settings, and image uploads to Cloudinary.
+
+## Security Notes
+
+- Keep secrets in `.env` only
+- Allowlist your IP (or `0.0.0.0/0` for open access) in MongoDB Atlas Network Access
+- Rotate database and Cloudinary credentials if they were ever shared outside a secure channel
+
+## License
+
+Private project. All rights reserved.
