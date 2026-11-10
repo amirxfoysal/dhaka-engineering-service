@@ -11,7 +11,11 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "screenshots": "node scripts/capture-screens.mjs"
+    "screenshots": "node scripts/capture-screens.mjs",
+    "vercel-build": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

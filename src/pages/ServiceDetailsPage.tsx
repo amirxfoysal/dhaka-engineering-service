@@ -83,30 +83,24 @@ export function ServiceDetailsPage() {
   const { showToast } = useToast();
   const category = getCategoryById(categoryId);
 
-  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
-    category?.services[0] ? [category.services[0].id] : [],
-  );
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    setSelectedIds(category?.services[0] ? [category.services[0].id] : []);
-  }, [category?.id, category?.services]);
+    setSelectedIds([]);
+  }, [category?.id]);
 
   const selectedServices = useMemo(() => {
     if (!category) return [];
     return category.services.filter((service) => selectedIds.includes(service.id));
   }, [category, selectedIds]);
 
-  const selectedNames = selectedServices.map((service) => service.name);
-
   const serviceReviews = useMemo(() => {
     if (!category) return [];
-    const names = selectedNames.length
-      ? selectedNames
-      : category.services.map((service) => service.name);
+    const names = category.services.map((service) => service.name);
     return reviews
       .filter((review) => matchesServiceReview(review.serviceName, names))
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [category, reviews, selectedNames]);
+  }, [category, reviews]);
 
   if (!category) return <Navigate to="/services" replace />;
 
@@ -251,13 +245,7 @@ export function ServiceDetailsPage() {
             <div className="service-reviews__head">
               <div>
                 <p className="service-reviews__eyebrow">Customer Reviews</p>
-                <h3 id="service-reviews-title">
-                  {selectedServices.length === 1
-                    ? `Reviews for ${selectedServices[0].name}`
-                    : selectedServices.length > 1
-                      ? 'Reviews for selected services'
-                      : `Reviews for ${category.name}`}
-                </h3>
+                <h3 id="service-reviews-title">Reviews for {category.name}</h3>
               </div>
               {serviceReviews.length > 0 && (
                 <span className="service-reviews__count">{serviceReviews.length}</span>
@@ -266,7 +254,7 @@ export function ServiceDetailsPage() {
 
             {serviceReviews.length === 0 ? (
               <div className="service-reviews__empty">
-                <p>No reviews for the selected service yet.</p>
+                <p>No reviews for this service yet.</p>
                 <Link to="/tracking">Leave a review after your booking</Link>
               </div>
             ) : (
