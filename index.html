@@ -219,8 +219,123 @@
         ]
       }
     </script>
+    <style id="boot-splash-style">
+      #boot-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at 20% 15%, rgba(6, 90, 221, 0.22), transparent 42%),
+          radial-gradient(circle at 82% 78%, rgba(36, 88, 154, 0.2), transparent 40%),
+          linear-gradient(165deg, #04275b 0%, #00285f 48%, #031a3d 100%);
+        color: #fff;
+        font-family: Poppins, Inter, system-ui, sans-serif;
+        transition: opacity 0.35s ease, visibility 0.35s ease;
+      }
+      #boot-splash.is-hiding {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      #boot-splash .boot-splash__card {
+        width: min(100%, 320px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 18px;
+      }
+      #boot-splash .boot-splash__mark {
+        width: 88px;
+        height: 88px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        display: grid;
+        place-items: center;
+        animation: boot-pulse 1.6s ease-in-out infinite;
+      }
+      #boot-splash .boot-splash__mark img {
+        width: 58px;
+        height: 58px;
+        object-fit: contain;
+      }
+      #boot-splash .boot-splash__brand {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      #boot-splash .boot-splash__brand strong {
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+      }
+      #boot-splash .boot-splash__brand span {
+        font-size: 0.82rem;
+        line-height: 1.4;
+        color: rgba(255, 255, 255, 0.78);
+      }
+      #boot-splash .boot-splash__bar {
+        width: min(100%, 180px);
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        overflow: hidden;
+      }
+      #boot-splash .boot-splash__bar > i {
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #7eb6ff, #ffffff, #7eb6ff);
+        animation: boot-slide 1.1s ease-in-out infinite;
+      }
+      #boot-splash .boot-splash__status {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      @keyframes boot-pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.04);
+        }
+      }
+      @keyframes boot-slide {
+        0% {
+          transform: translateX(-120%);
+        }
+        100% {
+          transform: translateX(320%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot-splash .boot-splash__mark,
+        #boot-splash .boot-splash__bar > i {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="boot-splash" role="status" aria-live="polite" aria-busy="true" aria-label="Loading Dhaka Engineering Service">
+      <div class="boot-splash__card">
+        <div class="boot-splash__mark">
+          <img src="/images/logo-mark.png" alt="" width="58" height="58" />
+        </div>
+        <div class="boot-splash__brand">
+          <strong>Dhaka Engineering Service</strong>
+          <span>Your Trusted Engineering &amp; Home Service Partner</span>
+        </div>
+        <div class="boot-splash__bar" aria-hidden="true"><i></i></div>
+        <p class="boot-splash__status">Loading your services…</p>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -11,6 +11,7 @@ import { ReviewsProvider } from './context/ReviewsContext';
 import { ServicesProvider } from './context/ServicesContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { ToastProvider } from './context/ToastContext';
+import { AppBootGate } from './components/AppBootGate';
 import App from './App';
 import './styles/global.css';
 
@@ -21,19 +22,21 @@ createRoot(document.getElementById('root')!).render(
         <AdminAuthProvider>
           <SettingsProvider>
             <ServicesProvider>
-              <BannersProvider>
-                <OffersProvider>
-                  <ClientsProvider>
-                    <ReviewsProvider>
-                      <NotificationsProvider>
-                        <AppProvider>
-                          <App />
-                        </AppProvider>
-                      </NotificationsProvider>
-                    </ReviewsProvider>
-                  </ClientsProvider>
-                </OffersProvider>
-              </BannersProvider>
+              <AppBootGate>
+                <BannersProvider>
+                  <OffersProvider>
+                    <ClientsProvider>
+                      <ReviewsProvider>
+                        <NotificationsProvider>
+                          <AppProvider>
+                            <App />
+                          </AppProvider>
+                        </NotificationsProvider>
+                      </ReviewsProvider>
+                    </ClientsProvider>
+                  </OffersProvider>
+                </BannersProvider>
+              </AppBootGate>
             </ServicesProvider>
           </SettingsProvider>
         </AdminAuthProvider>
