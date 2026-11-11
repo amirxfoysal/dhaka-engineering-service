@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { HeroBanner } from '../data/banners';
+import { resolveHeroImage } from '../utils/imageDelivery';
+import { OptimizedImage } from './OptimizedImage';
 import './HeroCarousel.css';
 
 type Props = {
@@ -47,7 +49,15 @@ export function HeroCarousel({ banners }: Props) {
             className={`home-hero__slide${i === index ? ' is-active' : ''}`}
             aria-hidden={i !== index}
           >
-            <img src={banner.image} alt="" />
+            <OptimizedImage
+              src={resolveHeroImage(banner.image)}
+              alt={banner.title}
+              width={960}
+              height={320}
+              sizes="(max-width: 767px) 92vw, (max-width: 1024px) 720px, 1120px"
+              priority={i === 0}
+              loading={i === 0 ? 'eager' : 'lazy'}
+            />
             <div className="home-hero__overlay">
               <p>{banner.title}</p>
               <button

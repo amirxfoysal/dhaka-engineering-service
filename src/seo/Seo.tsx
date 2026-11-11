@@ -26,10 +26,10 @@ import {
   SITE_THEME_COLOR,
   absoluteUrl,
   mergeKeywords,
-  serviceCategorySeo,
   toE164BdPhone,
   type SeoPageConfig,
 } from './config';
+import { getServiceSeo, serviceCategorySeo } from './serviceSeo';
 
 function categoryIdFromPath(pathname: string) {
   const match = pathname.match(/^\/services\/([^/]+)\/?$/);
@@ -204,20 +204,30 @@ export function Seo() {
     upsertMeta('property', 'og:title', page.title);
     upsertMeta('property', 'og:description', page.description);
     upsertMeta('property', 'og:url', url);
-    upsertMeta('property', 'og:image', DEFAULT_OG_IMAGE);
-    upsertMeta('property', 'og:image:secure_url', DEFAULT_OG_IMAGE);
+    const ogImage =
+      category?.images?.[0] && category.images[0].startsWith('http')
+        ? category.images[0]
+        : category?.images?.[0]
+          ? absoluteUrl(category.images[0])
+          : DEFAULT_OG_IMAGE;
+    const ogImageAlt = category
+      ? `${category.name} in Dhaka — ${SITE_NAME}`
+      : DEFAULT_OG_IMAGE_ALT;
+
+    upsertMeta('property', 'og:image', ogImage);
+    upsertMeta('property', 'og:image:secure_url', ogImage);
     upsertMeta('property', 'og:image:type', DEFAULT_OG_IMAGE_TYPE);
     upsertMeta('property', 'og:image:width', DEFAULT_OG_IMAGE_WIDTH);
     upsertMeta('property', 'og:image:height', DEFAULT_OG_IMAGE_HEIGHT);
-    upsertMeta('property', 'og:image:alt', DEFAULT_OG_IMAGE_ALT);
+    upsertMeta('property', 'og:image:alt', ogImageAlt);
     upsertMeta('property', 'og:locale', 'en_BD');
     upsertMeta('property', 'og:locale:alternate', 'bn_BD');
 
     upsertMeta('name', 'twitter:card', 'summary_large_image');
     upsertMeta('name', 'twitter:title', page.title);
     upsertMeta('name', 'twitter:description', page.description);
-    upsertMeta('name', 'twitter:image', DEFAULT_OG_IMAGE);
-    upsertMeta('name', 'twitter:image:alt', DEFAULT_OG_IMAGE_ALT);
+    upsertMeta('name', 'twitter:image', ogImage);
+    upsertMeta('name', 'twitter:image:alt', ogImageAlt);
 
     upsertLink('canonical', url);
     upsertLink('alternate', url, { hrefLang: 'en-BD' });
@@ -347,11 +357,14 @@ export function Seo() {
     if (breadcrumbs) upsertJsonLd('seo-breadcrumbs', breadcrumbs);
     else document.getElementById('seo-breadcrumbs')?.remove();
 
-    if (pathname === '/') {
+    const serviceProfile = category ? getServiceSeo(category.id) : undefined;
+    const pageFaqs = pathname === '/' ? SITE_FAQS : serviceProfile?.faqs;
+
+    if (pageFaqs?.length) {
       upsertJsonLd('seo-faq', {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: SITE_FAQS.map((faq) => ({
+        mainEntity: pageFaqs.map((faq) => ({
           '@type': 'Question',
           name: faq.question,
           acceptedAnswer: {
@@ -365,22 +378,43 @@ export function Seo() {
     }
 
     if (category) {
+      const serviceImage =
+        category.images?.[0]?.startsWith('http')
+          ? category.images[0]
+          : category.images?.[0]
+            ? absoluteUrl(category.images[0])
+            : DEFAULT_OG_IMAGE;
+
       upsertJsonLd('seo-service', {
         '@context': 'https://schema.org',
         '@type': 'Service',
-        name: category.name,
-        description: category.details?.trim() || category.description,
+        name: serviceProfile?.headline || category.name,
+        alternateName: category.name,
+        description:
+          serviceProfile?.description || category.details?.trim() || category.description,
         serviceType: category.name,
         provider: {
           '@id': localBusinessId,
         },
-        areaServed: {
-          '@type': 'City',
-          name: 'Dhaka',
-        },
+        areaServed: [
+          { '@type': 'City', name: 'Dhaka' },
+          { '@type': 'AdministrativeArea', name: 'Dhaka Metro' },
+        ],
         url: absoluteUrl(`/services/${category.id}`),
-        image: category.images?.[0] ? absoluteUrl(category.images[0]) : DEFAULT_OG_IMAGE,
-        keywords: categoryTags.join(', '),
+        image: serviceImage,
+        keywords: mergeKeywords(serviceProfile?.keywords, categoryTags),
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: `${category.name} options`,
+          itemListElement: category.services.map((item) => ({
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: item.name,
+              areaServed: 'Dhaka Metro, Bangladesh',
+            },
+          })),
+        },
         ...(aggregateRating ? { aggregateRating } : {}),
       });
     } else {

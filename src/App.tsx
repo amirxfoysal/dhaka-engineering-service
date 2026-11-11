@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { BottomNav } from './components/BottomNav';
 import { HelplineSection } from './components/HelplineSection';
@@ -11,8 +12,11 @@ import { ClientsPage } from './pages/ClientsPage';
 import { BookingPage } from './pages/BookingPage';
 import { BookingsPage } from './pages/BookingsPage';
 import { TrackingPage } from './pages/TrackingPage';
-import { AdminApp } from './admin/AdminApp';
 import { Seo } from './seo/Seo';
+
+const AdminApp = lazy(() =>
+  import('./admin/AdminApp').then((module) => ({ default: module.AdminApp })),
+);
 
 function shouldHideBottomNav(pathname: string) {
   if (pathname === '/book') return true;
@@ -27,7 +31,9 @@ export default function App() {
     return (
       <>
         <Seo />
-        <AdminApp />
+        <Suspense fallback={<div className="admin-boot">Loading admin…</div>}>
+          <AdminApp />
+        </Suspense>
       </>
     );
   }

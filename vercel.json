@@ -30,12 +30,28 @@
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, immutable" }]
     },
     {
-      "source": "/(robots.txt|sitemap.xml|site.webmanifest)",
+      "source": "/(robots.txt|sitemap.xml|site.webmanifest|llms.txt)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
+    },
+    {
+      "source": "/.well-known/ard.json",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/images/(.*)\\.(webp|jpg|jpeg|png|svg)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=2592000, immutable" }
+      ]
     }
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/((?!\\.well-known(?:/|$)|llms\\.txt$).*)",
+      "destination": "/index.html"
+    }
   ]
 }

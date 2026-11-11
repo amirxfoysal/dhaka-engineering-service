@@ -175,20 +175,6 @@ export function absoluteUrl(path = '/') {
   return `${SITE_URL.replace(/\/$/, '')}${normalized === '/' ? '/' : normalized}`;
 }
 
-export function serviceCategorySeo(
-  categoryName: string,
-  categoryId: string,
-  seoTags: string[] = [],
-): SeoPageConfig {
-  const lower = categoryName.toLowerCase();
-  return {
-    path: `/services/${categoryId}`,
-    title: `${categoryName} in Dhaka | Book Online | ${SITE_NAME}`,
-    description: `Professional ${lower} across Dhaka Metro. Book trusted technicians online with ${SITE_NAME} for fast, reliable home and commercial support.`,
-    keywords: mergeKeywords(categoryName, `${categoryName} Dhaka`, seoTags, DEFAULT_KEYWORDS),
-  };
-}
-
 export function toE164BdPhone(raw: string) {
   const digits = raw.replace(/\D/g, '');
   if (!digits) return '';

@@ -11,12 +11,16 @@ Allow: /apple-touch-icon.png
 Allow: /site.webmanifest
 Allow: /images/
 Allow: /sitemap.xml
+Allow: /llms.txt
+Allow: /.well-known/ard.json
 
 Disallow: /admin
 Disallow: /admin/
 Disallow: /bookings
 Disallow: /tracking
 Disallow: /api/
+
+Agentmap: https://dhakaengineering.com/.well-known/ard.json
 
 User-agent: Googlebot
 Allow: /

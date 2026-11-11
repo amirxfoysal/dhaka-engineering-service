@@ -13,7 +13,7 @@ export const DEFAULT_BANNERS: HeroBanner[] = [
     title: 'Your Trusted Engineering & Home Service Partner.',
     ctaLabel: 'Book a Service',
     linkTo: '/book',
-    image: '/images/hero-technician.jpg',
+    image: '/images/hero-technician-banner.jpg',
     active: true,
   },
   {
@@ -21,7 +21,7 @@ export const DEFAULT_BANNERS: HeroBanner[] = [
     title: 'Expert AC servicing for every home in Dhaka.',
     ctaLabel: 'Book AC Service',
     linkTo: '/services/ac',
-    image: '/images/ac-indoor.jpg',
+    image: '/images/ac-indoor-banner.jpg',
     active: true,
   },
   {
@@ -29,7 +29,7 @@ export const DEFAULT_BANNERS: HeroBanner[] = [
     title: 'Fast support for electrical, lift & appliance needs.',
     ctaLabel: 'Explore Services',
     linkTo: '/services',
-    image: '/images/ac-outdoor.jpg',
+    image: '/images/ac-outdoor-banner.jpg',
     active: true,
   },
 ];

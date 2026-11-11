@@ -16,6 +16,7 @@ dist-ssr
 .env.*.local
 !.env.example
 .vercel
+public/images/.originals/
 
 # Editor directories and files
 .vscode/*

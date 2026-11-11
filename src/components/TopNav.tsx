@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { CalendarDays } from 'lucide-react';
+import { OptimizedImage } from './OptimizedImage';
 import './TopNav.css';
 
 const links = [
@@ -15,11 +16,19 @@ export function TopNav() {
   return (
     <header className="top-nav">
       <div className="top-nav__inner">
-        <button type="button" className="top-nav__brand" onClick={() => navigate('/')}>
-          <img
+        <button
+          type="button"
+          className="top-nav__brand"
+          aria-label="Dhaka Engineering Service home"
+          onClick={() => navigate('/')}
+        >
+          <OptimizedImage
             src="/images/logo.png"
-            alt=""
+            alt="Dhaka Engineering Service"
             className="top-nav__logo"
+            width={160}
+            height={84}
+            priority
           />
           <span className="top-nav__divider" aria-hidden="true">
             |

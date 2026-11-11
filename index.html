@@ -28,6 +28,8 @@
     <link rel="canonical" href="https://dhakaengineering.com/" />
     <link rel="alternate" hrefLang="en-BD" href="https://dhakaengineering.com/" />
     <link rel="alternate" hrefLang="x-default" href="https://dhakaengineering.com/" />
+    <link rel="ard" href="https://dhakaengineering.com/.well-known/ard.json" type="application/json" />
+    <link rel="describedby" href="https://dhakaengineering.com/llms.txt" type="text/plain" />
 
     <!--
       Search Console / Bing Webmaster verification:
@@ -82,12 +84,36 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
+    <link
+      rel="preload"
+      as="image"
+      href="/images/hero-technician-banner-640.webp"
+      type="image/webp"
+      imagesrcset="/images/hero-technician-banner-640.webp 640w, /images/hero-technician-banner-960.webp 960w, /images/hero-technician-banner-1280.webp 1280w"
+      imagesizes="(max-width: 767px) 92vw, (max-width: 1024px) 720px, 1120px"
+      fetchpriority="high"
+    />
+    <link rel="preload" as="image" href="/images/logo.webp" type="image/webp" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
 
     <script id="seo-website-identity" type="application/ld+json">
       {

@@ -94,12 +94,14 @@ export function createServiceItem(name: string, id?: string, tags: string[] = []
   };
 }
 
-function defaultItemTags(itemName: string, categoryName: string): string[] {
+function defaultItemTags(itemName: string, categoryName: string, extra: string[] = []): string[] {
   return normalizeTags([
     itemName,
     `${itemName} Dhaka`,
+    `${itemName} in Dhaka`,
     `${itemName} Bangladesh`,
     `${categoryName} Dhaka`,
+    ...extra,
   ]);
 }
 
@@ -110,7 +112,7 @@ function makeCategory(
   description: string,
   details: string,
   icon: ServiceIconId,
-  items: string[],
+  items: Array<string | { name: string; tags?: string[] }>,
   tags: string[] = [],
 ): ServiceCategory {
   return {
@@ -121,8 +123,21 @@ function makeCategory(
     details,
     icon,
     images: createCategoryImages(id.length),
-    services: items.map((item) => createServiceItem(item, undefined, defaultItemTags(item, name))),
-    tags: normalizeTags(tags.length ? tags : [`${name} Dhaka`, `${name} Bangladesh`, name]),
+    services: items.map((item) => {
+      if (typeof item === 'string') {
+        return createServiceItem(item, undefined, defaultItemTags(item, name));
+      }
+      return createServiceItem(
+        item.name,
+        undefined,
+        defaultItemTags(item.name, name, item.tags ?? []),
+      );
+    }),
+    tags: normalizeTags(
+      tags.length
+        ? tags
+        : [`${name} Dhaka`, `${name} in Dhaka`, `${name} Bangladesh`, name, 'Dhaka Engineering Service'],
+    ),
   };
 }
 
@@ -131,96 +146,139 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     'ac',
     'AC Services',
     'AC Services',
-    'Keep your space cool & comfortable',
-    'Our AC technicians handle installation, servicing, gas refill, and repairs for split and window units across Dhaka. We diagnose cooling issues, clean indoor and outdoor units, restore airflow, and make sure your system runs efficiently with clear on-site guidance after every visit.',
+    'AC installation, servicing, gas refill & repair in Dhaka',
+    'Dhaka Engineering Service provides AC installation, general servicing, gas refill, jet wash, hydro wash, and repair for split and window units across Dhaka Metro. Our technicians diagnose cooling issues, clean indoor and outdoor units, restore airflow, and help your system run efficiently with clear guidance after every visit in Mirpur, Uttara, Gulshan, Banani, Dhanmondi, and nearby areas.',
     'ac',
     [
-      'AC Installation',
-      'AC General Servicing',
-      'AC Gas Refill',
-      'AC Repair',
-      'AC Jet Wash',
-      'AC Hydro Wash',
+      { name: 'AC Installation', tags: ['split AC installation Dhaka', 'window AC installation'] },
+      { name: 'AC General Servicing', tags: ['AC servicing Dhaka', 'AC cleaning Dhaka'] },
+      { name: 'AC Gas Refill', tags: ['AC gas charge Dhaka', 'AC freon refill'] },
+      { name: 'AC Repair', tags: ['AC not cooling Dhaka', 'AC technician Dhaka'] },
+      { name: 'AC Jet Wash', tags: ['AC deep clean Dhaka'] },
+      { name: 'AC Hydro Wash', tags: ['AC hydro cleaning Dhaka'] },
+    ],
+    [
+      'AC service Dhaka',
+      'AC repair Dhaka',
+      'AC gas refill Dhaka',
+      'AC installation Dhaka',
+      'split AC service Dhaka',
+      'AC technician Dhaka',
     ],
   ),
   makeCategory(
     'electrical',
     'Electrical Services',
     'Electrical Services',
-    'Safe & reliable electrical solutions',
-    'From new wiring to emergency callouts, our electricians deliver safe residential and commercial electrical work. We repair switchboards, install fans and lighting, fix circuit breakers, and leave every job tested so your power system stays dependable.',
+    'Electricians for wiring, switchboard & lighting in Dhaka',
+    'From new wiring to emergency callouts, Dhaka Engineering Service delivers safe residential and commercial electrical work across Dhaka. We repair switchboards, install fans and lighting, fix circuit breakers, and leave every job tested so apartments, homes, and offices stay powered safely.',
     'electrical',
     [
-      'Wiring & Rewiring',
-      'Switchboard Repair',
-      'Fan Installation',
-      'Lighting Setup',
-      'Circuit Breaker Fix',
-      'Emergency Callout',
+      { name: 'Wiring & Rewiring', tags: ['house wiring Dhaka', 'electrical rewiring Dhaka'] },
+      { name: 'Switchboard Repair', tags: ['DB board repair Dhaka'] },
+      { name: 'Fan Installation', tags: ['ceiling fan installation Dhaka'] },
+      { name: 'Lighting Setup', tags: ['LED light installation Dhaka'] },
+      { name: 'Circuit Breaker Fix', tags: ['MCB repair Dhaka'] },
+      { name: 'Emergency Callout', tags: ['emergency electrician Dhaka'] },
+    ],
+    [
+      'electrical service Dhaka',
+      'electrician Dhaka',
+      'house wiring Dhaka',
+      'switchboard repair Dhaka',
+      'emergency electrician Dhaka',
     ],
   ),
   makeCategory(
     'lift',
     'Lift Services',
     'Lift Services',
-    'Professional lift maintenance & repair',
-    'We provide professional lift installation support, scheduled maintenance, emergency repair, and safety inspections. Our team checks motors, doors, control systems, and ride quality so buildings stay compliant and passengers travel safely.',
+    'Lift maintenance, repair & safety inspection in Dhaka',
+    'We provide professional lift installation support, monthly maintenance, emergency repair, and safety inspections for apartments and commercial buildings in Dhaka. Our team checks motors, doors, control systems, and ride quality so passengers travel safely and buildings stay reliable.',
     'lift',
     [
-      'Lift Installation',
-      'Monthly Maintenance',
-      'Emergency Repair',
-      'Safety Inspection',
-      'Door Adjustment',
-      'Motor Servicing',
+      { name: 'Lift Installation', tags: ['elevator installation Dhaka'] },
+      { name: 'Monthly Maintenance', tags: ['lift AMC Dhaka', 'elevator maintenance Dhaka'] },
+      { name: 'Emergency Repair', tags: ['lift breakdown repair Dhaka'] },
+      { name: 'Safety Inspection', tags: ['lift safety check Dhaka'] },
+      { name: 'Door Adjustment', tags: ['lift door repair Dhaka'] },
+      { name: 'Motor Servicing', tags: ['lift motor repair Dhaka'] },
+    ],
+    [
+      'lift maintenance Dhaka',
+      'lift repair Dhaka',
+      'elevator service Dhaka',
+      'lift safety inspection Dhaka',
+      'lift AMC Dhaka',
     ],
   ),
   makeCategory(
     'appliances',
     'Home Appliances',
     'Home Appliances',
-    'Repair & care for home appliances',
-    'Our appliance specialists repair and service refrigerators, washing machines, ovens, microwaves, water purifiers, and more. We identify faults quickly, replace worn parts when needed, and restore everyday appliances so your home runs smoothly again.',
+    'Fridge, washing machine & appliance repair in Dhaka',
+    'Our appliance specialists repair and service refrigerators, washing machines, ovens, microwaves, water purifiers, and more across Dhaka Metro. We identify faults quickly, replace worn parts when needed, and restore everyday appliances so your home runs smoothly again.',
     'appliances',
     [
-      'Refrigerator Repair',
-      'Washing Machine Service',
-      'Oven / Microwave Fix',
-      'Water Purifier Service',
-      'TV Mounting',
-      'General Appliance Check',
+      { name: 'Refrigerator Repair', tags: ['fridge repair Dhaka', 'freezer repair Dhaka'] },
+      { name: 'Washing Machine Service', tags: ['washing machine repair Dhaka'] },
+      { name: 'Oven / Microwave Fix', tags: ['microwave repair Dhaka', 'oven repair Dhaka'] },
+      { name: 'Water Purifier Service', tags: ['water filter service Dhaka'] },
+      { name: 'TV Mounting', tags: ['TV wall mount Dhaka'] },
+      { name: 'General Appliance Check', tags: ['home appliance technician Dhaka'] },
+    ],
+    [
+      'home appliances repair Dhaka',
+      'refrigerator repair Dhaka',
+      'washing machine service Dhaka',
+      'microwave repair Dhaka',
+      'appliance technician Dhaka',
     ],
   ),
   makeCategory(
     'motor',
     'Motor Services',
     'Motor Services',
-    'Pump & motor repair specialists',
-    'We service water pumps, motors, generators, and related mechanical systems with careful diagnosis and durable repairs. From rewinding and bearing replacement to submersible pump support, our technicians keep essential equipment working reliably.',
+    'Water pump & motor repair specialists in Dhaka',
+    'We service water pumps, motors, generators, and related mechanical systems with careful diagnosis and durable repairs across Dhaka. From rewinding and bearing replacement to submersible pump support, our technicians keep essential equipment working reliably for homes and buildings.',
     'motor',
     [
-      'Water Pump Repair',
-      'Motor Rewinding',
-      'Submersible Pump Service',
-      'Generator Check',
-      'Bearing Replacement',
-      'Installation Support',
+      { name: 'Water Pump Repair', tags: ['water pump service Dhaka'] },
+      { name: 'Motor Rewinding', tags: ['motor winding Dhaka'] },
+      { name: 'Submersible Pump Service', tags: ['submersible pump repair Dhaka'] },
+      { name: 'Generator Check', tags: ['generator service Dhaka'] },
+      { name: 'Bearing Replacement', tags: ['motor bearing repair Dhaka'] },
+      { name: 'Installation Support', tags: ['pump installation Dhaka'] },
+    ],
+    [
+      'motor repair Dhaka',
+      'water pump repair Dhaka',
+      'motor rewinding Dhaka',
+      'submersible pump service Dhaka',
+      'generator service Dhaka',
     ],
   ),
   makeCategory(
     'commercial',
     'Commercial Services',
     'Commercial Services',
-    'Engineering support for businesses',
-    'Businesses trust us for office AC maintenance, commercial electrical work, facility inspections, HVAC contracts, and industrial motor service. We plan visits around your operations and deliver consistent engineering support under clear service agreements.',
+    'Commercial AC, electrical & facility engineering in Dhaka',
+    'Businesses across Dhaka trust Dhaka Engineering Service for office AC maintenance, commercial electrical work, facility inspections, HVAC contracts, industrial motor service, and annual maintenance. We plan visits around your operations and deliver consistent engineering support under clear service agreements.',
     'commercial',
     [
-      'Office AC Maintenance',
-      'Commercial Electrical',
-      'Facility Inspection',
-      'HVAC Contract',
-      'Industrial Motor Service',
-      'Annual Maintenance',
+      { name: 'Office AC Maintenance', tags: ['commercial AC service Dhaka'] },
+      { name: 'Commercial Electrical', tags: ['office electrician Dhaka'] },
+      { name: 'Facility Inspection', tags: ['facility maintenance Dhaka'] },
+      { name: 'HVAC Contract', tags: ['HVAC AMC Dhaka'] },
+      { name: 'Industrial Motor Service', tags: ['industrial motor repair Dhaka'] },
+      { name: 'Annual Maintenance', tags: ['AMC service Dhaka'] },
+    ],
+    [
+      'commercial engineering service Dhaka',
+      'office AC maintenance Dhaka',
+      'commercial electrician Dhaka',
+      'HVAC AMC Dhaka',
+      'facility maintenance Dhaka',
     ],
   ),
 ];
@@ -270,9 +328,17 @@ export function normalizeCategory(raw: Partial<ServiceCategory> & { id?: string 
         ? images.slice(0, CATEGORY_IMAGE_COUNT)
         : createCategoryImages(id.length),
     services: services.length
-      ? services
+      ? services.map((service) => {
+          const seedService = seed?.services.find(
+            (item) => item.id === service.id || item.name === service.name,
+          );
+          return {
+            ...service,
+            tags: normalizeTags([...(service.tags ?? []), ...(seedService?.tags ?? [])]),
+          };
+        })
       : seed?.services.map((service) => ({ ...service, tags: [...service.tags] })) || [],
-    tags: normalizeTags(raw.tags ?? seed?.tags ?? []),
+    tags: normalizeTags([...(raw.tags ?? []), ...(seed?.tags ?? [])]),
   };
 }
 

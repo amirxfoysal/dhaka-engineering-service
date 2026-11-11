@@ -15,6 +15,10 @@ import {
 import './AdminBannersPage.css';
 
 const IMAGE_OPTIONS = [
+  { value: '/images/hero-technician-banner.jpg', label: 'Technician Banner' },
+  { value: '/images/ac-indoor-banner.jpg', label: 'AC Indoor Banner' },
+  { value: '/images/ac-outdoor-banner.jpg', label: 'AC Outdoor Banner' },
+  { value: '/images/ac-offer-banner.jpg', label: 'AC Offer Banner' },
   { value: '/images/hero-technician.jpg', label: 'Technician' },
   { value: '/images/ac-indoor.jpg', label: 'AC Indoor' },
   { value: '/images/ac-outdoor.jpg', label: 'AC Outdoor' },

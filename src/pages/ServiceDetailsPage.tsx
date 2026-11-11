@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Check, ChevronLeft, ChevronRight, Clock3, HandCoins, Star, UserRound } from 'lucide-react';
+import { OptimizedImage } from '../components/OptimizedImage';
 import { PageHeader } from '../components/PageHeader';
 import { StarRating } from '../components/StarRating';
 import { useReviews } from '../context/ReviewsContext';
 import { useServices } from '../context/ServicesContext';
 import { useToast } from '../context/ToastContext';
+import { getServiceSeo } from '../seo/serviceSeo';
 import './ServiceDetailsPage.css';
 
 function matchesServiceReview(reviewServiceName: string, serviceNames: string[]) {
@@ -32,7 +34,14 @@ function CategoryGallery({ title, images }: { title: string; images: string[] })
   return (
     <div className="service-gallery">
       <div className="service-gallery__main">
-        <img src={gallery[index]} alt={`${title} photo ${index + 1}`} />
+        <OptimizedImage
+          src={gallery[index]}
+          alt={`${title} photo ${index + 1}`}
+          width={800}
+          height={600}
+          sizes="(max-width: 767px) 100vw, 420px"
+          priority={index === 0}
+        />
         {gallery.length > 1 && (
           <>
             <button
@@ -67,7 +76,7 @@ function CategoryGallery({ title, images }: { title: string; images: string[] })
             aria-selected={imageIndex === index}
             onClick={() => setIndex(imageIndex)}
           >
-            <img src={image} alt="" />
+            <OptimizedImage src={image} alt="" width={96} height={72} />
           </button>
         ))}
       </div>
@@ -140,7 +149,11 @@ export function ServiceDetailsPage() {
     });
   }
 
+  const seo = getServiceSeo(category.id);
   const detailsText = category.details.trim();
+  const categoryName = category.name;
+  const headline = seo?.headline || `${categoryName} in Dhaka`;
+  const introText = seo?.intro || category.description;
 
   function renderAbout(slot: 'desktop' | 'mobile') {
     if (!detailsText) return null;
@@ -150,8 +163,15 @@ export function ServiceDetailsPage() {
         className={`service-details__about service-details__about--${slot}`}
         aria-labelledby={titleId}
       >
-        <h3 id={titleId}>Service Description</h3>
+        <h3 id={titleId}>About {categoryName} in Dhaka</h3>
         <p>{detailsText}</p>
+        {seo?.highlights?.length ? (
+          <ul className="service-details__highlights">
+            {seo.highlights.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : null}
       </section>
     );
   }
@@ -175,8 +195,8 @@ export function ServiceDetailsPage() {
             <span>{category.shortName}</span>
           </nav>
           <p className="service-details__eyebrow">{category.shortName} in Dhaka</p>
-          <p className="service-details__title">{category.name}</p>
-          <p className="service-details__intro">{category.description}</p>
+          <h2 className="service-details__title">{headline}</h2>
+          <p className="service-details__intro">{introText}</p>
 
           <section className="service-details__picker-section" aria-labelledby="service-items-title">
             <div className="service-details__section-head">
@@ -223,6 +243,20 @@ export function ServiceDetailsPage() {
           </button>
 
           {renderAbout('mobile')}
+
+          {seo?.faqs?.length ? (
+            <section className="service-details__faq" aria-labelledby="service-faq-title">
+              <h3 id="service-faq-title">Frequently asked questions</h3>
+              <div className="service-details__faq-list">
+                {seo.faqs.map((faq) => (
+                  <details key={faq.question} className="service-details__faq-item">
+                    <summary>{faq.question}</summary>
+                    <p>{faq.answer}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section className="why-choose" aria-labelledby="why-choose-title">
             <h3 id="why-choose-title">Why Choose Us?</h3>

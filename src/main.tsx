@@ -21,8 +21,8 @@ createRoot(document.getElementById('root')!).render(
       <ToastProvider>
         <AdminAuthProvider>
           <SettingsProvider>
-            <ServicesProvider>
-              <AppBootGate>
+            <AppBootGate>
+              <ServicesProvider>
                 <BannersProvider>
                   <OffersProvider>
                     <ClientsProvider>
@@ -36,8 +36,8 @@ createRoot(document.getElementById('root')!).render(
                     </ClientsProvider>
                   </OffersProvider>
                 </BannersProvider>
-              </AppBootGate>
-            </ServicesProvider>
+              </ServicesProvider>
+            </AppBootGate>
           </SettingsProvider>
         </AdminAuthProvider>
       </ToastProvider>

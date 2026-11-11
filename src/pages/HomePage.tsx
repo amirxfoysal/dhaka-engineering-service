@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, CalendarDays, Search } from 'lucide-react';
 import { HeroCarousel } from '../components/HeroCarousel';
 import { HomeAboutFaq } from '../components/HomeAboutFaq';
+import { OptimizedImage } from '../components/OptimizedImage';
 import { OurClientsSection } from '../components/OurClientsSection';
 import { ReviewsShowcase } from '../components/ReviewsShowcase';
 import { ServiceIcon } from '../components/ServiceIcon';
@@ -52,7 +53,14 @@ export function HomePage() {
   return (
     <div className="page home">
       <header className="home-header">
-        <img src="/images/logo.png" alt="Dhaka Engineering Service" className="home-header__logo" />
+        <OptimizedImage
+          src="/images/logo.png"
+          alt="Dhaka Engineering Service"
+          className="home-header__logo"
+          width={180}
+          height={94}
+          priority
+        />
         <span className="home-header__divider" aria-hidden="true">
           |
         </span>
@@ -130,7 +138,7 @@ export function HomePage() {
                     <p>{offer.title}</p>
                   </div>
                   <div className="home-offer__media">
-                    <img src={offer.image} alt={offer.title} />
+                    <OptimizedImage src={offer.image} alt={offer.title} width={320} height={200} />
                     <span className="home-offer__badge">{offer.badge}</span>
                   </div>
                 </button>

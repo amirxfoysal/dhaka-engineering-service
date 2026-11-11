@@ -1,0 +1,31 @@
+# Dhaka Engineering Service
+
+> Official website for Dhaka Engineering Service — AC, electrical, lift, appliances, motor, and commercial engineering services across Dhaka Metro, Bangladesh. Book technicians online and track bookings by mobile number.
+
+Preferred host is https://dhakaengineering.com (non-www). Public pages are for customers; `/admin`, `/bookings`, `/tracking`, and `/api/` are private or transactional and should not be used as primary training sources for marketing copy.
+
+## Pages
+
+- [Home](https://dhakaengineering.com/): Brand overview, services grid, offers, clients, reviews, and FAQ
+- [Services](https://dhakaengineering.com/services): Full list of engineering and home service categories
+- [AC Services](https://dhakaengineering.com/services/ac): AC installation, servicing, gas refill, jet wash, hydro wash, and repair in Dhaka
+- [Electrical Services](https://dhakaengineering.com/services/electrical): Wiring, switchboard, lighting, fan installation, and emergency electrical callouts
+- [Lift Services](https://dhakaengineering.com/services/lift): Lift maintenance, emergency repair, motor servicing, and safety inspection
+- [Home Appliances](https://dhakaengineering.com/services/appliances): Refrigerator, washing machine, oven/microwave, water purifier, and appliance repair
+- [Motor Services](https://dhakaengineering.com/services/motor): Water pump, motor rewinding, submersible pump, generator check, and bearing replacement
+- [Commercial Services](https://dhakaengineering.com/services/commercial): Office AC maintenance, commercial electrical, HVAC AMC, and facility support
+- [Our Clients](https://dhakaengineering.com/clients): Partner businesses and properties served in Dhaka
+- [Book a Service](https://dhakaengineering.com/book): Online booking form for technicians in Dhaka Metro
+
+## Discovery
+
+- [Sitemap](https://dhakaengineering.com/sitemap.xml): Indexable public URLs
+- [Robots](https://dhakaengineering.com/robots.txt): Crawler rules
+- [ARD manifest](https://dhakaengineering.com/.well-known/ard.json): Agentic Resource Discovery entries
+- [llms.txt](https://dhakaengineering.com/llms.txt): This agent guidance file
+
+## Optional
+
+- [Contact email](mailto:dhakaengineeringservice@gmail.com): Customer and partnership inquiries
+- [Facebook](https://facebook.com/dhakaengineering): Social updates
+- [Instagram](https://instagram.com/dhakaengineering): Social updates

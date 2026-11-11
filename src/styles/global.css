@@ -182,6 +182,16 @@ ul {
   padding-left: 2px;
 }
 
+.admin-boot {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--text-secondary);
+  background: var(--bg);
+  font-family: var(--font-ui);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

@@ -17,9 +17,14 @@
   height: 210px;
 }
 
+.service-gallery__main picture,
 .service-gallery__main img {
   width: 100%;
   height: 100%;
+  display: block;
+}
+
+.service-gallery__main img {
   object-fit: cover;
   object-position: center;
 }
@@ -76,9 +81,14 @@
   border-color: var(--primary-blue);
 }
 
+.service-gallery__thumb picture,
 .service-gallery__thumb img {
   width: 100%;
   height: 100%;
+  display: block;
+}
+
+.service-gallery__thumb img {
   object-fit: cover;
 }
 
@@ -156,6 +166,66 @@
   font-weight: 700;
   color: var(--primary-navy);
   margin-bottom: 8px;
+}
+
+.service-details__highlights {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.service-details__faq {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e6ebf3;
+}
+
+.service-details__faq h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-navy);
+}
+
+.service-details__faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.service-details__faq-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0 12px;
+  background: #fbfcfe;
+}
+
+.service-details__faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.service-details__faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.service-details__faq-item p {
+  margin: 0;
+  padding: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
 }
 
 .service-details__about p {

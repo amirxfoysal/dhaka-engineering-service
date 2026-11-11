@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Clock3, Mail, MapPinned, Phone } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { OptimizedImage } from './OptimizedImage';
 import './SiteFooter.css';
 
 const quickLinks = [
@@ -22,10 +23,12 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="site-footer__inner">
         <div className="site-footer__brand">
-          <img
+          <OptimizedImage
             src="/images/logo-light.png"
             alt={settings.businessName}
             className="site-footer__logo"
+            width={220}
+            height={115}
           />
           <p className="site-footer__tagline">{settings.tagline}</p>
         </div>
