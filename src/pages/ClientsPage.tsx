@@ -20,7 +20,7 @@ export function ClientsPage() {
             {activeClients.map((client) => (
               <li key={client.id} className="clients-page__item">
                 <div className="clients-page__logo">
-                  <img src={client.logo} alt="" loading="lazy" />
+                  <img src={client.logo} alt="" width={160} height={80} loading="lazy" decoding="async" />
                 </div>
                 <span className="clients-page__name">{client.name}</span>
               </li>

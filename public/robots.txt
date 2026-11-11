@@ -20,8 +20,6 @@ Disallow: /bookings
 Disallow: /tracking
 Disallow: /api/
 
-Agentmap: https://dhakaengineering.com/.well-known/ard.json
-
 User-agent: Googlebot
 Allow: /
 Allow: /favicon.ico

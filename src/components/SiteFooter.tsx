@@ -24,11 +24,11 @@ export function SiteFooter() {
       <div className="site-footer__inner">
         <div className="site-footer__brand">
           <OptimizedImage
-            src="/images/logo-light.png"
+            src="/images/logo-light-220.webp"
             alt={settings.businessName}
             className="site-footer__logo"
             width={220}
-            height={115}
+            height={116}
           />
           <p className="site-footer__tagline">{settings.tagline}</p>
         </div>

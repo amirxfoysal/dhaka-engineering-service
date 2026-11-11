@@ -23,12 +23,12 @@ export function TopNav() {
           onClick={() => navigate('/')}
         >
           <OptimizedImage
-            src="/images/logo.png"
+            src="/images/logo-266.webp"
             alt="Dhaka Engineering Service"
             className="top-nav__logo"
-            width={160}
-            height={84}
-            priority
+            width={266}
+            height={140}
+            loading="eager"
           />
           <span className="top-nav__divider" aria-hidden="true">
             |

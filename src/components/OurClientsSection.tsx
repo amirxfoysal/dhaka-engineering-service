@@ -30,7 +30,14 @@ export function OurClientsSection() {
         {visibleClients.map((client) => (
           <li key={client.id} className="our-clients__item">
             <div className="our-clients__logo">
-              <img src={client.logo} alt={`${client.name} logo`} loading="lazy" decoding="async" />
+              <img
+                src={client.logo}
+                alt={`${client.name} logo`}
+                width={160}
+                height={80}
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <span className="our-clients__name">{client.name}</span>
           </li>

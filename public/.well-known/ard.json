@@ -1,93 +1,38 @@
 {
   "entries": [
     {
-      "identifier": "urn:air:dhakaengineering.com:website:home",
-      "displayName": "Dhaka Engineering Service",
-      "type": "text/html",
-      "url": "https://dhakaengineering.com/",
-      "description": "Official website for AC, electrical, lift, appliances, motor, and commercial engineering services across Dhaka Metro, Bangladesh. Customers can browse services and book technicians online.",
-      "tags": [
-        "Dhaka Engineering Service",
-        "AC service Dhaka",
-        "electrician Dhaka",
-        "lift maintenance Dhaka",
-        "home appliances repair Dhaka",
-        "engineering service Bangladesh"
-      ],
-      "capabilities": [
-        "ServiceCatalog",
-        "OnlineBooking",
-        "LocalBusinessInfo"
-      ],
-      "representativeQueries": [
-        "Dhaka Engineering Service",
-        "AC service and repair in Dhaka",
-        "Book an electrician in Dhaka Metro",
-        "Lift maintenance company in Dhaka",
-        "Home appliances repair near me in Dhaka"
-      ],
-      "version": "1.0.0",
-      "updatedAt": "2026-11-11T00:00:00Z",
-      "metadata": {
-        "preferredHost": "https://dhakaengineering.com",
-        "serviceArea": "Dhaka Metro, Bangladesh",
-        "businessType": "HomeAndConstructionBusiness"
-      },
-      "trustManifest": {
-        "identity": "https://dhakaengineering.com/",
-        "identityType": "https"
-      }
-    },
-    {
-      "identifier": "urn:air:dhakaengineering.com:catalog:services",
-      "displayName": "Dhaka Engineering Service — Services Catalog",
-      "type": "text/html",
-      "url": "https://dhakaengineering.com/services",
-      "description": "Catalog of AC, electrical, lift, appliances, motor, and commercial engineering services offered in Dhaka.",
-      "tags": [
-        "services",
-        "AC",
-        "electrical",
-        "lift",
-        "appliances",
-        "motor",
-        "commercial"
-      ],
-      "capabilities": [
-        "ServiceCatalog"
-      ],
-      "representativeQueries": [
-        "What services does Dhaka Engineering Service offer?",
-        "AC installation and gas refill in Dhaka",
-        "Commercial HVAC maintenance Dhaka"
-      ],
-      "version": "1.0.0",
-      "updatedAt": "2026-11-11T00:00:00Z",
-      "trustManifest": {
-        "identity": "https://dhakaengineering.com/",
-        "identityType": "https"
-      }
-    },
-    {
       "identifier": "urn:air:dhakaengineering.com:doc:llms-txt",
       "displayName": "Dhaka Engineering Service llms.txt",
       "type": "text/markdown",
       "url": "https://dhakaengineering.com/llms.txt",
-      "description": "Markdown guidance file describing how AI agents should understand and cite the Dhaka Engineering Service website.",
+      "description": "Markdown guidance file describing how AI agents should understand and cite the Dhaka Engineering Service website, including services, booking, and preferred host.",
       "tags": [
         "llms.txt",
-        "agent-discovery"
+        "agent-discovery",
+        "Dhaka Engineering Service",
+        "AC service Dhaka",
+        "electrician Dhaka"
       ],
       "capabilities": [
         "SiteMap",
-        "AgentGuidance"
+        "AgentGuidance",
+        "ServiceCatalog",
+        "LocalBusinessInfo"
       ],
       "representativeQueries": [
         "How should an AI agent crawl Dhaka Engineering Service?",
-        "What are the main pages on dhakaengineering.com?"
+        "What services does Dhaka Engineering Service offer in Dhaka?",
+        "How do customers book a technician on dhakaengineering.com?"
       ],
-      "version": "1.0.0",
+      "version": "1.1.0",
       "updatedAt": "2026-11-11T00:00:00Z",
+      "metadata": {
+        "preferredHost": "https://dhakaengineering.com",
+        "serviceArea": "Dhaka Metro, Bangladesh",
+        "businessType": "HomeAndConstructionBusiness",
+        "homeUrl": "https://dhakaengineering.com/",
+        "servicesUrl": "https://dhakaengineering.com/services"
+      },
       "trustManifest": {
         "identity": "https://dhakaengineering.com/",
         "identityType": "https"

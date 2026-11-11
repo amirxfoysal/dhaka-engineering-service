@@ -192,6 +192,10 @@ ul {
   font-family: var(--font-ui);
 }
 
+.route-fallback {
+  min-height: 40vh;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

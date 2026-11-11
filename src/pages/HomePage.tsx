@@ -12,6 +12,7 @@ import { useOffers } from '../context/OffersContext';
 import { useReviews } from '../context/ReviewsContext';
 import { useServices } from '../context/ServicesContext';
 import { useToast } from '../context/ToastContext';
+import { resolveOfferThumb } from '../utils/imageDelivery';
 import './HomePage.css';
 
 export function HomePage() {
@@ -54,12 +55,12 @@ export function HomePage() {
     <div className="page home">
       <header className="home-header">
         <OptimizedImage
-          src="/images/logo.png"
+          src="/images/logo-160.webp"
           alt="Dhaka Engineering Service"
           className="home-header__logo"
-          width={180}
-          height={94}
-          priority
+          width={160}
+          height={84}
+          loading="eager"
         />
         <span className="home-header__divider" aria-hidden="true">
           |
@@ -138,7 +139,13 @@ export function HomePage() {
                     <p>{offer.title}</p>
                   </div>
                   <div className="home-offer__media">
-                    <OptimizedImage src={offer.image} alt={offer.title} width={320} height={200} />
+                    <OptimizedImage
+                      src={resolveOfferThumb(offer.image)}
+                      alt={offer.title}
+                      width={216}
+                      height={144}
+                      sizes="108px"
+                    />
                     <span className="home-offer__badge">{offer.badge}</span>
                   </div>
                 </button>

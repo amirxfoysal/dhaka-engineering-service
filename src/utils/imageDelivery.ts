@@ -10,9 +10,20 @@ const HERO_BANNER_ALIASES: Record<string, string> = {
   '/images/ac-offer.jpg': '/images/ac-offer-banner.jpg',
 };
 
+/** Compact offer thumbs for the home promo card (displayed ~108×72). */
+const OFFER_THUMB_ALIASES: Record<string, string> = {
+  '/images/ac-offer.jpg': '/images/ac-offer-thumb-320.jpg',
+  '/images/ac-offer-banner.jpg': '/images/ac-offer-thumb-320.jpg',
+};
+
 export function resolveHeroImage(src: string) {
   const clean = src.split('?')[0] ?? src;
   return HERO_BANNER_ALIASES[clean] ?? src;
+}
+
+export function resolveOfferThumb(src: string) {
+  const clean = src.split('?')[0] ?? src;
+  return OFFER_THUMB_ALIASES[clean] ?? src;
 }
 
 export function isLocalRasterPath(src: string) {
