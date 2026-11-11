@@ -87,6 +87,25 @@
   padding-bottom: 28px;
 }
 
+.service-details__crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.service-details__crumbs a {
+  color: var(--primary-navy);
+  font-weight: 600;
+}
+
+.service-details__crumbs a:hover {
+  text-decoration: underline;
+}
+
 .service-details__eyebrow {
   font-size: 12px;
   font-weight: 600;

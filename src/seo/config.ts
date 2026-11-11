@@ -8,7 +8,7 @@ export const SITE_URL = 'https://dhakaengineering.com';
 
 export const SITE_NAME = 'Dhaka Engineering Service';
 
-export const SITE_ALTERNATE_NAMES = ['DES', 'Dhaka Engineering'] as const;
+export const SITE_ALTERNATE_NAMES = ['DES', 'Dhaka Engineering', 'Dhaka Engineering Services'] as const;
 
 export const SITE_TAGLINE = 'Your Trusted Engineering & Home Service Partner.';
 
@@ -16,6 +16,12 @@ export const SITE_TAGLINE = 'Your Trusted Engineering & Home Service Partner.';
 export const SITE_LOGO_URL = `${SITE_URL}/images/logo-mark.png`;
 
 export const SITE_THEME_COLOR = '#04275B';
+
+/** Approximate Dhaka Metro centroid for local business schema. */
+export const SITE_GEO = {
+  latitude: 23.8103,
+  longitude: 90.4125,
+} as const;
 
 /**
  * Optional Search Console / Bing verification tokens.
@@ -25,15 +31,20 @@ export const GOOGLE_SITE_VERIFICATION = '';
 export const BING_SITE_VERIFICATION = '';
 
 export const DEFAULT_DESCRIPTION =
-  'Book trusted AC, electrical, lift, appliances, motor, and commercial engineering services across Dhaka Metro. Fast booking, verified technicians, and reliable support.';
+  'Dhaka Engineering Service provides AC servicing, electrical work, lift maintenance, home appliances repair, motor, and commercial engineering across Dhaka Metro. Book verified technicians online.';
 
 export const DEFAULT_KEYWORDS = [
   'Dhaka Engineering Service',
   'AC service Dhaka',
+  'AC repair Dhaka',
   'electrical service Dhaka',
-  'lift maintenance Bangladesh',
+  'electrician Dhaka',
+  'lift maintenance Dhaka',
   'home appliances repair Dhaka',
+  'motor repair Dhaka',
+  'commercial engineering service Dhaka',
   'book technician Dhaka',
+  'home service Dhaka',
   'engineering service Bangladesh',
 ].join(', ');
 
@@ -51,6 +62,40 @@ export type SeoPageConfig = {
   keywords?: string;
   noindex?: boolean;
 };
+
+export type SeoFaqItem = {
+  question: string;
+  answer: string;
+};
+
+/** Visible FAQ copy shared by homepage UI and FAQ schema. */
+export const SITE_FAQS: SeoFaqItem[] = [
+  {
+    question: 'What services does Dhaka Engineering Service provide?',
+    answer:
+      'We provide AC servicing and repair, electrical installation and troubleshooting, lift maintenance, home appliances repair, motor work, and commercial engineering support across Dhaka Metro.',
+  },
+  {
+    question: 'Which areas in Dhaka do you cover?',
+    answer:
+      'We serve Dhaka Metro and nearby areas, including Mirpur, Uttara, Gulshan, Banani, Dhanmondi, Mohakhali, and surrounding localities. Share your address when booking and we will confirm availability.',
+  },
+  {
+    question: 'How do I book a technician online?',
+    answer:
+      'Open the Book a Service page, choose your service, enter your name, mobile number, address, preferred date and time, then submit. You can track status later with the same mobile number.',
+  },
+  {
+    question: 'How can I track my booking?',
+    answer:
+      'Go to Tracking, enter the mobile number used while booking, and view live status updates, technician details after confirmation, and service history.',
+  },
+  {
+    question: 'Do you offer emergency or same-day support?',
+    answer:
+      'Urgent requests are handled through our helpline and WhatsApp support. Call or message us for priority assistance, subject to technician availability in your area.',
+  },
+];
 
 export function mergeKeywords(...parts: Array<string | string[] | undefined>) {
   const seen = new Set<string>();
@@ -85,23 +130,23 @@ export const PAGE_SEO: Record<string, SeoPageConfig> = {
   },
   '/services': {
     path: '/services',
-    title: `Our Services | ${SITE_NAME}`,
+    title: `Engineering & Home Services in Dhaka | ${SITE_NAME}`,
     description:
-      'Explore AC, electrical, lift, home appliances, motor, and commercial engineering services from Dhaka Engineering Service.',
+      'Browse AC, electrical, lift, appliances, motor, and commercial engineering services in Dhaka. Compare options and book trusted technicians with Dhaka Engineering Service.',
     keywords: DEFAULT_KEYWORDS,
   },
   '/clients': {
     path: '/clients',
-    title: `Our Clients | ${SITE_NAME}`,
+    title: `Our Clients in Dhaka | ${SITE_NAME}`,
     description:
-      'See the businesses and property partners who trust Dhaka Engineering Service for AC, electrical, lift, and engineering support across Dhaka.',
+      'See the housing societies, commercial properties, and partners who trust Dhaka Engineering Service for AC, electrical, lift, and engineering support in Dhaka.',
     keywords: DEFAULT_KEYWORDS,
   },
   '/book': {
     path: '/book',
-    title: `Book a Service | ${SITE_NAME}`,
+    title: `Book a Technician in Dhaka | ${SITE_NAME}`,
     description:
-      'Book an engineering or home service online in minutes. Choose your service, share your address, and get a technician in Dhaka Metro.',
+      'Book AC, electrical, lift, appliances, motor, or commercial service online in minutes. Share your Dhaka address and preferred time to get a verified technician.',
     keywords: DEFAULT_KEYWORDS,
   },
   '/bookings': {
@@ -135,10 +180,19 @@ export function serviceCategorySeo(
   categoryId: string,
   seoTags: string[] = [],
 ): SeoPageConfig {
+  const lower = categoryName.toLowerCase();
   return {
     path: `/services/${categoryId}`,
-    title: `${categoryName} | ${SITE_NAME}`,
-    description: `Professional ${categoryName.toLowerCase()} in Dhaka Metro. Book trusted technicians with ${SITE_NAME}.`,
-    keywords: mergeKeywords(categoryName, seoTags, DEFAULT_KEYWORDS),
+    title: `${categoryName} in Dhaka | Book Online | ${SITE_NAME}`,
+    description: `Professional ${lower} across Dhaka Metro. Book trusted technicians online with ${SITE_NAME} for fast, reliable home and commercial support.`,
+    keywords: mergeKeywords(categoryName, `${categoryName} Dhaka`, seoTags, DEFAULT_KEYWORDS),
   };
+}
+
+export function toE164BdPhone(raw: string) {
+  const digits = raw.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('880')) return `+${digits}`;
+  if (digits.startsWith('0')) return `+880${digits.slice(1)}`;
+  return `+${digits}`;
 }

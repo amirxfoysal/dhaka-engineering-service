@@ -6,6 +6,7 @@ import './SiteFooter.css';
 const quickLinks = [
   { to: '/', label: 'Home' },
   { to: '/services', label: 'Services' },
+  { to: '/clients', label: 'Our Clients' },
   { to: '/book', label: 'Book a Service' },
   { to: '/bookings', label: 'My Booking' },
   { to: '/tracking', label: 'Tracking' },
@@ -64,19 +65,25 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h3>Services</h3>
+            <h3>Services in Dhaka</h3>
             <ul>
               <li>
-                <Link to="/services/ac">AC Services</Link>
+                <Link to="/services/ac">AC Service & Repair</Link>
               </li>
               <li>
-                <Link to="/services/electrical">Electrical</Link>
+                <Link to="/services/electrical">Electrical Service</Link>
               </li>
               <li>
-                <Link to="/services/lift">Lift Services</Link>
+                <Link to="/services/lift">Lift Maintenance</Link>
               </li>
               <li>
-                <Link to="/services/appliances">Home Appliances</Link>
+                <Link to="/services/appliances">Home Appliances Repair</Link>
+              </li>
+              <li>
+                <Link to="/services/motor">Motor Service</Link>
+              </li>
+              <li>
+                <Link to="/services/commercial">Commercial Engineering</Link>
               </li>
             </ul>
           </div>

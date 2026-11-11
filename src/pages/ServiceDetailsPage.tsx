@@ -167,8 +167,15 @@ export function ServiceDetailsPage() {
         </div>
 
         <div className="section-pad service-details__body">
-          <p className="service-details__eyebrow">{category.shortName}</p>
-          <h2 className="service-details__title">{category.name}</h2>
+          <nav className="service-details__crumbs" aria-label="Breadcrumb">
+            <Link to="/">Home</Link>
+            <span aria-hidden="true">/</span>
+            <Link to="/services">Services</Link>
+            <span aria-hidden="true">/</span>
+            <span>{category.shortName}</span>
+          </nav>
+          <p className="service-details__eyebrow">{category.shortName} in Dhaka</p>
+          <p className="service-details__title">{category.name}</p>
           <p className="service-details__intro">{category.description}</p>
 
           <section className="service-details__picker-section" aria-labelledby="service-items-title">

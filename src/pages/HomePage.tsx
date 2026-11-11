@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, CalendarDays, Search } from 'lucide-react';
 import { HeroCarousel } from '../components/HeroCarousel';
+import { HomeAboutFaq } from '../components/HomeAboutFaq';
 import { OurClientsSection } from '../components/OurClientsSection';
 import { ReviewsShowcase } from '../components/ReviewsShowcase';
 import { ServiceIcon } from '../components/ServiceIcon';
@@ -92,20 +93,17 @@ export function HomePage() {
         </div>
         <div className="home-services__grid">
           {filtered.map((cat) => (
-            <button
+            <Link
               key={cat.id}
-              type="button"
+              to={`/services/${cat.id}`}
               className="service-card"
-              onClick={() => {
-                showToast(`Opening ${cat.shortName}.`, 'info');
-                navigate(`/services/${cat.id}`);
-              }}
+              onClick={() => showToast(`Opening ${cat.shortName}.`, 'info')}
             >
               <span className="service-card__icon">
                 <ServiceIcon type={cat.icon} size={26} />
               </span>
               <span className="service-card__label">{cat.shortName}</span>
-            </button>
+            </Link>
           ))}
           {filtered.length === 0 && (
             <p className="home-services__empty">No services match your search.</p>
@@ -132,7 +130,7 @@ export function HomePage() {
                     <p>{offer.title}</p>
                   </div>
                   <div className="home-offer__media">
-                    <img src={offer.image} alt="" />
+                    <img src={offer.image} alt={offer.title} />
                     <span className="home-offer__badge">{offer.badge}</span>
                   </div>
                 </button>
@@ -152,6 +150,8 @@ export function HomePage() {
       <OurClientsSection />
 
       <ReviewsShowcase reviews={reviews} />
+
+      <HomeAboutFaq />
     </div>
   );
 }

@@ -1,0 +1,118 @@
+.home-seo {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.home-seo__about,
+.home-seo__faq {
+  background: #fff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.home-seo__eyebrow {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--primary-navy);
+}
+
+.home-seo__about h2,
+.home-seo__faq h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--primary-navy);
+}
+
+.home-seo__about p,
+.home-seo__faq-item p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.home-seo__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-seo__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f4f7fb;
+  color: var(--primary-navy);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.home-seo__links a:hover {
+  background: #e8eef8;
+}
+
+.home-seo__faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.home-seo__faq-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0 12px;
+  background: #fbfcfe;
+}
+
+.home-seo__faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.home-seo__faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.home-seo__faq-item[open] summary {
+  color: var(--primary-navy);
+}
+
+.home-seo__faq-item p {
+  padding: 0 0 12px;
+}
+
+@media (min-width: 900px) {
+  .home-seo {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .home-seo__about,
+  .home-seo__faq {
+    padding: 22px 20px;
+  }
+
+  .home-seo__about h2,
+  .home-seo__faq h2 {
+    font-size: 20px;
+  }
+}
