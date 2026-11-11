@@ -17,6 +17,7 @@ import {
   IMAGE_UPLOAD_ACCEPT,
   IMAGE_UPLOAD_SPECS,
   MAX_IMAGE_UPLOAD_LABEL,
+  deleteUploadedImage,
   getImageUploadHint,
   uploadImage,
 } from '../../utils/imageUpload';
@@ -196,12 +197,23 @@ export function AdminServicesPage() {
     }
   }
 
-  function removeImage(index: number) {
+  async function removeImage(index: number) {
+    const current = draft.images[index];
     setImageError('');
-    setDraft((d) => ({
-      ...d,
-      images: d.images.filter((_, imageIndex) => imageIndex !== index),
-    }));
+    try {
+      if (current) {
+        const deleted = await deleteUploadedImage(current);
+        if (deleted) showToast('Uploaded image deleted.', 'info');
+      }
+      setDraft((d) => ({
+        ...d,
+        images: d.images.filter((_, imageIndex) => imageIndex !== index),
+      }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not delete image.';
+      setImageError(message);
+      showToast(message, 'danger');
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -270,8 +282,12 @@ export function AdminServicesPage() {
   async function handleDelete() {
     if (!selectedId) return;
     if (!window.confirm('Remove this service category?')) return;
+    const images = selected?.images ?? draft.images;
     try {
       await removeCategory(selectedId);
+      for (const image of images) {
+        void deleteUploadedImage(image).catch(() => undefined);
+      }
       closePanel();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not remove category.';
@@ -458,7 +474,9 @@ export function AdminServicesPage() {
                       <button
                         type="button"
                         aria-label={`Remove image ${index + 1}`}
-                        onClick={() => removeImage(index)}
+                        onClick={() => {
+                          void removeImage(index);
+                        }}
                       >
                         <X size={14} />
                       </button>

@@ -4,6 +4,7 @@ import { useServices } from '../context/ServicesContext';
 import { collectCategorySeoTags } from '../data/services';
 import {
   ADMIN_SEO,
+  BING_SITE_VERIFICATION,
   DEFAULT_DESCRIPTION,
   DEFAULT_KEYWORDS,
   DEFAULT_OG_IMAGE,
@@ -11,9 +12,13 @@ import {
   DEFAULT_OG_IMAGE_HEIGHT,
   DEFAULT_OG_IMAGE_TYPE,
   DEFAULT_OG_IMAGE_WIDTH,
+  GOOGLE_SITE_VERIFICATION,
   PAGE_SEO,
+  SITE_ALTERNATE_NAMES,
+  SITE_LOGO_URL,
   SITE_NAME,
   SITE_TAGLINE,
+  SITE_THEME_COLOR,
   absoluteUrl,
   mergeKeywords,
   serviceCategorySeo,
@@ -111,8 +116,18 @@ export function Seo() {
     upsertMeta('name', 'description', page.description);
     upsertMeta('name', 'keywords', keywords);
     upsertMeta('name', 'robots', robots);
+    upsertMeta('name', 'googlebot', robots.includes('noindex') ? robots : 'index, follow, max-image-preview:large');
     upsertMeta('name', 'author', SITE_NAME);
     upsertMeta('name', 'application-name', SITE_NAME);
+    upsertMeta('name', 'apple-mobile-web-app-title', SITE_NAME);
+    upsertMeta('name', 'theme-color', SITE_THEME_COLOR);
+
+    if (GOOGLE_SITE_VERIFICATION) {
+      upsertMeta('name', 'google-site-verification', GOOGLE_SITE_VERIFICATION);
+    }
+    if (BING_SITE_VERIFICATION) {
+      upsertMeta('name', 'msvalidate.01', BING_SITE_VERIFICATION);
+    }
 
     upsertMeta('property', 'og:type', 'website');
     upsertMeta('property', 'og:site_name', SITE_NAME);
@@ -135,28 +150,68 @@ export function Seo() {
 
     upsertLink('canonical', url);
 
-    upsertJsonLd('seo-local-business', {
+    const homeUrl = absoluteUrl('/');
+    upsertJsonLd('seo-website-identity', {
       '@context': 'https://schema.org',
-      '@type': 'HomeAndConstructionBusiness',
-      name: SITE_NAME,
-      description: SITE_TAGLINE,
-      url: absoluteUrl('/'),
-      image: DEFAULT_OG_IMAGE,
-      telephone: '+8801700165892',
-      email: 'dhakaengineeringservice@gmail.com',
-      areaServed: {
-        '@type': 'City',
-        name: 'Dhaka',
-      },
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: 'Dhaka',
-        addressCountry: 'BD',
-      },
-      openingHours: 'Mo-Su 09:00-21:00',
-      keywords,
-      sameAs: [],
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': `${homeUrl}#organization`,
+          name: SITE_NAME,
+          alternateName: [...SITE_ALTERNATE_NAMES],
+          url: homeUrl,
+          logo: {
+            '@type': 'ImageObject',
+            url: SITE_LOGO_URL,
+            width: 256,
+            height: 256,
+          },
+          image: DEFAULT_OG_IMAGE,
+          telephone: '+8801700165892',
+          email: 'dhakaengineeringservice@gmail.com',
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: 'Dhaka',
+            addressCountry: 'BD',
+          },
+        },
+        {
+          '@type': 'WebSite',
+          '@id': `${homeUrl}#website`,
+          name: SITE_NAME,
+          alternateName: [...SITE_ALTERNATE_NAMES],
+          url: homeUrl,
+          publisher: { '@id': `${homeUrl}#organization` },
+          inLanguage: 'en-BD',
+        },
+        {
+          '@type': 'HomeAndConstructionBusiness',
+          '@id': `${homeUrl}#localbusiness`,
+          name: SITE_NAME,
+          description: SITE_TAGLINE,
+          url: homeUrl,
+          image: DEFAULT_OG_IMAGE,
+          logo: SITE_LOGO_URL,
+          telephone: '+8801700165892',
+          email: 'dhakaengineeringservice@gmail.com',
+          areaServed: {
+            '@type': 'City',
+            name: 'Dhaka',
+          },
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: 'Dhaka',
+            addressCountry: 'BD',
+          },
+          openingHours: 'Mo-Su 09:00-21:00',
+          keywords,
+          parentOrganization: { '@id': `${homeUrl}#organization` },
+        },
+      ],
     });
+
+    // Remove legacy single-entity script if an older build left it in the DOM.
+    document.getElementById('seo-local-business')?.remove();
 
     if (category) {
       upsertJsonLd('seo-service', {
@@ -167,6 +222,7 @@ export function Seo() {
         provider: {
           '@type': 'HomeAndConstructionBusiness',
           name: SITE_NAME,
+          url: homeUrl,
         },
         areaServed: 'Dhaka Metro, Bangladesh',
         url: absoluteUrl(`/services/${category.id}`),

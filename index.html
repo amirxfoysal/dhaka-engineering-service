@@ -15,11 +15,21 @@
       name="keywords"
       content="Dhaka Engineering Service, AC service Dhaka, electrical service Dhaka, lift maintenance Bangladesh, home appliances repair Dhaka, book technician Dhaka"
     />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large" />
     <meta name="author" content="Dhaka Engineering Service" />
     <meta name="application-name" content="Dhaka Engineering Service" />
+    <meta name="apple-mobile-web-app-title" content="Dhaka Engineering Service" />
     <meta name="format-detection" content="telephone=yes" />
     <link rel="canonical" href="https://dhakaengineering.com/" />
+
+    <!--
+      Search Console / Bing Webmaster verification:
+      Paste your real verification meta tags below after claiming the property.
+      Do not invent codes.
+      <meta name="google-site-verification" content="PASTE_GOOGLE_CODE_HERE" />
+      <meta name="msvalidate.01" content="PASTE_BING_CODE_HERE" />
+    -->
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Dhaka Engineering Service" />
@@ -58,8 +68,11 @@
       content="Dhaka Engineering Service — Your Trusted Engineering & Home Service Partner."
     />
 
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -69,26 +82,67 @@
       rel="stylesheet"
     />
 
-    <script type="application/ld+json">
+    <script id="seo-website-identity" type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "HomeAndConstructionBusiness",
-        "name": "Dhaka Engineering Service",
-        "description": "Your Trusted Engineering & Home Service Partner.",
-        "url": "https://dhakaengineering.com/",
-        "image": "https://dhakaengineering.com/images/og-banner.jpg",
-        "telephone": "+8801700165892",
-        "email": "dhakaengineeringservice@gmail.com",
-        "areaServed": {
-          "@type": "City",
-          "name": "Dhaka"
-        },
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Dhaka",
-          "addressCountry": "BD"
-        },
-        "openingHours": "Mo-Su 09:00-21:00"
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://dhakaengineering.com/#organization",
+            "name": "Dhaka Engineering Service",
+            "alternateName": ["DES", "Dhaka Engineering"],
+            "url": "https://dhakaengineering.com/",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://dhakaengineering.com/images/logo-mark.png",
+              "width": 256,
+              "height": 256
+            },
+            "image": "https://dhakaengineering.com/images/og-banner.jpg",
+            "telephone": "+8801700165892",
+            "email": "dhakaengineeringservice@gmail.com",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Dhaka",
+              "addressCountry": "BD"
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://dhakaengineering.com/#website",
+            "name": "Dhaka Engineering Service",
+            "alternateName": ["DES", "Dhaka Engineering"],
+            "url": "https://dhakaengineering.com/",
+            "publisher": {
+              "@id": "https://dhakaengineering.com/#organization"
+            },
+            "inLanguage": "en-BD"
+          },
+          {
+            "@type": "HomeAndConstructionBusiness",
+            "@id": "https://dhakaengineering.com/#localbusiness",
+            "name": "Dhaka Engineering Service",
+            "description": "Your Trusted Engineering & Home Service Partner.",
+            "url": "https://dhakaengineering.com/",
+            "image": "https://dhakaengineering.com/images/og-banner.jpg",
+            "logo": "https://dhakaengineering.com/images/logo-mark.png",
+            "telephone": "+8801700165892",
+            "email": "dhakaengineeringservice@gmail.com",
+            "areaServed": {
+              "@type": "City",
+              "name": "Dhaka"
+            },
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Dhaka",
+              "addressCountry": "BD"
+            },
+            "openingHours": "Mo-Su 09:00-21:00",
+            "parentOrganization": {
+              "@id": "https://dhakaengineering.com/#organization"
+            }
+          }
+        ]
       }
     </script>
   </head>

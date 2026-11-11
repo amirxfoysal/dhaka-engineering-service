@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle2, Phone } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { StatusTracker } from '../components/StatusTracker';
@@ -7,6 +7,14 @@ import { useApp } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { getBookingStatusMessage, isTechnicianVisible, type Booking } from '../data/types';
 import './BookingsPage.css';
+
+function normalizeMobile(value: string) {
+  return value.replace(/\D/g, '');
+}
+
+function isValidBdMobile(value: string) {
+  return /^01\d{9}$/.test(normalizeMobile(value));
+}
 
 function formatDisplayDate(date: string, time: string) {
   const d = new Date(`${date}T${time || '00:00'}`);
@@ -30,25 +38,108 @@ function formatCompleted(booking: Booking) {
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export function BookingsPage() {
-  const { bookings, activeBooking, setActiveBookingId } = useApp();
-  const { showToast } = useToast();
+function pickActiveBooking(matches: Booking[], preferredId?: string | null) {
+  if (preferredId) {
+    const preferred = matches.find((b) => b.id === preferredId);
+    if (preferred) return preferred;
+  }
+  return (
+    matches.find((b) => b.status !== 'Completed' && b.status !== 'Cancelled') ??
+    matches[0] ??
+    null
+  );
+}
 
-  const history = useMemo(
-    () => bookings.filter((b) => b.id !== activeBooking?.id).slice(0, 5),
-    [bookings, activeBooking],
+export function BookingsPage() {
+  const { user, bookings, activeBooking, setActiveBookingId, refreshBookings } = useApp();
+  const { showToast } = useToast();
+  const location = useLocation();
+  const [loading, setLoading] = useState(true);
+
+  const justBookedId =
+    location.state &&
+    typeof location.state === 'object' &&
+    'justBooked' in location.state &&
+    typeof (location.state as { justBooked?: unknown }).justBooked === 'string'
+      ? (location.state as { justBooked: string }).justBooked
+      : null;
+
+  const savedMobile = normalizeMobile(user.mobile);
+
+  useEffect(() => {
+    if (justBookedId) setActiveBookingId(justBookedId);
+  }, [justBookedId, setActiveBookingId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMine() {
+      if (!isValidBdMobile(savedMobile)) {
+        if (!cancelled) setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await refreshBookings({ mobile: savedMobile });
+      } catch {
+        if (!cancelled) showToast('Could not load your bookings.', 'danger');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadMine();
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshBookings, savedMobile, showToast]);
+
+  const myBookings = useMemo(() => {
+    if (!isValidBdMobile(savedMobile)) {
+      return justBookedId ? bookings.filter((b) => b.id === justBookedId) : [];
+    }
+    return bookings
+      .filter((b) => normalizeMobile(b.mobile) === savedMobile)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [bookings, justBookedId, savedMobile]);
+
+  const current = useMemo(
+    () => pickActiveBooking(myBookings, activeBooking?.id ?? justBookedId),
+    [activeBooking?.id, justBookedId, myBookings],
   );
 
-  const current = activeBooking ?? bookings[0] ?? null;
+  const history = useMemo(
+    () => myBookings.filter((b) => b.id !== current?.id),
+    [current?.id, myBookings],
+  );
+
+  if (loading) {
+    return (
+      <div className="page bookings-page">
+        <PageHeader title="My Booking" showBack={false} />
+        <div className="section-pad bookings-empty">
+          <p>Loading your bookings…</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!current) {
     return (
       <div className="page bookings-page">
         <PageHeader title="My Booking" showBack={false} />
         <div className="section-pad bookings-empty">
-          <p>No bookings yet.</p>
+          <p>
+            {isValidBdMobile(savedMobile)
+              ? 'No bookings found for your saved mobile number.'
+              : 'No bookings yet. Book a service or track an existing booking with your mobile number.'}
+          </p>
           <Link to="/book" className="btn-primary">
             Book a Service
+          </Link>
+          <Link to="/tracking" className="btn-outline">
+            Track by Mobile
           </Link>
         </div>
       </div>
@@ -133,9 +224,9 @@ export function BookingsPage() {
         <section className="history-section">
           <div className="section-title-row">
             <h2 className="section-title">Service History</h2>
-            <button type="button" className="see-all" onClick={() => setActiveBookingId(null)}>
-              See All &gt;
-            </button>
+            <Link to="/tracking" className="see-all">
+              Track by Mobile &gt;
+            </Link>
           </div>
 
           <ul className="history-list">
@@ -157,7 +248,9 @@ export function BookingsPage() {
                     <em>
                       {item.status === 'Completed'
                         ? `Completed on ${formatCompleted(item)}`
-                        : item.status}
+                        : item.status === 'Booked'
+                          ? 'Pending'
+                          : item.status}
                     </em>
                   </div>
                 </button>

@@ -7,10 +7,14 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { apiRequest } from '../api/client';
+import { apiRequest, getAdminToken } from '../api/client';
 import { getBookingStatusMessage, type Booking, type BookingStatus, type UserProfile } from '../data/types';
 import { useServices } from './ServicesContext';
 import { useToast } from './ToastContext';
+
+export type RefreshBookingsOptions = {
+  mobile?: string;
+};
 
 const PROFILE_KEY = 'des-user-profile-v1';
 const ACTIVE_BOOKING_KEY = 'des-active-booking-v1';
@@ -43,12 +47,12 @@ type AppContextValue = {
   user: UserProfile;
   bookings: Booking[];
   activeBooking: Booking | null;
-  updateProfile: (patch: Partial<UserProfile>) => void;
+  updateProfile: (patch: Partial<UserProfile>, options?: { silent?: boolean }) => void;
   submitBooking: (input: BookingInput) => Promise<Booking>;
   setActiveBookingId: (id: string | null) => void;
   updateBookingStatus: (id: string, status: BookingStatus) => Promise<void>;
   updateBooking: (id: string, patch: BookingUpdate) => Promise<void>;
-  refreshBookings: () => Promise<void>;
+  refreshBookings: (options?: RefreshBookingsOptions) => Promise<Booking[]>;
 };
 
 const DEMO_CUSTOMER_NAME = 'Mehedi Hasan Nadim';
@@ -100,22 +104,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeBookingId, setActiveBookingIdState] = useState<string | null>(() => loadActiveBookingId());
 
-  const refreshBookings = useCallback(async () => {
-    const data = await apiRequest<Booking[]>('/api/bookings');
+  const refreshBookings = useCallback(async (options?: RefreshBookingsOptions) => {
+    const mobile = options?.mobile?.replace(/\D/g, '').trim();
+    if (mobile) {
+      const data = await apiRequest<Booking[]>(`/api/bookings?mobile=${encodeURIComponent(mobile)}`);
+      setBookings(data);
+      return data;
+    }
+
+    if (!getAdminToken()) {
+      setBookings([]);
+      return [];
+    }
+
+    const data = await apiRequest<Booking[]>('/api/bookings', { auth: true });
     setBookings(data);
+    return data;
   }, []);
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+
+    async function loadAdminBookings() {
+      if (!getAdminToken()) return;
       try {
         await refreshBookings();
       } catch {
         if (!cancelled) showToast('Could not load bookings from server.', 'danger');
       }
-    })();
+    }
+
+    void loadAdminBookings();
+    const onAuthChange = () => {
+      void loadAdminBookings();
+    };
+    window.addEventListener('des-admin-auth-changed', onAuthChange);
     return () => {
       cancelled = true;
+      window.removeEventListener('des-admin-auth-changed', onAuthChange);
     };
   }, [refreshBookings, showToast]);
 
@@ -129,9 +155,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [activeBookingId]);
 
   const updateProfile = useCallback(
-    (patch: Partial<UserProfile>) => {
+    (patch: Partial<UserProfile>, options?: { silent?: boolean }) => {
       setUser((current) => normalizeUser({ ...current, ...patch }));
-      showToast('Profile updated.', 'info');
+      if (!options?.silent) showToast('Profile updated.', 'info');
     },
     [showToast],
   );

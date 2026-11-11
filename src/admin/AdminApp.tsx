@@ -9,6 +9,7 @@ import { AdminCustomersPage } from './pages/AdminCustomersPage';
 import { AdminTechniciansPage } from './pages/AdminTechniciansPage';
 import { AdminServicesPage } from './pages/AdminServicesPage';
 import { AdminBannersPage } from './pages/AdminBannersPage';
+import { AdminClientsPage } from './pages/AdminClientsPage';
 import { AdminOffersPage } from './pages/AdminOffersPage';
 import { AdminReviewsPage } from './pages/AdminReviewsPage';
 import { AdminReportsPage } from './pages/AdminReportsPage';
@@ -35,6 +36,7 @@ export function AdminApp() {
           <Route path="services" element={<AdminServicesPage />} />
           <Route path="banners" element={<AdminBannersPage />} />
           <Route path="offers" element={<AdminOffersPage />} />
+          <Route path="clients" element={<AdminClientsPage />} />
           <Route path="reviews" element={<AdminReviewsPage />} />
           <Route path="reports" element={<AdminReportsPage />} />
           <Route path="settings" element={<AdminSettingsPage />} />

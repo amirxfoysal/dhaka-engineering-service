@@ -37,11 +37,12 @@ function pickActiveBooking(matches: Booking[]) {
 }
 
 export function TrackingPage() {
-  const { bookings } = useApp();
+  const { bookings, refreshBookings, updateProfile } = useApp();
   const { addReview, getReviewByBookingId } = useReviews();
   const { showToast } = useToast();
   const [mobile, setMobile] = useState('');
   const [searchedMobile, setSearchedMobile] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rating, setRating] = useState(5);
@@ -65,7 +66,7 @@ export function TrackingPage() {
     return pickActiveBooking(matches);
   }, [matches, selectedId]);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
 
@@ -79,19 +80,31 @@ export function TrackingPage() {
       return;
     }
 
-    const found = bookings.filter((b) => normalizeMobile(b.mobile) === cleaned).length;
-    setSearchedMobile(cleaned);
+    setSearching(true);
     setSelectedId(null);
     setReviewError('');
     setReviewSuccess('');
     setComment('');
     setRating(5);
-    showToast(
-      found
-        ? `Found ${found} booking${found > 1 ? 's' : ''} for this number.`
-        : 'No bookings found for this mobile number.',
-      found ? 'success' : 'info',
-    );
+
+    try {
+      const found = await refreshBookings({ mobile: cleaned });
+      setSearchedMobile(cleaned);
+      updateProfile({ mobile: cleaned }, { silent: true });
+      showToast(
+        found.length
+          ? `Found ${found.length} booking${found.length > 1 ? 's' : ''} for this number.`
+          : 'No bookings found for this mobile number.',
+        found.length ? 'success' : 'info',
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not look up bookings.';
+      setError(message);
+      setSearchedMobile(null);
+      showToast(message, 'danger');
+    } finally {
+      setSearching(false);
+    }
   }
 
   function handleReset() {
@@ -168,9 +181,13 @@ export function TrackingPage() {
               </div>
             </label>
             {error && <p className="field-error">{error}</p>}
-            <button type="submit" className="btn-primary tracking-lookup__submit">
+            <button
+              type="submit"
+              className="btn-primary tracking-lookup__submit"
+              disabled={searching}
+            >
               <Search size={16} strokeWidth={2.2} />
-              Track Booking
+              {searching ? 'Searching…' : 'Track Booking'}
             </button>
           </form>
         </section>

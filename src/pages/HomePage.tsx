@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, CalendarDays, Search } from 'lucide-react';
 import { HeroCarousel } from '../components/HeroCarousel';
+import { OurClientsSection } from '../components/OurClientsSection';
 import { ReviewsShowcase } from '../components/ReviewsShowcase';
 import { ServiceIcon } from '../components/ServiceIcon';
 import { useBanners } from '../context/BannersContext';
@@ -147,6 +148,8 @@ export function HomePage() {
           </button>
         </div>
       </div>
+
+      <OurClientsSection />
 
       <ReviewsShowcase reviews={reviews} />
     </div>

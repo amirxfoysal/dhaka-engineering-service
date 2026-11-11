@@ -3,11 +3,26 @@
  * Update SITE_URL and page entries here when deploying or changing marketing copy.
  */
 
+/** Preferred production origin (non-www). Keep in sync with index.html, robots.txt, sitemap.xml, vercel.json. */
 export const SITE_URL = 'https://dhakaengineering.com';
 
 export const SITE_NAME = 'Dhaka Engineering Service';
 
+export const SITE_ALTERNATE_NAMES = ['DES', 'Dhaka Engineering'] as const;
+
 export const SITE_TAGLINE = 'Your Trusted Engineering & Home Service Partner.';
+
+/** Brand mark used for Organization logo / favicon identity (square). */
+export const SITE_LOGO_URL = `${SITE_URL}/images/logo-mark.png`;
+
+export const SITE_THEME_COLOR = '#04275B';
+
+/**
+ * Optional Search Console / Bing verification tokens.
+ * Leave empty until you paste real codes from Google/Bing dashboards.
+ */
+export const GOOGLE_SITE_VERIFICATION = '';
+export const BING_SITE_VERIFICATION = '';
 
 export const DEFAULT_DESCRIPTION =
   'Book trusted AC, electrical, lift, appliances, motor, and commercial engineering services across Dhaka Metro. Fast booking, verified technicians, and reliable support.';
@@ -73,6 +88,13 @@ export const PAGE_SEO: Record<string, SeoPageConfig> = {
     title: `Our Services | ${SITE_NAME}`,
     description:
       'Explore AC, electrical, lift, home appliances, motor, and commercial engineering services from Dhaka Engineering Service.',
+    keywords: DEFAULT_KEYWORDS,
+  },
+  '/clients': {
+    path: '/clients',
+    title: `Our Clients | ${SITE_NAME}`,
+    description:
+      'See the businesses and property partners who trust Dhaka Engineering Service for AC, electrical, lift, and engineering support across Dhaka.',
     keywords: DEFAULT_KEYWORDS,
   },
   '/book': {

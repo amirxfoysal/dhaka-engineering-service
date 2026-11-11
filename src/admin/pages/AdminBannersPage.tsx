@@ -8,6 +8,7 @@ import {
   IMAGE_UPLOAD_ACCEPT,
   IMAGE_UPLOAD_SPECS,
   MAX_IMAGE_UPLOAD_LABEL,
+  deleteUploadedImage,
   getImageUploadHint,
   uploadImage,
 } from '../../utils/imageUpload';
@@ -107,18 +108,50 @@ export function AdminBannersPage() {
     e.target.value = '';
     if (!file) return;
 
+    const previous = draft.image.trim();
     setImageError('');
     setImageBusy(true);
     try {
       const image = await uploadImage(file, 'banners');
       setDraft((d) => ({ ...d, image }));
       showToast('Image uploaded.', 'info');
+      if (previous && previous !== image) {
+        void deleteUploadedImage(previous).catch(() => undefined);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not upload image.';
       setImageError(message);
       showToast(message, 'danger');
     } finally {
       setImageBusy(false);
+    }
+  }
+
+  async function handleDeleteImage() {
+    const current = draft.image.trim();
+    if (!current) return;
+
+    setImageBusy(true);
+    setImageError('');
+    try {
+      const deleted = await deleteUploadedImage(current);
+      setDraft((d) => ({ ...d, image: '' }));
+      if (deleted) showToast('Uploaded image deleted.', 'info');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not delete image.';
+      setImageError(message);
+      showToast(message, 'danger');
+    } finally {
+      setImageBusy(false);
+    }
+  }
+
+  async function applyImageSelection(next: string) {
+    const previous = draft.image.trim();
+    setDraft((d) => ({ ...d, image: next }));
+    setImageError('');
+    if (previous && previous !== next) {
+      void deleteUploadedImage(previous).catch(() => undefined);
     }
   }
 
@@ -167,8 +200,10 @@ export function AdminBannersPage() {
   async function handleDelete() {
     if (!selectedId) return;
     if (!window.confirm('Remove this banner from the carousel?')) return;
+    const image = selected?.image ?? draft.image;
     try {
       await removeBanner(selectedId);
+      if (image) void deleteUploadedImage(image).catch(() => undefined);
       closePanel();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not remove banner.';
@@ -364,8 +399,7 @@ export function AdminBannersPage() {
                     className="admin-banners__remove-image"
                     disabled={!draft.image || imageBusy}
                     onClick={() => {
-                      setDraft((d) => ({ ...d, image: '' }));
-                      setImageError('');
+                      void handleDeleteImage();
                     }}
                   >
                     <Trash2 size={16} />
@@ -383,9 +417,9 @@ export function AdminBannersPage() {
                       role="option"
                       aria-selected={draft.image === option.value}
                       className={`admin-banners__preset${draft.image === option.value ? ' is-active' : ''}`}
+                      disabled={imageBusy}
                       onClick={() => {
-                        setDraft((d) => ({ ...d, image: option.value }));
-                        setImageError('');
+                        void applyImageSelection(option.value);
                       }}
                     >
                       <img src={option.value} alt="" />

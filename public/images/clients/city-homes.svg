@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120" viewBox="0 0 240 120" role="img" aria-label="city-homes">
+  <rect width="240" height="120" rx="16" fill="#F0F5FF"/>
+  <circle cx="56" cy="60" r="28" fill="#24589A"/>
+  <text x="56" y="68" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#ffffff">CH</text>
+  <text x="100" y="66" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#24589A">City Homes</text>
+</svg>

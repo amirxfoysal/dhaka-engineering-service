@@ -1,12 +1,29 @@
-import { Router } from 'express';
+import { Router, type Request } from 'express';
+import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { Booking } from '../models/Booking.js';
 import { Category } from '../models/Category.js';
 import { Notification } from '../models/Notification.js';
-import { requireAdmin } from '../middleware/auth.js';
+import { requireAdmin, type AdminTokenPayload } from '../middleware/auth.js';
+import { env } from '../env.js';
 import { nextBookingId } from '../utils/ids.js';
 
 const router = Router();
+
+function digitsOnly(value: string) {
+  return value.replace(/\D/g, '');
+}
+
+function isAdminRequest(req: Request) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) return false;
+  try {
+    const decoded = jwt.verify(header.slice('Bearer '.length), env.jwtSecret) as AdminTokenPayload;
+    return Boolean(decoded?.username);
+  } catch {
+    return false;
+  }
+}
 
 const createSchema = z.object({
   customerName: z.string().trim().min(1),
@@ -56,9 +73,19 @@ function mapBooking(doc: Record<string, unknown>) {
 }
 
 router.get('/', async (req, res) => {
-  const mobile = typeof req.query.mobile === 'string' ? req.query.mobile.trim() : '';
-  const filter = mobile ? { mobile } : {};
-  const docs = await Booking.find(filter).sort({ createdAt: -1 }).lean();
+  if (isAdminRequest(req)) {
+    const docs = await Booking.find().sort({ createdAt: -1 }).lean();
+    return res.json(docs.map((d) => mapBooking(d as Record<string, unknown>)));
+  }
+
+  const mobileRaw = typeof req.query.mobile === 'string' ? req.query.mobile.trim() : '';
+  const mobile = digitsOnly(mobileRaw);
+  if (!/^01\d{9}$/.test(mobile)) {
+    return res.status(400).json({ error: 'A valid mobile number is required.' });
+  }
+
+  const mobilePattern = new RegExp(`^${mobile.split('').join('[^0-9]*')}$`);
+  const docs = await Booking.find({ mobile: mobilePattern }).sort({ createdAt: -1 }).lean();
   return res.json(docs.map((d) => mapBooking(d as Record<string, unknown>)));
 });
 

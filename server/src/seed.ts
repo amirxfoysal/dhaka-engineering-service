@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { DEFAULT_BANNERS } from '../../src/data/banners.ts';
+import { DEFAULT_CLIENTS } from '../../src/data/clients.ts';
 import { DEFAULT_OFFERS } from '../../src/data/offers.ts';
 import { DEFAULT_REVIEWS } from '../../src/data/reviews.ts';
 import { SERVICE_CATEGORIES } from '../../src/data/services.ts';
@@ -11,6 +12,7 @@ import { Admin } from './models/Admin.js';
 import { Banner } from './models/Banner.js';
 import { Booking } from './models/Booking.js';
 import { Category } from './models/Category.js';
+import { Client } from './models/Client.js';
 import { Offer } from './models/Offer.js';
 import { Review } from './models/Review.js';
 import { Settings } from './models/Settings.js';
@@ -59,6 +61,9 @@ async function seed() {
 
   await upsertMany(Offer, DEFAULT_OFFERS);
   console.log(`Offers upserted: ${DEFAULT_OFFERS.length}`);
+
+  await upsertMany(Client, DEFAULT_CLIENTS);
+  console.log(`Clients upserted: ${DEFAULT_CLIENTS.length}`);
 
   await upsertMany(Review, DEFAULT_REVIEWS);
   console.log(`Reviews upserted: ${DEFAULT_REVIEWS.length}`);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Keep paths in sync with src/seo/config.ts PAGE_SEO and public routes. Update domain to match SITE_URL. -->
+<!-- Keep paths in sync with src/seo/config.ts PAGE_SEO and public routes. Preferred host: https://dhakaengineering.com -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://dhakaengineering.com/</loc>
@@ -40,6 +40,11 @@
     <loc>https://dhakaengineering.com/services/commercial</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dhakaengineering.com/clients</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://dhakaengineering.com/book</loc>

@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AdminAuthProvider } from './admin/auth/AdminAuthContext';
 import { AppProvider } from './context/AppContext';
 import { BannersProvider } from './context/BannersContext';
+import { ClientsProvider } from './context/ClientsContext';
 import { NotificationsProvider } from './context/NotificationsContext';
 import { OffersProvider } from './context/OffersContext';
 import { ReviewsProvider } from './context/ReviewsContext';
@@ -22,13 +23,15 @@ createRoot(document.getElementById('root')!).render(
             <ServicesProvider>
               <BannersProvider>
                 <OffersProvider>
-                  <ReviewsProvider>
-                    <NotificationsProvider>
-                      <AppProvider>
-                        <App />
-                      </AppProvider>
-                    </NotificationsProvider>
-                  </ReviewsProvider>
+                  <ClientsProvider>
+                    <ReviewsProvider>
+                      <NotificationsProvider>
+                        <AppProvider>
+                          <App />
+                        </AppProvider>
+                      </NotificationsProvider>
+                    </ReviewsProvider>
+                  </ClientsProvider>
                 </OffersProvider>
               </BannersProvider>
             </ServicesProvider>

@@ -7,6 +7,7 @@ import { TopNav } from './components/TopNav';
 import { HomePage } from './pages/HomePage';
 import { ServicesPage } from './pages/ServicesPage';
 import { ServiceDetailsPage } from './pages/ServiceDetailsPage';
+import { ClientsPage } from './pages/ClientsPage';
 import { BookingPage } from './pages/BookingPage';
 import { BookingsPage } from './pages/BookingsPage';
 import { TrackingPage } from './pages/TrackingPage';
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/:categoryId" element={<ServiceDetailsPage />} />
+          <Route path="/clients" element={<ClientsPage />} />
           <Route path="/book" element={<BookingPage />} />
           <Route path="/bookings" element={<BookingsPage />} />
           <Route path="/tracking" element={<TrackingPage />} />

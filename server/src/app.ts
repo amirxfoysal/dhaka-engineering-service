@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import bannersRoutes from './routes/banners.js';
 import bookingsRoutes from './routes/bookings.js';
 import categoriesRoutes from './routes/categories.js';
+import clientsRoutes from './routes/clients.js';
 import notificationsRoutes from './routes/notifications.js';
 import offersRoutes from './routes/offers.js';
 import reviewsRoutes from './routes/reviews.js';
@@ -49,6 +50,7 @@ export function createApp() {
   app.use('/api/categories', categoriesRoutes);
   app.use('/api/banners', bannersRoutes);
   app.use('/api/offers', offersRoutes);
+  app.use('/api/clients', clientsRoutes);
   app.use('/api/reviews', reviewsRoutes);
   app.use('/api/bookings', bookingsRoutes);
   app.use('/api/technicians', techniciansRoutes);

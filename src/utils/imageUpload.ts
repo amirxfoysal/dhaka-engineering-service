@@ -4,7 +4,7 @@ export const MAX_IMAGE_UPLOAD_BYTES = 300 * 1024;
 export const MAX_IMAGE_UPLOAD_LABEL = '300 KB';
 export const IMAGE_UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif';
 
-export type ImageUploadSection = 'services' | 'banners' | 'offers';
+export type ImageUploadSection = 'services' | 'banners' | 'offers' | 'clients';
 
 export const IMAGE_UPLOAD_SPECS: Record<
   ImageUploadSection,
@@ -25,6 +25,11 @@ export const IMAGE_UPLOAD_SPECS: Record<
     size: '900×600',
     label: 'special offer',
   },
+  clients: {
+    ratio: '2:1',
+    size: '480×240',
+    label: 'client logo',
+  },
 };
 
 export function getImageUploadHint(section: ImageUploadSection) {
@@ -42,6 +47,15 @@ function assertImageFile(file: File) {
   }
   if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
     throw new Error(formatImageUploadLimitError());
+  }
+}
+
+export function isCloudinaryUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname.includes('res.cloudinary.com');
+  } catch {
+    return false;
   }
 }
 
@@ -70,4 +84,20 @@ export async function uploadImage(file: File, section: ImageUploadSection): Prom
     auth: true,
   });
   return result.url;
+}
+
+/**
+ * Deletes a Cloudinary-hosted image. Local preset paths are ignored safely.
+ * Returns true when a remote delete was requested successfully.
+ */
+export async function deleteUploadedImage(url: string): Promise<boolean> {
+  const trimmed = url.trim();
+  if (!trimmed || !isCloudinaryUrl(trimmed)) return false;
+
+  await apiRequest<{ ok: boolean }>('/api/uploads', {
+    method: 'DELETE',
+    auth: true,
+    body: { url: trimmed },
+  });
+  return true;
 }
