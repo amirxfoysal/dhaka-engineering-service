@@ -1,8 +1,36 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { CheckCircle2, KeyRound, RotateCcw, Save } from 'lucide-react';
+import { CheckCircle2, KeyRound, Plus, RotateCcw, Save, Trash2 } from 'lucide-react';
 import { useAdminAuth } from '../auth/AdminAuthContext';
 import { useSettings } from '../../context/SettingsContext';
+import {
+  DEFAULT_ABOUT_BODY,
+  DEFAULT_ABOUT_TITLE,
+  DEFAULT_SITE_FAQS,
+  DEFAULT_WHY_CHOOSE_ITEMS,
+  DEFAULT_WHY_CHOOSE_TITLE,
+  WHY_CHOOSE_ICONS,
+  type SiteFaqItem,
+  type WhyChooseIconId,
+  type WhyChooseItem,
+} from '../../data/settings';
 import './AdminSettingsPage.css';
+
+function cloneFaqs(faqs: SiteFaqItem[]) {
+  return faqs.map((faq) => ({ ...faq }));
+}
+
+function cloneWhyChooseItems(items: WhyChooseItem[]) {
+  return items.map((item) => ({ ...item }));
+}
+
+const WHY_CHOOSE_ICON_LABELS: Record<WhyChooseIconId, string> = {
+  technicians: 'Technicians',
+  price: 'Price',
+  ontime: 'On time',
+  support: 'Support',
+  quality: 'Quality',
+  warranty: 'Warranty',
+};
 
 export function AdminSettingsPage() {
   const { settings, updateSettings, resetSettings } = useSettings();
@@ -19,8 +47,19 @@ export function AdminSettingsPage() {
   const [instagramUrl, setInstagramUrl] = useState(settings.instagramUrl);
   const [youtubeUrl, setYoutubeUrl] = useState(settings.youtubeUrl);
   const [linkedinUrl, setLinkedinUrl] = useState(settings.linkedinUrl);
+  const [servicesPageIntro, setServicesPageIntro] = useState(settings.servicesPageIntro);
   const [businessError, setBusinessError] = useState('');
   const [businessSuccess, setBusinessSuccess] = useState('');
+
+  const [aboutTitle, setAboutTitle] = useState(settings.aboutTitle);
+  const [aboutBody, setAboutBody] = useState(settings.aboutBody);
+  const [siteFaqs, setSiteFaqs] = useState<SiteFaqItem[]>(() => cloneFaqs(settings.siteFaqs));
+  const [whyChooseTitle, setWhyChooseTitle] = useState(settings.whyChooseTitle);
+  const [whyChooseItems, setWhyChooseItems] = useState<WhyChooseItem[]>(() =>
+    cloneWhyChooseItems(settings.whyChooseItems),
+  );
+  const [contentError, setContentError] = useState('');
+  const [contentSuccess, setContentSuccess] = useState('');
 
   const [displayName, setDisplayName] = useState(credentials.displayName);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -41,6 +80,12 @@ export function AdminSettingsPage() {
     setInstagramUrl(settings.instagramUrl);
     setYoutubeUrl(settings.youtubeUrl);
     setLinkedinUrl(settings.linkedinUrl);
+    setServicesPageIntro(settings.servicesPageIntro);
+    setAboutTitle(settings.aboutTitle);
+    setAboutBody(settings.aboutBody);
+    setSiteFaqs(cloneFaqs(settings.siteFaqs));
+    setWhyChooseTitle(settings.whyChooseTitle);
+    setWhyChooseItems(cloneWhyChooseItems(settings.whyChooseItems));
   }, [settings]);
 
   useEffect(() => {
@@ -75,11 +120,98 @@ export function AdminSettingsPage() {
         instagramUrl,
         youtubeUrl,
         linkedinUrl,
+        servicesPageIntro,
       });
-      setBusinessSuccess('Business settings saved. Footer and social links are updated.');
+      setBusinessSuccess(
+        'Business settings saved. Navbar slogan, footer, social links, and page copy are updated.',
+      );
     } catch (err) {
       setBusinessError(err instanceof Error ? err.message : 'Could not save settings.');
     }
+  }
+
+  async function handleContentSave(e: FormEvent) {
+    e.preventDefault();
+    setContentError('');
+    setContentSuccess('');
+
+    const faqs = siteFaqs
+      .map((faq) => ({
+        question: faq.question.trim(),
+        answer: faq.answer.trim(),
+      }))
+      .filter((faq) => faq.question && faq.answer);
+
+    const whyItems = whyChooseItems
+      .map((item) => ({
+        icon: item.icon,
+        label: item.label.trim(),
+      }))
+      .filter((item) => item.label);
+
+    if (!aboutTitle.trim() || !aboutBody.trim()) {
+      setContentError('About title and body are required.');
+      return;
+    }
+
+    if (faqs.length === 0) {
+      setContentError('Add at least one FAQ with both a question and an answer.');
+      return;
+    }
+
+    if (!whyChooseTitle.trim()) {
+      setContentError('Why Choose Us title is required.');
+      return;
+    }
+
+    if (whyItems.length === 0) {
+      setContentError('Add at least one Why Choose Us item.');
+      return;
+    }
+
+    try {
+      await updateSettings({
+        aboutTitle: aboutTitle.trim(),
+        aboutBody: aboutBody.trim(),
+        siteFaqs: faqs,
+        whyChooseTitle: whyChooseTitle.trim(),
+        whyChooseItems: whyItems,
+      });
+      setSiteFaqs(faqs);
+      setWhyChooseItems(whyItems);
+      setContentSuccess('About, FAQ, and Why Choose Us sections updated.');
+    } catch (err) {
+      setContentError(err instanceof Error ? err.message : 'Could not save homepage content.');
+    }
+  }
+
+  function updateFaq(index: number, patch: Partial<SiteFaqItem>) {
+    setSiteFaqs((list) => list.map((faq, i) => (i === index ? { ...faq, ...patch } : faq)));
+  }
+
+  function removeFaq(index: number) {
+    setSiteFaqs((list) => list.filter((_, i) => i !== index));
+  }
+
+  function addFaq() {
+    setSiteFaqs((list) => [...list, { question: '', answer: '' }]);
+  }
+
+  function updateWhyChooseItem(index: number, patch: Partial<WhyChooseItem>) {
+    setWhyChooseItems((list) =>
+      list.map((item, i) => (i === index ? { ...item, ...patch } : item)),
+    );
+  }
+
+  function removeWhyChooseItem(index: number) {
+    setWhyChooseItems((list) => list.filter((_, i) => i !== index));
+  }
+
+  function addWhyChooseItem() {
+    if (whyChooseItems.length >= 6) return;
+    const nextIcon =
+      WHY_CHOOSE_ICONS[whyChooseItems.length % WHY_CHOOSE_ICONS.length] ?? 'technicians';
+    setWhyChooseItems((list) => [...list, { icon: nextIcon, label: '' }]);
   }
 
   async function handleBusinessReset() {
@@ -87,7 +219,9 @@ export function AdminSettingsPage() {
     try {
       await resetSettings();
       setBusinessError('');
+      setContentError('');
       setBusinessSuccess('Business settings restored to defaults.');
+      setContentSuccess('About, FAQ, and Why Choose Us restored to defaults.');
     } catch (err) {
       setBusinessError(err instanceof Error ? err.message : 'Could not reset settings.');
     }
@@ -140,9 +274,169 @@ export function AdminSettingsPage() {
       <div className="admin-settings__header">
         <h2 className="admin-page-title">Settings</h2>
         <p className="admin-settings__subtitle">
-          Manage business contact details, social links, and your admin account.
+          Manage business contact details, homepage About &amp; FAQ copy, social links, and your
+          admin account.
         </p>
       </div>
+
+      <section className="admin-card admin-settings__card admin-settings__card--wide">
+        <div className="admin-card__head">
+          <h2>Homepage &amp; Service Page Content</h2>
+        </div>
+        <form className="admin-settings-form" onSubmit={handleContentSave}>
+          <p className="admin-settings__section-label">About Dhaka Engineering Service</p>
+          <label>
+            <span>About Title</span>
+            <input
+              type="text"
+              value={aboutTitle}
+              onChange={(e) => setAboutTitle(e.target.value)}
+              placeholder={DEFAULT_ABOUT_TITLE}
+            />
+          </label>
+          <label>
+            <span>About Body</span>
+            <textarea
+              rows={5}
+              value={aboutBody}
+              onChange={(e) => setAboutBody(e.target.value)}
+              placeholder={DEFAULT_ABOUT_BODY}
+            />
+          </label>
+
+          <p className="admin-settings__section-label">Frequently Asked Questions</p>
+          <p className="admin-settings__hint">
+            Shown on the homepage and used for FAQ search markup. Empty question/answer rows are
+            ignored when saving.
+          </p>
+
+          <div className="admin-settings__faq-list">
+            {siteFaqs.map((faq, index) => (
+              <div key={`faq-${index}`} className="admin-settings__faq-item">
+                <div className="admin-settings__faq-item-head">
+                  <strong>FAQ {index + 1}</strong>
+                  <button
+                    type="button"
+                    className="admin-settings__faq-remove"
+                    aria-label={`Remove FAQ ${index + 1}`}
+                    onClick={() => removeFaq(index)}
+                    disabled={siteFaqs.length <= 1}
+                  >
+                    <Trash2 size={14} />
+                    Remove
+                  </button>
+                </div>
+                <label>
+                  <span>Question</span>
+                  <input
+                    type="text"
+                    value={faq.question}
+                    onChange={(e) => updateFaq(index, { question: e.target.value })}
+                    placeholder={DEFAULT_SITE_FAQS[index]?.question || 'Enter a question'}
+                  />
+                </label>
+                <label>
+                  <span>Answer</span>
+                  <textarea
+                    rows={3}
+                    value={faq.answer}
+                    onChange={(e) => updateFaq(index, { answer: e.target.value })}
+                    placeholder={DEFAULT_SITE_FAQS[index]?.answer || 'Enter the answer'}
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
+
+          <button type="button" className="admin-settings__faq-add" onClick={addFaq}>
+            <Plus size={15} />
+            Add FAQ
+          </button>
+
+          <p className="admin-settings__section-label">Why Choose Us?</p>
+          <p className="admin-settings__hint">
+            Shown on every service details page. You can keep up to 6 items.
+          </p>
+          <label>
+            <span>Section Title</span>
+            <input
+              type="text"
+              value={whyChooseTitle}
+              onChange={(e) => setWhyChooseTitle(e.target.value)}
+              placeholder={DEFAULT_WHY_CHOOSE_TITLE}
+            />
+          </label>
+
+          <div className="admin-settings__faq-list">
+            {whyChooseItems.map((item, index) => (
+              <div key={`why-${index}`} className="admin-settings__faq-item">
+                <div className="admin-settings__faq-item-head">
+                  <strong>Item {index + 1}</strong>
+                  <button
+                    type="button"
+                    className="admin-settings__faq-remove"
+                    aria-label={`Remove Why Choose Us item ${index + 1}`}
+                    onClick={() => removeWhyChooseItem(index)}
+                    disabled={whyChooseItems.length <= 1}
+                  >
+                    <Trash2 size={14} />
+                    Remove
+                  </button>
+                </div>
+                <label>
+                  <span>Icon</span>
+                  <select
+                    value={item.icon}
+                    onChange={(e) =>
+                      updateWhyChooseItem(index, { icon: e.target.value as WhyChooseIconId })
+                    }
+                  >
+                    {WHY_CHOOSE_ICONS.map((icon) => (
+                      <option key={icon} value={icon}>
+                        {WHY_CHOOSE_ICON_LABELS[icon]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>Label</span>
+                  <input
+                    type="text"
+                    value={item.label}
+                    onChange={(e) => updateWhyChooseItem(index, { label: e.target.value })}
+                    placeholder={DEFAULT_WHY_CHOOSE_ITEMS[index]?.label || 'e.g. Skilled Technicians'}
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="admin-settings__faq-add"
+            onClick={addWhyChooseItem}
+            disabled={whyChooseItems.length >= 6}
+          >
+            <Plus size={15} />
+            Add Item
+          </button>
+
+          {contentError && <p className="admin-settings__error">{contentError}</p>}
+          {contentSuccess && (
+            <p className="admin-settings__success">
+              <CheckCircle2 size={15} />
+              {contentSuccess}
+            </p>
+          )}
+
+          <div className="admin-settings__actions">
+            <button type="submit" className="btn-primary">
+              <Save size={16} />
+              Save Page Content
+            </button>
+          </div>
+        </form>
+      </section>
 
       <div className="admin-settings__grid">
         <section className="admin-card admin-settings__card">
@@ -159,8 +453,17 @@ export function AdminSettingsPage() {
               />
             </label>
             <label>
-              <span>Tagline</span>
-              <input type="text" value={tagline} onChange={(e) => setTagline(e.target.value)} />
+              <span>Navbar slogan / tagline</span>
+              <input
+                type="text"
+                value={tagline}
+                onChange={(e) => setTagline(e.target.value)}
+                placeholder="Shown under the business name next to the logo"
+              />
+              <em className="admin-settings__hint">
+                Appears below the business name beside the logo in the top navbar (also used in the
+                footer and SEO).
+              </em>
             </label>
             <label>
               <span>Support Phone</span>
@@ -197,6 +500,17 @@ export function AdminSettingsPage() {
             <label>
               <span>Address</span>
               <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
+            </label>
+
+            <p className="admin-settings__section-label">Services Page</p>
+            <label>
+              <span>Services Page Intro</span>
+              <textarea
+                rows={3}
+                value={servicesPageIntro}
+                onChange={(e) => setServicesPageIntro(e.target.value)}
+                placeholder="Intro text shown above the services category list"
+              />
             </label>
 
             <p className="admin-settings__section-label">Social</p>

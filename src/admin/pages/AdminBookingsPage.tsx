@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useReviews } from '../../context/ReviewsContext';
 import { useToast } from '../../context/ToastContext';
 import type { Booking, BookingStatus } from '../../data/types';
 import { useAdminTechnicians } from '../context/AdminTechniciansContext';
@@ -35,13 +36,15 @@ const STATUSES_REQUIRING_TECHNICIAN: BookingStatus[] = [
 ];
 
 export function AdminBookingsPage() {
-  const { bookings, updateBooking } = useApp();
+  const { bookings, updateBooking, removeBooking } = useApp();
+  const { dropReviewsForBookings } = useReviews();
   const { technicians } = useAdminTechnicians();
   const { showToast } = useToast();
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<(typeof STATUS_FILTERS)[number]>('All');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [actionError, setActionError] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const selected = useMemo(
     () => bookings.find((b) => b.id === selectedId) ?? null,
@@ -102,6 +105,29 @@ export function AdminBookingsPage() {
       setActionError(message);
       showToast(message, 'danger');
     });
+  }
+
+  async function handleDeleteBooking(booking: Booking) {
+    if (
+      !window.confirm(
+        `Permanently delete booking #${booking.id} for ${booking.customerName}? Related notifications and reviews will also be removed.`,
+      )
+    ) {
+      return;
+    }
+    setDeletingId(booking.id);
+    setActionError('');
+    try {
+      await removeBooking(booking.id);
+      dropReviewsForBookings([booking.id]);
+      if (selectedId === booking.id) setSelectedId(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not delete booking.';
+      setActionError(message);
+      showToast(message, 'danger');
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   return (
@@ -199,6 +225,14 @@ export function AdminBookingsPage() {
                       }}
                     >
                       Manage
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-bookings__delete-btn"
+                      disabled={deletingId === booking.id}
+                      onClick={() => void handleDeleteBooking(booking)}
+                    >
+                      {deletingId === booking.id ? 'Deleting…' : 'Delete'}
                     </button>
                   </div>
                 </td>
@@ -319,6 +353,15 @@ export function AdminBookingsPage() {
                   Cancel
                 </button>
               </div>
+
+              <button
+                type="button"
+                className="admin-bookings__delete"
+                disabled={deletingId === selected.id}
+                onClick={() => void handleDeleteBooking(selected)}
+              >
+                {deletingId === selected.id ? 'Deleting…' : 'Delete Booking'}
+              </button>
             </div>
           </aside>
         </div>

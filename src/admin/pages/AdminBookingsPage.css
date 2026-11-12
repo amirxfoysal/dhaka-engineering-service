@@ -78,6 +78,7 @@
 .admin-bookings__row-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -98,6 +99,30 @@
   background: #eef4ff;
   color: var(--primary-blue);
   font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-bookings__delete-btn {
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #fef3f2;
+  color: #b42318;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-bookings__delete-btn:disabled,
+.admin-bookings__delete:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.admin-bookings__delete {
+  min-height: 42px;
+  border-radius: 10px;
+  background: #fef3f2;
+  color: #b42318;
+  font-size: 13px;
   font-weight: 600;
 }
 

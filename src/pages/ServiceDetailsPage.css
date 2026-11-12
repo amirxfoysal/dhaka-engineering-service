@@ -451,19 +451,18 @@
   color: var(--text-primary);
 }
 
+.service-reviews__company {
+  display: block;
+  margin-top: -2px;
+  font-size: 12px;
+  font-style: normal;
+  color: var(--text-secondary);
+}
+
 .service-reviews__item p {
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-secondary);
-}
-
-.service-reviews__item > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 8px;
-  font-size: 11px;
-  color: #98a2b3;
 }
 
 .service-details__layout {

@@ -3,6 +3,8 @@
  * Update SITE_URL and page entries here when deploying or changing marketing copy.
  */
 
+import { DEFAULT_SITE_FAQS, type SiteFaqItem } from '../data/settings';
+
 /** Preferred production origin (non-www). Keep in sync with index.html, robots.txt, sitemap.xml, vercel.json. */
 export const SITE_URL = 'https://dhakaengineering.com';
 
@@ -63,39 +65,10 @@ export type SeoPageConfig = {
   noindex?: boolean;
 };
 
-export type SeoFaqItem = {
-  question: string;
-  answer: string;
-};
+export type SeoFaqItem = SiteFaqItem;
 
-/** Visible FAQ copy shared by homepage UI and FAQ schema. */
-export const SITE_FAQS: SeoFaqItem[] = [
-  {
-    question: 'What services does Dhaka Engineering Service provide?',
-    answer:
-      'We provide AC servicing and repair, electrical installation and troubleshooting, lift maintenance, home appliances repair, motor work, and commercial engineering support across Dhaka Metro.',
-  },
-  {
-    question: 'Which areas in Dhaka do you cover?',
-    answer:
-      'We serve Dhaka Metro and nearby areas, including Mirpur, Uttara, Gulshan, Banani, Dhanmondi, Mohakhali, and surrounding localities. Share your address when booking and we will confirm availability.',
-  },
-  {
-    question: 'How do I book a technician online?',
-    answer:
-      'Open the Book a Service page, choose your service, enter your name, mobile number, address, preferred date and time, then submit. You can track status later with the same mobile number.',
-  },
-  {
-    question: 'How can I track my booking?',
-    answer:
-      'Go to Tracking, enter the mobile number used while booking, and view live status updates, technician details after confirmation, and service history.',
-  },
-  {
-    question: 'Do you offer emergency or same-day support?',
-    answer:
-      'Urgent requests are handled through our helpline and WhatsApp support. Call or message us for priority assistance, subject to technician availability in your area.',
-  },
-];
+/** Default FAQ copy; live homepage FAQs are edited in Admin → Settings. */
+export const SITE_FAQS: SeoFaqItem[] = DEFAULT_SITE_FAQS;
 
 export function mergeKeywords(...parts: Array<string | string[] | undefined>) {
   const seen = new Set<string>();
@@ -160,6 +133,20 @@ export const PAGE_SEO: Record<string, SeoPageConfig> = {
     title: `Track Booking | ${SITE_NAME}`,
     description: 'Track your Dhaka Engineering Service booking status with your mobile number.',
     noindex: true,
+  },
+  '/review': {
+    path: '/review',
+    title: `Leave a Review | ${SITE_NAME}`,
+    description:
+      'Share your experience with Dhaka Engineering Service. Submit a customer review with your name and optional contact details.',
+    keywords: DEFAULT_KEYWORDS,
+  },
+  '/reviews': {
+    path: '/reviews',
+    title: `Customer Reviews | ${SITE_NAME}`,
+    description:
+      'Read customer reviews for Dhaka Engineering Service. See ratings and feedback from homes and businesses across Dhaka Metro.',
+    keywords: DEFAULT_KEYWORDS,
   },
 };
 

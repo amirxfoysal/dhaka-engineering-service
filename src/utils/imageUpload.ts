@@ -4,7 +4,7 @@ export const MAX_IMAGE_UPLOAD_BYTES = 300 * 1024;
 export const MAX_IMAGE_UPLOAD_LABEL = '300 KB';
 export const IMAGE_UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif';
 
-export type ImageUploadSection = 'services' | 'banners' | 'offers' | 'clients';
+export type ImageUploadSection = 'services' | 'icons' | 'banners' | 'offers' | 'clients';
 
 export const IMAGE_UPLOAD_SPECS: Record<
   ImageUploadSection,
@@ -14,6 +14,11 @@ export const IMAGE_UPLOAD_SPECS: Record<
     ratio: '4:3',
     size: '1200×900',
     label: 'service gallery',
+  },
+  icons: {
+    ratio: '1:1',
+    size: '256×256',
+    label: 'service icon',
   },
   banners: {
     ratio: '8:3',

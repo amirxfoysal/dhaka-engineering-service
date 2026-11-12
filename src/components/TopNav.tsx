@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { CalendarDays } from 'lucide-react';
+import { useSettings } from '../context/SettingsContext';
 import { OptimizedImage } from './OptimizedImage';
 import './TopNav.css';
 
@@ -12,6 +13,9 @@ const links = [
 
 export function TopNav() {
   const navigate = useNavigate();
+  const { settings } = useSettings();
+  const businessName = settings.businessName.trim() || 'Dhaka Engineering Service';
+  const slogan = settings.tagline.trim();
 
   return (
     <header className="top-nav">
@@ -19,12 +23,12 @@ export function TopNav() {
         <button
           type="button"
           className="top-nav__brand"
-          aria-label="Dhaka Engineering Service home"
+          aria-label={`${businessName} home`}
           onClick={() => navigate('/')}
         >
           <OptimizedImage
             src="/images/logo-266.webp"
-            alt="Dhaka Engineering Service"
+            alt={businessName}
             className="top-nav__logo"
             width={266}
             height={140}
@@ -34,8 +38,8 @@ export function TopNav() {
             |
           </span>
           <div className="top-nav__brand-text">
-            <strong>Dhaka Engineering Service</strong>
-            <span>Your Trusted Engineering &amp; Home Service Partner</span>
+            <strong>{businessName}</strong>
+            {slogan ? <span>{slogan}</span> : null}
           </div>
         </button>
 

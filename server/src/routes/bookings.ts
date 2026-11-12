@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Booking } from '../models/Booking.js';
 import { Category } from '../models/Category.js';
 import { Notification } from '../models/Notification.js';
+import { Review } from '../models/Review.js';
 import { requireAdmin, type AdminTokenPayload } from '../middleware/auth.js';
 import { env } from '../env.js';
 import { nextBookingId } from '../utils/ids.js';
@@ -169,6 +170,20 @@ router.patch('/:id', requireAdmin, async (req, res) => {
 
   await existing.save();
   return res.json(mapBooking(existing.toObject() as Record<string, unknown>));
+});
+
+router.delete('/:id', requireAdmin, async (req, res) => {
+  const id = String(req.params.id || '').trim();
+  if (!id) return res.status(400).json({ error: 'Booking id is required.' });
+
+  const existing = await Booking.findOne({ id }).lean();
+  if (!existing) return res.status(404).json({ error: 'Booking not found.' });
+
+  await Booking.deleteOne({ id });
+  await Notification.deleteMany({ bookingId: id });
+  await Review.deleteMany({ bookingId: id });
+
+  return res.json({ ok: true, id });
 });
 
 export default router;

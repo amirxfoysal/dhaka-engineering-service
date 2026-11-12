@@ -1,5 +1,21 @@
 import { Schema, model } from 'mongoose';
 
+const faqItemSchema = new Schema(
+  {
+    question: { type: String, required: true },
+    answer: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+const whyChooseItemSchema = new Schema(
+  {
+    icon: { type: String, required: true },
+    label: { type: String, required: true },
+  },
+  { _id: false },
+);
+
 const settingsSchema = new Schema(
   {
     key: { type: String, required: true, unique: true, default: 'app' },
@@ -15,6 +31,12 @@ const settingsSchema = new Schema(
     instagramUrl: { type: String, default: '' },
     youtubeUrl: { type: String, default: '' },
     linkedinUrl: { type: String, default: '' },
+    servicesPageIntro: { type: String, default: '' },
+    aboutTitle: { type: String, default: '' },
+    aboutBody: { type: String, default: '' },
+    siteFaqs: { type: [faqItemSchema], default: [] },
+    whyChooseTitle: { type: String, default: '' },
+    whyChooseItems: { type: [whyChooseItemSchema], default: [] },
   },
   { timestamps: true },
 );

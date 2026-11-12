@@ -1,14 +1,41 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Check, ChevronLeft, ChevronRight, Clock3, HandCoins, Star, UserRound } from 'lucide-react';
+import {
+  BadgeCheck,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  HandCoins,
+  Headset,
+  ShieldCheck,
+  UserRound,
+  type LucideIcon,
+} from 'lucide-react';
 import { OptimizedImage } from '../components/OptimizedImage';
 import { PageHeader } from '../components/PageHeader';
 import { StarRating } from '../components/StarRating';
 import { useReviews } from '../context/ReviewsContext';
 import { useServices } from '../context/ServicesContext';
+import { useSettings } from '../context/SettingsContext';
 import { useToast } from '../context/ToastContext';
+import { DEFAULT_SERVICES_HINT, DEFAULT_SERVICES_TITLE } from '../data/services';
+import {
+  DEFAULT_WHY_CHOOSE_ITEMS,
+  DEFAULT_WHY_CHOOSE_TITLE,
+  type WhyChooseIconId,
+} from '../data/settings';
 import { getServiceSeo } from '../seo/serviceSeo';
 import './ServiceDetailsPage.css';
+
+const WHY_CHOOSE_ICON_MAP: Record<WhyChooseIconId, LucideIcon> = {
+  technicians: UserRound,
+  price: HandCoins,
+  ontime: Clock3,
+  support: Headset,
+  quality: BadgeCheck,
+  warranty: ShieldCheck,
+};
 
 function matchesServiceReview(reviewServiceName: string, serviceNames: string[]) {
   const review = reviewServiceName.trim().toLowerCase();
@@ -88,6 +115,7 @@ export function ServiceDetailsPage() {
   const { categoryId = 'ac' } = useParams();
   const navigate = useNavigate();
   const { getCategoryById } = useServices();
+  const { settings } = useSettings();
   const { reviews } = useReviews();
   const { showToast } = useToast();
   const category = getCategoryById(categoryId);
@@ -200,10 +228,14 @@ export function ServiceDetailsPage() {
 
           <section className="service-details__picker-section" aria-labelledby="service-items-title">
             <div className="service-details__section-head">
-              <h3 id="service-items-title">Select Services</h3>
+              <h3 id="service-items-title">
+                {category.servicesTitle?.trim() || DEFAULT_SERVICES_TITLE}
+              </h3>
               <span>{selectedServices.length} selected</span>
             </div>
-            <p className="service-details__hint">Choose one or more service items to book.</p>
+            <p className="service-details__hint">
+              {category.servicesHint?.trim() || DEFAULT_SERVICES_HINT}
+            </p>
 
             <div className="service-details__picker" role="list" aria-label="Service items">
               {category.services.map((service) => {
@@ -244,41 +276,25 @@ export function ServiceDetailsPage() {
 
           {renderAbout('mobile')}
 
-          {seo?.faqs?.length ? (
-            <section className="service-details__faq" aria-labelledby="service-faq-title">
-              <h3 id="service-faq-title">Frequently asked questions</h3>
-              <div className="service-details__faq-list">
-                {seo.faqs.map((faq) => (
-                  <details key={faq.question} className="service-details__faq-item">
-                    <summary>{faq.question}</summary>
-                    <p>{faq.answer}</p>
-                  </details>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
           <section className="why-choose" aria-labelledby="why-choose-title">
-            <h3 id="why-choose-title">Why Choose Us?</h3>
+            <h3 id="why-choose-title">
+              {settings.whyChooseTitle.trim() || DEFAULT_WHY_CHOOSE_TITLE}
+            </h3>
             <div className="why-choose__grid">
-              <div className="why-choose__item">
-                <span className="why-choose__icon">
-                  <UserRound size={20} strokeWidth={2} />
-                </span>
-                <span>Skilled Technicians</span>
-              </div>
-              <div className="why-choose__item">
-                <span className="why-choose__icon">
-                  <HandCoins size={20} strokeWidth={2} />
-                </span>
-                <span>Affordable Price</span>
-              </div>
-              <div className="why-choose__item">
-                <span className="why-choose__icon">
-                  <Clock3 size={20} strokeWidth={2} />
-                </span>
-                <span>On-Time Service</span>
-              </div>
+              {(settings.whyChooseItems.length
+                ? settings.whyChooseItems
+                : DEFAULT_WHY_CHOOSE_ITEMS
+              ).map((item) => {
+                const Icon = WHY_CHOOSE_ICON_MAP[item.icon] ?? UserRound;
+                return (
+                  <div key={`${item.icon}-${item.label}`} className="why-choose__item">
+                    <span className="why-choose__icon">
+                      <Icon size={20} strokeWidth={2} />
+                    </span>
+                    <span>{item.label}</span>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
@@ -296,7 +312,7 @@ export function ServiceDetailsPage() {
             {serviceReviews.length === 0 ? (
               <div className="service-reviews__empty">
                 <p>No reviews for this service yet.</p>
-                <Link to="/tracking">Leave a review after your booking</Link>
+                <Link to="/review">Leave a review</Link>
               </div>
             ) : (
               <ul className="service-reviews__list">
@@ -306,16 +322,10 @@ export function ServiceDetailsPage() {
                       <strong>{review.customerName}</strong>
                       <StarRating value={review.rating} />
                     </div>
+                    {review.companyName?.trim() ? (
+                      <em className="service-reviews__company">{review.companyName.trim()}</em>
+                    ) : null}
                     <p>{review.comment}</p>
-                    <span>
-                      <Star size={12} fill="currentColor" strokeWidth={0} />
-                      {review.serviceName} ·{' '}
-                      {new Date(review.createdAt).toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                    </span>
                   </li>
                 ))}
               </ul>

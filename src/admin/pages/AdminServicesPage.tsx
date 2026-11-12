@@ -1,17 +1,22 @@
-import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
-import { ImagePlus, Plus, Search, Trash2, X } from 'lucide-react';
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
+import { ImagePlus, Plus, Save, Search, Trash2, X } from 'lucide-react';
 import { useServices, type ServiceIconType } from '../../context/ServicesContext';
+import { useSettings } from '../../context/SettingsContext';
 import { useToast } from '../../context/ToastContext';
 import {
-  CATEGORY_IMAGE_COUNT,
+  BUILT_IN_SERVICE_ICONS,
+  CATEGORY_IMAGE_MAX,
+  DEFAULT_SERVICES_HINT,
+  DEFAULT_SERVICES_TITLE,
   SERVICE_IMAGE_PRESETS,
-  createCategoryImages,
   createServiceItem,
   formatTagsInput,
+  isCustomServiceIcon,
   parseTagsInput,
   type ServiceCategory,
   type ServiceItem,
 } from '../../data/services';
+import { DEFAULT_SERVICES_PAGE_INTRO } from '../../data/settings';
 import { ServiceIcon } from '../../components/ServiceIcon';
 import {
   IMAGE_UPLOAD_ACCEPT,
@@ -23,20 +28,13 @@ import {
 } from '../../utils/imageUpload';
 import './AdminServicesPage.css';
 
-const ICON_OPTIONS: ServiceIconType[] = [
-  'ac',
-  'electrical',
-  'lift',
-  'appliances',
-  'motor',
-  'commercial',
-];
-
 type Draft = {
   name: string;
   shortName: string;
   description: string;
   details: string;
+  servicesTitle: string;
+  servicesHint: string;
   icon: ServiceIconType;
   images: string[];
   services: ServiceItem[];
@@ -49,8 +47,10 @@ const emptyDraft = (): Draft => ({
   shortName: '',
   description: '',
   details: '',
+  servicesTitle: DEFAULT_SERVICES_TITLE,
+  servicesHint: DEFAULT_SERVICES_HINT,
   icon: 'ac',
-  images: createCategoryImages(0),
+  images: [],
   services: [],
   tagsInput: '',
   newService: '',
@@ -62,6 +62,8 @@ function toDraft(category: ServiceCategory): Draft {
     shortName: category.shortName,
     description: category.description,
     details: category.details,
+    servicesTitle: category.servicesTitle || DEFAULT_SERVICES_TITLE,
+    servicesHint: category.servicesHint || DEFAULT_SERVICES_HINT,
     icon: category.icon,
     images: [...category.images],
     services: category.services.map((service) => ({
@@ -75,6 +77,7 @@ function toDraft(category: ServiceCategory): Draft {
 
 export function AdminServicesPage() {
   const { categories, addCategory, updateCategory, removeCategory } = useServices();
+  const { settings, updateSettings } = useSettings();
   const { showToast } = useToast();
 
   const [query, setQuery] = useState('');
@@ -83,6 +86,17 @@ export function AdminServicesPage() {
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [error, setError] = useState('');
   const [imageError, setImageError] = useState('');
+  const [iconError, setIconError] = useState('');
+  const [iconBusy, setIconBusy] = useState(false);
+  const [pageIntro, setPageIntro] = useState(
+    settings.servicesPageIntro || DEFAULT_SERVICES_PAGE_INTRO,
+  );
+  const [pageIntroError, setPageIntroError] = useState('');
+  const [pageIntroBusy, setPageIntroBusy] = useState(false);
+
+  useEffect(() => {
+    setPageIntro(settings.servicesPageIntro || DEFAULT_SERVICES_PAGE_INTRO);
+  }, [settings.servicesPageIntro]);
 
   const selected = useMemo(
     () => categories.find((c) => c.id === selectedId) ?? null,
@@ -111,6 +125,7 @@ export function AdminServicesPage() {
     setDraft(emptyDraft());
     setError('');
     setImageError('');
+    setIconError('');
   }
 
   function openEdit(category: ServiceCategory) {
@@ -119,6 +134,7 @@ export function AdminServicesPage() {
     setDraft(toDraft(category));
     setError('');
     setImageError('');
+    setIconError('');
   }
 
   function closePanel() {
@@ -126,6 +142,59 @@ export function AdminServicesPage() {
     setSelectedId(null);
     setError('');
     setImageError('');
+    setIconError('');
+  }
+
+  async function applyIconSelection(next: ServiceIconType) {
+    const previous = draft.icon;
+    setDraft((d) => ({ ...d, icon: next }));
+    setIconError('');
+    if (previous && previous !== next && isCustomServiceIcon(previous)) {
+      void deleteUploadedImage(previous).catch(() => undefined);
+    }
+  }
+
+  async function handleIconUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    const previous = draft.icon;
+    setIconError('');
+    setIconBusy(true);
+    try {
+      const icon = await uploadImage(file, 'icons');
+      setDraft((d) => ({ ...d, icon }));
+      showToast('Icon uploaded.', 'info');
+      if (previous && previous !== icon && isCustomServiceIcon(previous)) {
+        void deleteUploadedImage(previous).catch(() => undefined);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not upload icon.';
+      setIconError(message);
+      showToast(message, 'danger');
+    } finally {
+      setIconBusy(false);
+    }
+  }
+
+  async function handleDeleteCustomIcon() {
+    const current = draft.icon;
+    if (!isCustomServiceIcon(current)) return;
+
+    setIconBusy(true);
+    setIconError('');
+    try {
+      const deleted = await deleteUploadedImage(current);
+      setDraft((d) => ({ ...d, icon: 'ac' }));
+      if (deleted) showToast('Uploaded icon deleted.', 'info');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not delete icon.';
+      setIconError(message);
+      showToast(message, 'danger');
+    } finally {
+      setIconBusy(false);
+    }
   }
 
   function addDraftService() {
@@ -165,8 +234,8 @@ export function AdminServicesPage() {
     setImageError('');
     setDraft((d) => {
       if (d.images.includes(image)) return d;
-      if (d.images.length >= CATEGORY_IMAGE_COUNT) {
-        setImageError(`You can add up to ${CATEGORY_IMAGE_COUNT} images for this category.`);
+      if (d.images.length >= CATEGORY_IMAGE_MAX) {
+        setImageError(`You can add up to ${CATEGORY_IMAGE_MAX} images for this service.`);
         return d;
       }
       return { ...d, images: [...d.images, image] };
@@ -179,8 +248,8 @@ export function AdminServicesPage() {
     if (!file) return;
 
     setImageError('');
-    if (draft.images.length >= CATEGORY_IMAGE_COUNT) {
-      const message = `You can add up to ${CATEGORY_IMAGE_COUNT} images for this category.`;
+    if (draft.images.length >= CATEGORY_IMAGE_MAX) {
+      const message = `You can add up to ${CATEGORY_IMAGE_MAX} images for this service.`;
       setImageError(message);
       showToast(message, 'danger');
       return;
@@ -188,7 +257,7 @@ export function AdminServicesPage() {
 
     try {
       const image = await uploadImage(file, 'services');
-      setDraft((d) => ({ ...d, images: [...d.images, image].slice(0, CATEGORY_IMAGE_COUNT) }));
+      setDraft((d) => ({ ...d, images: [...d.images, image].slice(0, CATEGORY_IMAGE_MAX) }));
       showToast('Image uploaded.', 'info');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not upload image.';
@@ -220,6 +289,7 @@ export function AdminServicesPage() {
     e.preventDefault();
     setError('');
     setImageError('');
+    setIconError('');
 
     if (!draft.name.trim()) {
       setError('Category name is required.');
@@ -227,12 +297,19 @@ export function AdminServicesPage() {
       return;
     }
 
-    const images = draft.images.filter(Boolean);
-    if (images.length < CATEGORY_IMAGE_COUNT) {
-      setError(`Add ${CATEGORY_IMAGE_COUNT} images for this category (currently ${images.length}).`);
-      showToast(`Add ${CATEGORY_IMAGE_COUNT} images for this category.`, 'danger');
+    if (!draft.icon.trim()) {
+      setIconError('Choose a built-in icon or upload a custom one.');
+      showToast('Choose a built-in icon or upload a custom one.', 'danger');
       return;
     }
+
+    if (draft.images.length > CATEGORY_IMAGE_MAX) {
+      setImageError(`You can add up to ${CATEGORY_IMAGE_MAX} images for this service.`);
+      showToast(`You can add up to ${CATEGORY_IMAGE_MAX} images for this service.`, 'danger');
+      return;
+    }
+
+    const images = draft.images.filter(Boolean).slice(0, CATEGORY_IMAGE_MAX);
 
     const services = draft.services
       .map((service) => ({
@@ -253,8 +330,10 @@ export function AdminServicesPage() {
       shortName: draft.shortName || draft.name,
       description: draft.description,
       details: draft.details,
+      servicesTitle: draft.servicesTitle.trim() || DEFAULT_SERVICES_TITLE,
+      servicesHint: draft.servicesHint.trim() || DEFAULT_SERVICES_HINT,
       icon: draft.icon,
-      images: images.slice(0, CATEGORY_IMAGE_COUNT),
+      images,
       services,
       tags: parseTagsInput(draft.tagsInput),
     };
@@ -279,14 +358,35 @@ export function AdminServicesPage() {
     }
   }
 
+  async function handlePageIntroSave(e: FormEvent) {
+    e.preventDefault();
+    setPageIntroError('');
+    const next = pageIntro.trim() || DEFAULT_SERVICES_PAGE_INTRO;
+    setPageIntroBusy(true);
+    try {
+      await updateSettings({ servicesPageIntro: next });
+      setPageIntro(next);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not save page intro.';
+      setPageIntroError(message);
+      showToast(message, 'danger');
+    } finally {
+      setPageIntroBusy(false);
+    }
+  }
+
   async function handleDelete() {
     if (!selectedId) return;
     if (!window.confirm('Remove this service category?')) return;
     const images = selected?.images ?? draft.images;
+    const icon = selected?.icon ?? draft.icon;
     try {
       await removeCategory(selectedId);
       for (const image of images) {
         void deleteUploadedImage(image).catch(() => undefined);
+      }
+      if (isCustomServiceIcon(icon)) {
+        void deleteUploadedImage(icon).catch(() => undefined);
       }
       closePanel();
     } catch (err) {
@@ -315,6 +415,29 @@ export function AdminServicesPage() {
           </button>
         </div>
       </div>
+
+      <form className="admin-card admin-services__page-intro" onSubmit={handlePageIntroSave}>
+        <div className="admin-services__page-intro-head">
+          <div>
+            <h3>Services Page Intro</h3>
+            <p className="admin-muted">
+              Shown at the top of the public Services page above the category list.
+            </p>
+          </div>
+          <button type="submit" className="admin-services__page-intro-save" disabled={pageIntroBusy}>
+            <Save size={15} />
+            {pageIntroBusy ? 'Saving…' : 'Save Intro'}
+          </button>
+        </div>
+        <textarea
+          rows={3}
+          value={pageIntro}
+          onChange={(e) => setPageIntro(e.target.value)}
+          placeholder={DEFAULT_SERVICES_PAGE_INTRO}
+          aria-label="Services page intro"
+        />
+        {pageIntroError && <p className="admin-services__error">{pageIntroError}</p>}
+      </form>
 
       <div className="admin-card admin-table-wrap">
         <table className="admin-table">
@@ -426,21 +549,73 @@ export function AdminServicesPage() {
                 />
               </label>
 
-              <label>
+              <div className="admin-services__icon-field">
                 <span>Icon</span>
-                <select
-                  value={draft.icon}
-                  onChange={(e) =>
-                    setDraft((d) => ({ ...d, icon: e.target.value as ServiceIconType }))
-                  }
-                >
-                  {ICON_OPTIONS.map((icon) => (
-                    <option key={icon} value={icon}>
-                      {icon}
-                    </option>
+                <div className="admin-services__icon-preview">
+                  <span className="admin-services__icon-preview-badge">
+                    <ServiceIcon type={draft.icon} size={28} />
+                  </span>
+                  <div>
+                    <strong>{isCustomServiceIcon(draft.icon) ? 'Custom upload' : draft.icon}</strong>
+                    <p className="admin-muted">
+                      Shown on the homepage Our Services cards and services list.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="admin-services__icon-actions">
+                  <label
+                    className="admin-services__upload"
+                    title={`Upload icon · ${IMAGE_UPLOAD_SPECS.icons.ratio} · max ${MAX_IMAGE_UPLOAD_LABEL}`}
+                  >
+                    <ImagePlus size={15} />
+                    {iconBusy ? 'Uploading…' : `Upload icon (max ${MAX_IMAGE_UPLOAD_LABEL})`}
+                    <input
+                      type="file"
+                      accept={IMAGE_UPLOAD_ACCEPT}
+                      hidden
+                      disabled={iconBusy}
+                      onChange={handleIconUpload}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="admin-services__remove-icon"
+                    disabled={!isCustomServiceIcon(draft.icon) || iconBusy}
+                    onClick={() => {
+                      void handleDeleteCustomIcon();
+                    }}
+                  >
+                    <Trash2 size={15} />
+                    Remove upload
+                  </button>
+                </div>
+
+                <div className="admin-services__icon-presets" role="group" aria-label="Built-in icons">
+                  {BUILT_IN_SERVICE_ICONS.map((icon) => (
+                    <button
+                      key={icon}
+                      type="button"
+                      className={
+                        draft.icon === icon
+                          ? 'admin-services__icon-preset is-active'
+                          : 'admin-services__icon-preset'
+                      }
+                      title={icon}
+                      aria-label={`Use ${icon} icon`}
+                      aria-pressed={draft.icon === icon}
+                      disabled={iconBusy}
+                      onClick={() => {
+                        void applyIconSelection(icon);
+                      }}
+                    >
+                      <ServiceIcon type={icon} size={20} />
+                    </button>
                   ))}
-                </select>
-              </label>
+                </div>
+                <p className="admin-services__upload-hint">{getImageUploadHint('icons')}</p>
+                {iconError && <p className="admin-services__error">{iconError}</p>}
+              </div>
 
               <label className="admin-services__seo-tags">
                 <span>SEO Tags (category)</span>
@@ -458,13 +633,14 @@ export function AdminServicesPage() {
 
               <div className="admin-services__images">
                 <div className="admin-services__images-head">
-                  <span>Category Images</span>
+                  <span>Service Images</span>
                   <em>
-                    {draft.images.length}/{CATEGORY_IMAGE_COUNT}
+                    {draft.images.length}/{CATEGORY_IMAGE_MAX}
                   </em>
                 </div>
                 <p className="admin-services__hint">
-                  Add exactly {CATEGORY_IMAGE_COUNT} images for this category gallery.
+                  Upload up to {CATEGORY_IMAGE_MAX} images. You can save with fewer than{' '}
+                  {CATEGORY_IMAGE_MAX}.
                 </p>
 
                 <div className="admin-services__image-grid">
@@ -486,8 +662,14 @@ export function AdminServicesPage() {
 
                 <div className="admin-services__image-actions">
                   <label
-                    className="admin-services__upload"
-                    title={`Upload image · ${IMAGE_UPLOAD_SPECS.services.ratio} · max ${MAX_IMAGE_UPLOAD_LABEL}`}
+                    className={`admin-services__upload${
+                      draft.images.length >= CATEGORY_IMAGE_MAX ? ' is-disabled' : ''
+                    }`}
+                    title={
+                      draft.images.length >= CATEGORY_IMAGE_MAX
+                        ? `Maximum of ${CATEGORY_IMAGE_MAX} images reached`
+                        : `Upload image · ${IMAGE_UPLOAD_SPECS.services.ratio} · max ${MAX_IMAGE_UPLOAD_LABEL}`
+                    }
                   >
                     <ImagePlus size={15} />
                     Upload image (max {MAX_IMAGE_UPLOAD_LABEL})
@@ -495,6 +677,7 @@ export function AdminServicesPage() {
                       type="file"
                       accept={IMAGE_UPLOAD_ACCEPT}
                       hidden
+                      disabled={draft.images.length >= CATEGORY_IMAGE_MAX}
                       onChange={handleUpload}
                     />
                   </label>
@@ -506,6 +689,7 @@ export function AdminServicesPage() {
                         className="admin-services__preset"
                         onClick={() => addPresetImage(image)}
                         title="Add preset image"
+                        disabled={draft.images.length >= CATEGORY_IMAGE_MAX}
                       >
                         <img src={image} alt="" />
                       </button>
@@ -514,6 +698,32 @@ export function AdminServicesPage() {
                 </div>
                 <p className="admin-services__upload-hint">{getImageUploadHint('services')}</p>
               </div>
+
+              <label>
+                <span>Services Section Title</span>
+                <input
+                  type="text"
+                  value={draft.servicesTitle}
+                  onChange={(e) => setDraft((d) => ({ ...d, servicesTitle: e.target.value }))}
+                  placeholder={DEFAULT_SERVICES_TITLE}
+                />
+                <em className="admin-services__seo-note">
+                  Heading shown above the selectable service items on the service page.
+                </em>
+              </label>
+
+              <label>
+                <span>Services Section Text</span>
+                <textarea
+                  rows={2}
+                  value={draft.servicesHint}
+                  onChange={(e) => setDraft((d) => ({ ...d, servicesHint: e.target.value }))}
+                  placeholder={DEFAULT_SERVICES_HINT}
+                />
+                <em className="admin-services__seo-note">
+                  Supporting line shown above the service items list.
+                </em>
+              </label>
 
               <div className="admin-services__items">
                 <div className="admin-services__items-head">

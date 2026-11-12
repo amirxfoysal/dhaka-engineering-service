@@ -9,7 +9,10 @@ import './AdminReviewsPage.css';
 
 type Draft = {
   customerName: string;
+  companyName: string;
   mobile: string;
+  email: string;
+  location: string;
   bookingId: string;
   serviceName: string;
   rating: number;
@@ -18,7 +21,10 @@ type Draft = {
 
 const emptyDraft = (): Draft => ({
   customerName: '',
+  companyName: '',
   mobile: '',
+  email: '',
+  location: '',
   bookingId: '',
   serviceName: '',
   rating: 5,
@@ -28,7 +34,10 @@ const emptyDraft = (): Draft => ({
 function toDraft(review: Review): Draft {
   return {
     customerName: review.customerName,
-    mobile: review.mobile,
+    companyName: review.companyName ?? '',
+    mobile: review.mobile ?? '',
+    email: review.email ?? '',
+    location: review.location ?? '',
     bookingId: review.bookingId,
     serviceName: review.serviceName,
     rating: review.rating,
@@ -95,14 +104,9 @@ export function AdminReviewsPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!draft.customerName.trim() || !draft.comment.trim()) {
-      setError('Customer name and review text are required.');
-      showToast('Customer name and review text are required.', 'danger');
-      return;
-    }
-    if (!draft.serviceName.trim()) {
-      setError('Service name is required.');
-      showToast('Service name is required.', 'danger');
+    if (!draft.customerName.trim()) {
+      setError('Customer name is required.');
+      showToast('Customer name is required.', 'danger');
       return;
     }
 
@@ -110,7 +114,10 @@ export function AdminReviewsPage() {
       if (mode === 'create') {
         const result = await addReview({
           customerName: draft.customerName,
+          companyName: draft.companyName,
           mobile: draft.mobile,
+          email: draft.email,
+          location: draft.location,
           bookingId: draft.bookingId.trim() || undefined,
           serviceName: draft.serviceName,
           rating: draft.rating,
@@ -131,6 +138,10 @@ export function AdminReviewsPage() {
       if (!selectedId) return;
       await updateReview(selectedId, {
         customerName: draft.customerName,
+        companyName: draft.companyName,
+        mobile: draft.mobile,
+        email: draft.email,
+        location: draft.location,
         serviceName: draft.serviceName,
         rating: draft.rating,
         comment: draft.comment,
@@ -202,7 +213,9 @@ export function AdminReviewsPage() {
                   <strong>{review.customerName}</strong>
                   <div className="admin-muted">
                     #{review.bookingId}
+                    {review.companyName ? ` · ${review.companyName}` : ''}
                     {review.mobile ? ` · ${review.mobile}` : ''}
+                    {review.location ? ` · ${review.location}` : ''}
                   </div>
                 </td>
                 <td>{review.serviceName}</td>
@@ -255,7 +268,7 @@ export function AdminReviewsPage() {
 
             <form className="admin-reviews__form" onSubmit={handleSubmit}>
               <label>
-                <span>Customer Name</span>
+                <span>Name</span>
                 <input
                   type="text"
                   value={draft.customerName}
@@ -265,40 +278,66 @@ export function AdminReviewsPage() {
                 />
               </label>
 
-              {mode === 'create' && (
-                <>
-                  <label>
-                    <span>Mobile (optional)</span>
-                    <input
-                      type="tel"
-                      value={draft.mobile}
-                      onChange={(e) => setDraft((d) => ({ ...d, mobile: e.target.value }))}
-                      placeholder="01XXXXXXXXX"
-                    />
-                  </label>
+              <label>
+                <span>Company Name (optional)</span>
+                <input
+                  type="text"
+                  value={draft.companyName}
+                  onChange={(e) => setDraft((d) => ({ ...d, companyName: e.target.value }))}
+                  placeholder="Company name"
+                />
+              </label>
 
-                  <label>
-                    <span>Booking ID (optional)</span>
-                    <input
-                      type="text"
-                      value={draft.bookingId}
-                      onChange={(e) => setDraft((d) => ({ ...d, bookingId: e.target.value }))}
-                      placeholder="Leave blank to auto-generate"
-                    />
-                  </label>
-                </>
+              <label>
+                <span>Phone (optional)</span>
+                <input
+                  type="tel"
+                  value={draft.mobile}
+                  onChange={(e) => setDraft((d) => ({ ...d, mobile: e.target.value }))}
+                  placeholder="01XXXXXXXXX"
+                />
+              </label>
+
+              <label>
+                <span>Email (optional)</span>
+                <input
+                  type="email"
+                  value={draft.email}
+                  onChange={(e) => setDraft((d) => ({ ...d, email: e.target.value }))}
+                  placeholder="name@example.com"
+                />
+              </label>
+
+              <label>
+                <span>Location (optional)</span>
+                <input
+                  type="text"
+                  value={draft.location}
+                  onChange={(e) => setDraft((d) => ({ ...d, location: e.target.value }))}
+                  placeholder="e.g. Mirpur, Dhaka"
+                />
+              </label>
+
+              {mode === 'create' && (
+                <label>
+                  <span>Booking ID (optional)</span>
+                  <input
+                    type="text"
+                    value={draft.bookingId}
+                    onChange={(e) => setDraft((d) => ({ ...d, bookingId: e.target.value }))}
+                    placeholder="Leave blank to auto-generate"
+                  />
+                </label>
               )}
 
               <label>
-                <span>Service</span>
+                <span>Service (optional)</span>
                 {serviceOptions.length > 0 ? (
                   <select
                     value={draft.serviceName}
                     onChange={(e) => setDraft((d) => ({ ...d, serviceName: e.target.value }))}
                   >
-                    <option value="" disabled>
-                      Select service
-                    </option>
+                    <option value="">Customer Review</option>
                     {!serviceOptions.includes(draft.serviceName) && draft.serviceName ? (
                       <option value={draft.serviceName}>{draft.serviceName}</option>
                     ) : null}
@@ -329,13 +368,12 @@ export function AdminReviewsPage() {
               </div>
 
               <label>
-                <span>Review</span>
+                <span>Review (optional)</span>
                 <textarea
                   rows={5}
                   value={draft.comment}
                   onChange={(e) => setDraft((d) => ({ ...d, comment: e.target.value }))}
                   placeholder="Write the customer review"
-                  required
                 />
               </label>
 

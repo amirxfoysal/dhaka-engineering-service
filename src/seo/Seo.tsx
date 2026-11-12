@@ -18,7 +18,6 @@ import {
   GOOGLE_SITE_VERIFICATION,
   PAGE_SEO,
   SITE_ALTERNATE_NAMES,
-  SITE_FAQS,
   SITE_GEO,
   SITE_LOGO_URL,
   SITE_NAME,
@@ -116,6 +115,8 @@ function buildBreadcrumbs(pathname: string, categoryName?: string) {
     items.push({ name: categoryName, path: pathname });
   }
   if (pathname === '/clients') items.push({ name: 'Clients', path: '/clients' });
+  if (pathname === '/reviews') items.push({ name: 'Customer Reviews', path: '/reviews' });
+  if (pathname === '/review') items.push({ name: 'Leave a Review', path: '/review' });
   if (pathname === '/book') items.push({ name: 'Book a Service', path: '/book' });
 
   if (items.length < 2) return null;
@@ -358,13 +359,12 @@ export function Seo() {
     else document.getElementById('seo-breadcrumbs')?.remove();
 
     const serviceProfile = category ? getServiceSeo(category.id) : undefined;
-    const pageFaqs = pathname === '/' ? SITE_FAQS : serviceProfile?.faqs;
-
-    if (pageFaqs?.length) {
+    // FAQ markup is homepage-only; service pages no longer show FAQ sections.
+    if (pathname === '/' && settings.siteFaqs.length) {
       upsertJsonLd('seo-faq', {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: pageFaqs.map((faq) => ({
+        mainEntity: settings.siteFaqs.map((faq) => ({
           '@type': 'Question',
           name: faq.question,
           acceptedAnswer: {

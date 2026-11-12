@@ -9,9 +9,8 @@ import {
 } from 'react';
 import { apiRequest } from '../api/client';
 import {
-  CATEGORY_IMAGE_COUNT,
   SERVICE_CATEGORIES,
-  createCategoryImages,
+  clampCategoryImages,
   createServiceItem,
   normalizeCategory,
   type ServiceCategory,
@@ -26,6 +25,8 @@ export type CategoryInput = {
   shortName: string;
   description: string;
   details: string;
+  servicesTitle: string;
+  servicesHint: string;
   icon: ServiceIconType;
   images: string[];
   services: ServiceItem[];
@@ -56,10 +57,8 @@ type ServicesContextValue = {
 
 const ServicesContext = createContext<ServicesContextValue | null>(null);
 
-function normalizeImages(images: string[] | undefined, seed = 0) {
-  const cleaned = (images ?? []).map((image) => image.trim()).filter(Boolean);
-  if (cleaned.length >= CATEGORY_IMAGE_COUNT) return cleaned.slice(0, CATEGORY_IMAGE_COUNT);
-  return createCategoryImages(seed);
+function normalizeImages(images: string[] | undefined) {
+  return clampCategoryImages(images);
 }
 
 export function ServicesProvider({ children }: { children: ReactNode }) {
@@ -103,7 +102,7 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
         auth: true,
         body: {
           ...input,
-          images: normalizeImages(input.images, input.name.length),
+          images: normalizeImages(input.images),
         },
       });
       setCategories((list) => [...list, category]);

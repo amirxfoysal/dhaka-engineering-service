@@ -8,7 +8,17 @@ import {
   type ReactNode,
 } from 'react';
 import { apiRequest } from '../api/client';
-import { DEFAULT_SETTINGS, normalizeExternalUrl, type AppSettings } from '../data/settings';
+import {
+  DEFAULT_ABOUT_BODY,
+  DEFAULT_ABOUT_TITLE,
+  DEFAULT_SERVICES_PAGE_INTRO,
+  DEFAULT_SETTINGS,
+  DEFAULT_WHY_CHOOSE_TITLE,
+  normalizeExternalUrl,
+  normalizeSiteFaqs,
+  normalizeWhyChooseItems,
+  type AppSettings,
+} from '../data/settings';
 import { useToast } from './ToastContext';
 
 type SettingsContextValue = {
@@ -19,6 +29,20 @@ type SettingsContextValue = {
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
+function normalizeSettings(data: Partial<AppSettings> | null | undefined): AppSettings {
+  return {
+    ...DEFAULT_SETTINGS,
+    ...data,
+    servicesPageIntro:
+      String(data?.servicesPageIntro || '').trim() || DEFAULT_SERVICES_PAGE_INTRO,
+    aboutTitle: String(data?.aboutTitle || '').trim() || DEFAULT_ABOUT_TITLE,
+    aboutBody: String(data?.aboutBody || '').trim() || DEFAULT_ABOUT_BODY,
+    siteFaqs: normalizeSiteFaqs(data?.siteFaqs),
+    whyChooseTitle: String(data?.whyChooseTitle || '').trim() || DEFAULT_WHY_CHOOSE_TITLE,
+    whyChooseItems: normalizeWhyChooseItems(data?.whyChooseItems),
+  };
+}
+
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const { showToast } = useToast();
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -28,7 +52,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         const data = await apiRequest<AppSettings>('/api/settings');
-        if (!cancelled) setSettings(data);
+        if (!cancelled) setSettings(normalizeSettings(data));
       } catch {
         if (!cancelled) showToast('Could not load settings from server.', 'danger');
       }
@@ -67,6 +91,28 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
           patch.linkedinUrl === undefined
             ? settings.linkedinUrl
             : normalizeExternalUrl(patch.linkedinUrl),
+        servicesPageIntro:
+          patch.servicesPageIntro === undefined
+            ? settings.servicesPageIntro
+            : patch.servicesPageIntro.trim() || DEFAULT_SERVICES_PAGE_INTRO,
+        aboutTitle:
+          patch.aboutTitle === undefined
+            ? settings.aboutTitle
+            : patch.aboutTitle.trim() || DEFAULT_ABOUT_TITLE,
+        aboutBody:
+          patch.aboutBody === undefined
+            ? settings.aboutBody
+            : patch.aboutBody.trim() || DEFAULT_ABOUT_BODY,
+        siteFaqs:
+          patch.siteFaqs === undefined ? settings.siteFaqs : normalizeSiteFaqs(patch.siteFaqs),
+        whyChooseTitle:
+          patch.whyChooseTitle === undefined
+            ? settings.whyChooseTitle
+            : patch.whyChooseTitle.trim() || DEFAULT_WHY_CHOOSE_TITLE,
+        whyChooseItems:
+          patch.whyChooseItems === undefined
+            ? settings.whyChooseItems
+            : normalizeWhyChooseItems(patch.whyChooseItems),
       };
 
       const saved = await apiRequest<AppSettings>('/api/settings', {
@@ -74,8 +120,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         auth: true,
         body: next,
       });
-      setSettings(saved);
-      showToast('Business settings saved.');
+      setSettings(normalizeSettings(saved));
+      showToast('Settings saved.');
     },
     [settings, showToast],
   );
@@ -86,7 +132,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       auth: true,
       body: DEFAULT_SETTINGS,
     });
-    setSettings(saved);
+    setSettings(normalizeSettings(saved));
     showToast('Business settings reset to defaults.', 'info');
   }, [showToast]);
 

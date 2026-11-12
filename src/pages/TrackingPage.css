@@ -345,10 +345,22 @@
   color: var(--text-secondary);
 }
 
+.tracking-review__form input,
 .tracking-review__form textarea {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: #fff;
+}
+
+.tracking-review__form input {
+  min-height: 42px;
+}
+
+.tracking-review__form textarea {
   min-height: 100px;
   resize: vertical;
   font: inherit;

@@ -2,8 +2,8 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquareQuote, Phone, Search, ShieldCheck } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
-import { StatusTracker } from '../components/StatusTracker';
 import { StarRating } from '../components/StarRating';
+import { StatusTracker } from '../components/StatusTracker';
 import { useApp } from '../context/AppContext';
 import { useReviews } from '../context/ReviewsContext';
 import { useToast } from '../context/ToastContext';
@@ -47,6 +47,7 @@ export function TrackingPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState('');
 
@@ -85,6 +86,7 @@ export function TrackingPage() {
     setReviewError('');
     setReviewSuccess('');
     setComment('');
+    setCompanyName('');
     setRating(5);
 
     try {
@@ -114,8 +116,17 @@ export function TrackingPage() {
     setReviewError('');
     setReviewSuccess('');
     setComment('');
+    setCompanyName('');
     setRating(5);
     showToast('Tracking search cleared.', 'info');
+  }
+
+  function resetReviewForm() {
+    setReviewError('');
+    setReviewSuccess('');
+    setComment('');
+    setCompanyName('');
+    setRating(5);
   }
 
   async function handleReviewSubmit(e: FormEvent) {
@@ -127,6 +138,7 @@ export function TrackingPage() {
     const result = await addReview({
       bookingId: selected.id,
       customerName: selected.customerName,
+      companyName,
       mobile: selected.mobile,
       serviceName: selected.serviceName,
       rating,
@@ -140,11 +152,11 @@ export function TrackingPage() {
 
     setReviewSuccess('Thanks! Your review is now visible on the home page.');
     setComment('');
+    setCompanyName('');
     setRating(5);
   }
 
   const existingReview = selected ? getReviewByBookingId(selected.id) : undefined;
-
   const showTechnician = selected ? isTechnicianVisible(selected) : false;
   const callUrl = showTechnician
     ? `tel:${selected!.technician!.phone.replace(/-/g, '')}`
@@ -217,10 +229,7 @@ export function TrackingPage() {
                         className={`tracking-list__item${selected.id === booking.id ? ' is-active' : ''}`}
                         onClick={() => {
                           setSelectedId(booking.id);
-                          setReviewError('');
-                          setReviewSuccess('');
-                          setComment('');
-                          setRating(5);
+                          resetReviewForm();
                         }}
                       >
                         <strong>#{booking.id}</strong>
@@ -315,7 +324,7 @@ export function TrackingPage() {
               {existingReview ? (
                 <div className="tracking-review__existing">
                   <StarRating value={existingReview.rating} />
-                  <p>{existingReview.comment}</p>
+                  {existingReview.comment ? <p>{existingReview.comment}</p> : null}
                   <span>You already submitted a review for this booking.</span>
                 </div>
               ) : (
@@ -325,7 +334,16 @@ export function TrackingPage() {
                     <StarRating value={rating} editable onChange={setRating} size={22} />
                   </div>
                   <label>
-                    <span>Your review</span>
+                    <span>Company Name (optional)</span>
+                    <input
+                      type="text"
+                      placeholder="Company or organization"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                    />
+                  </label>
+                  <label>
+                    <span>Your review (optional)</span>
                     <textarea
                       rows={4}
                       placeholder="Tell us about the service quality..."

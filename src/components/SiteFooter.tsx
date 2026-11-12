@@ -11,7 +11,8 @@ const quickLinks = [
   { to: '/book', label: 'Book a Service' },
   { to: '/bookings', label: 'My Booking' },
   { to: '/tracking', label: 'Tracking' },
-  { to: '/#leave-a-review', label: 'Leave a Review' },
+  { to: '/reviews', label: 'Customer Reviews' },
+  { to: '/review', label: 'Leave a Review' },
 ];
 
 export function SiteFooter() {

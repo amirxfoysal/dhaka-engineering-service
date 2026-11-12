@@ -18,7 +18,7 @@ const upload = multer({
   },
 });
 
-const ALLOWED_SECTIONS = new Set(['services', 'banners', 'offers', 'clients']);
+const ALLOWED_SECTIONS = new Set(['services', 'icons', 'banners', 'offers', 'clients']);
 
 const deleteSchema = z.object({
   url: z.string().url().optional(),

@@ -1,4 +1,24 @@
-export type ServiceIconId = 'ac' | 'electrical' | 'lift' | 'appliances' | 'motor' | 'commercial';
+export const BUILT_IN_SERVICE_ICONS = [
+  'ac',
+  'electrical',
+  'lift',
+  'appliances',
+  'motor',
+  'commercial',
+] as const;
+
+export type BuiltInServiceIconId = (typeof BUILT_IN_SERVICE_ICONS)[number];
+
+/** Built-in Lucide key, or a custom uploaded icon URL / path. */
+export type ServiceIconId = BuiltInServiceIconId | (string & {});
+
+export function isBuiltInServiceIcon(icon: string): icon is BuiltInServiceIconId {
+  return (BUILT_IN_SERVICE_ICONS as readonly string[]).includes(icon);
+}
+
+export function isCustomServiceIcon(icon: string): boolean {
+  return Boolean(icon) && !isBuiltInServiceIcon(icon);
+}
 
 export type ServiceItem = {
   id: string;
@@ -7,12 +27,19 @@ export type ServiceItem = {
   tags: string[];
 };
 
+export const DEFAULT_SERVICES_TITLE = 'Select Services';
+export const DEFAULT_SERVICES_HINT = 'Choose one or more service items to book.';
+
 export type ServiceCategory = {
   id: string;
   name: string;
   shortName: string;
   description: string;
   details: string;
+  /** Heading shown above the selectable service items. */
+  servicesTitle: string;
+  /** Supporting line shown above the selectable service items. */
+  servicesHint: string;
   icon: ServiceIconId;
   images: string[];
   services: ServiceItem[];
@@ -68,7 +95,11 @@ export const SERVICE_IMAGE_PRESETS = [
   '/images/technician-rahim.jpg',
 ] as const;
 
-export const CATEGORY_IMAGE_COUNT = 5;
+/** Maximum gallery images allowed per service category. Fewer than this is allowed. */
+export const CATEGORY_IMAGE_MAX = 10;
+
+/** @deprecated Use CATEGORY_IMAGE_MAX. Kept for older imports. */
+export const CATEGORY_IMAGE_COUNT = CATEGORY_IMAGE_MAX;
 
 function slugify(value: string) {
   return (
@@ -80,10 +111,18 @@ function slugify(value: string) {
   );
 }
 
-export function createCategoryImages(seed = 0): string[] {
-  return Array.from({ length: CATEGORY_IMAGE_COUNT }, (_, index) => {
+export function createCategoryImages(seed = 0, count = SERVICE_IMAGE_PRESETS.length): string[] {
+  const length = Math.max(0, Math.min(count, CATEGORY_IMAGE_MAX, SERVICE_IMAGE_PRESETS.length));
+  return Array.from({ length }, (_, index) => {
     return SERVICE_IMAGE_PRESETS[(seed + index) % SERVICE_IMAGE_PRESETS.length];
   });
+}
+
+export function clampCategoryImages(images: string[] | undefined): string[] {
+  return (images ?? [])
+    .map((image) => String(image).trim())
+    .filter(Boolean)
+    .slice(0, CATEGORY_IMAGE_MAX);
 }
 
 export function createServiceItem(name: string, id?: string, tags: string[] = []): ServiceItem {
@@ -121,6 +160,8 @@ function makeCategory(
     shortName,
     description,
     details,
+    servicesTitle: DEFAULT_SERVICES_TITLE,
+    servicesHint: DEFAULT_SERVICES_HINT,
     icon,
     images: createCategoryImages(id.length),
     services: items.map((item) => {
@@ -312,9 +353,7 @@ export function normalizeCategory(raw: Partial<ServiceCategory> & { id?: string 
     .map((item) => normalizeServiceItem(item))
     .filter((item): item is ServiceItem => Boolean(item));
 
-  const images = Array.isArray(raw.images)
-    ? raw.images.map((image) => String(image).trim()).filter(Boolean)
-    : [];
+  const images = clampCategoryImages(Array.isArray(raw.images) ? raw.images : []);
 
   return {
     id,
@@ -322,11 +361,11 @@ export function normalizeCategory(raw: Partial<ServiceCategory> & { id?: string 
     shortName: raw.shortName?.trim() || name,
     description: raw.description?.trim() || seed?.description || '',
     details: raw.details?.trim() || seed?.details || '',
-    icon: (raw.icon as ServiceIconId) || seed?.icon || 'ac',
-    images:
-      images.length >= CATEGORY_IMAGE_COUNT
-        ? images.slice(0, CATEGORY_IMAGE_COUNT)
-        : createCategoryImages(id.length),
+    servicesTitle:
+      raw.servicesTitle?.trim() || seed?.servicesTitle || DEFAULT_SERVICES_TITLE,
+    servicesHint: raw.servicesHint?.trim() || seed?.servicesHint || DEFAULT_SERVICES_HINT,
+    icon: String(raw.icon || '').trim() || seed?.icon || 'ac',
+    images: images.length ? images : seed?.images ? clampCategoryImages(seed.images) : [],
     services: services.length
       ? services.map((service) => {
           const seedService = seed?.services.find(

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { BottomNav } from './components/BottomNav';
 import { HelplineSection } from './components/HelplineSection';
+import { ScrollToTop } from './components/ScrollToTop';
 import { SiteFooter } from './components/SiteFooter';
 import { SocialMediaSection } from './components/SocialMediaSection';
 import { TopNav } from './components/TopNav';
@@ -25,6 +26,12 @@ const BookingsPage = lazy(() =>
 );
 const TrackingPage = lazy(() =>
   import('./pages/TrackingPage').then((m) => ({ default: m.TrackingPage })),
+);
+const ReviewPage = lazy(() =>
+  import('./pages/ReviewPage').then((m) => ({ default: m.ReviewPage })),
+);
+const ReviewsPage = lazy(() =>
+  import('./pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })),
 );
 
 const AdminApp = lazy(() =>
@@ -60,6 +67,7 @@ export default function App() {
   return (
     <div className={`app-shell${hideBottomNav ? ' app-shell--no-bottom-nav' : ''}`}>
       <Seo />
+      <ScrollToTop />
       <TopNav />
       <main className="app-main">
         <Suspense fallback={<RouteFallback />}>
@@ -71,6 +79,8 @@ export default function App() {
             <Route path="/book" element={<BookingPage />} />
             <Route path="/bookings" element={<BookingsPage />} />
             <Route path="/tracking" element={<TrackingPage />} />
+            <Route path="/review" element={<ReviewPage />} />
+            <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/profile" element={<Navigate to="/tracking" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

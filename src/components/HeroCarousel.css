@@ -5,6 +5,17 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--deep-navy);
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+}
+
+.home-hero:active {
+  cursor: grabbing;
+}
+
+.home-hero--empty {
+  cursor: default;
 }
 
 .home-hero--empty .home-hero__overlay {
@@ -36,6 +47,7 @@
   width: 100%;
   height: 100%;
   display: block;
+  pointer-events: none;
 }
 
 .home-hero__slide img {
@@ -52,7 +64,7 @@
   justify-content: center;
   align-items: flex-start;
   gap: 12px;
-  padding: 18px 16px;
+  padding: 18px 44px;
 }
 
 .home-hero__overlay p {
@@ -73,43 +85,40 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
 }
 
 .home-hero__cta:hover {
   background: #eef3fb;
 }
 
-.home-hero__dots {
+.home-hero__nav {
   position: absolute;
-  left: 50%;
-  bottom: 8px;
-  transform: translateX(-50%);
-  z-index: 3;
-  display: flex;
-  gap: 6px;
-}
-
-.home-hero__dot {
-  width: 44px;
-  height: 44px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: transparent;
+  background: rgba(15, 23, 42, 0.55);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
 }
 
-.home-hero__dot::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.45);
+.home-hero__nav:hover {
+  background: rgba(15, 23, 42, 0.78);
 }
 
-.home-hero__dot.is-active::before {
-  background: #fff;
-  width: 18px;
-  border-radius: 999px;
+.home-hero__nav.is-prev {
+  left: 8px;
+}
+
+.home-hero__nav.is-next {
+  right: 8px;
 }
 
 @media (min-width: 768px) {
@@ -119,7 +128,7 @@
   }
 
   .home-hero__overlay {
-    padding: 28px 32px;
+    padding: 28px 56px;
     gap: 16px;
   }
 
@@ -134,8 +143,17 @@
     padding: 10px 18px;
   }
 
-  .home-hero__dots {
-    bottom: 14px;
+  .home-hero__nav {
+    width: 40px;
+    height: 40px;
+  }
+
+  .home-hero__nav.is-prev {
+    left: 12px;
+  }
+
+  .home-hero__nav.is-next {
+    right: 12px;
   }
 }
 

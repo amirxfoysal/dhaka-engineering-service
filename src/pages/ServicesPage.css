@@ -51,6 +51,13 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.services-item__icon .service-icon-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .services-item__text {

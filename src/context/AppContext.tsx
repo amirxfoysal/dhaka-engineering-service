@@ -43,6 +43,14 @@ type BookingUpdate = Partial<
   >
 >;
 
+type RemoveCustomerResult = {
+  mobile: string;
+  deletedBookings: number;
+  deletedReviews: number;
+  deletedNotifications: number;
+  bookingIds: string[];
+};
+
 type AppContextValue = {
   user: UserProfile;
   bookings: Booking[];
@@ -52,6 +60,8 @@ type AppContextValue = {
   setActiveBookingId: (id: string | null) => void;
   updateBookingStatus: (id: string, status: BookingStatus) => Promise<void>;
   updateBooking: (id: string, patch: BookingUpdate) => Promise<void>;
+  removeBooking: (id: string) => Promise<void>;
+  removeCustomer: (mobile: string) => Promise<RemoveCustomerResult>;
   refreshBookings: (options?: RefreshBookingsOptions) => Promise<Booking[]>;
 };
 
@@ -233,6 +243,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [updateBooking],
   );
 
+  const removeBooking = useCallback(
+    async (id: string) => {
+      await apiRequest(`/api/bookings/${id}`, { method: 'DELETE', auth: true });
+      setBookings((list) => list.filter((b) => b.id !== id));
+      setActiveBookingIdState((current) => (current === id ? null : current));
+      showToast(`Booking #${id} deleted.`, 'info');
+    },
+    [showToast],
+  );
+
+  const removeCustomer = useCallback(
+    async (mobile: string) => {
+      const normalized = mobile.replace(/\D/g, '');
+      const result = await apiRequest<RemoveCustomerResult>(`/api/customers/${encodeURIComponent(normalized)}`, {
+        method: 'DELETE',
+        auth: true,
+      });
+      const removedIds = new Set(result.bookingIds ?? []);
+      setBookings((list) =>
+        list.filter((b) => {
+          if (removedIds.has(b.id)) return false;
+          return b.mobile.replace(/\D/g, '') !== normalized;
+        }),
+      );
+      setActiveBookingIdState((current) => (current && removedIds.has(current) ? null : current));
+      showToast(
+        `Customer removed (${result.deletedBookings} booking${result.deletedBookings === 1 ? '' : 's'}).`,
+        'info',
+      );
+      return result;
+    },
+    [showToast],
+  );
+
   const activeBooking = useMemo(() => {
     if (activeBookingId) {
       const found = bookings.find((b) => b.id === activeBookingId);
@@ -251,6 +295,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setActiveBookingId,
       updateBookingStatus,
       updateBooking,
+      removeBooking,
+      removeCustomer,
       refreshBookings,
     }),
     [
@@ -262,6 +308,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setActiveBookingId,
       updateBookingStatus,
       updateBooking,
+      removeBooking,
+      removeCustomer,
       refreshBookings,
     ],
   );

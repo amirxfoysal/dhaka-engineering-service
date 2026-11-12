@@ -16,11 +16,13 @@ const categorySchema = new Schema(
     shortName: { type: String, required: true },
     description: { type: String, required: true },
     details: { type: String, required: true },
-    icon: {
+    servicesTitle: { type: String, default: 'Select Services' },
+    servicesHint: {
       type: String,
-      enum: ['ac', 'electrical', 'lift', 'appliances', 'motor', 'commercial'],
-      required: true,
+      default: 'Choose one or more service items to book.',
     },
+    // Built-in Lucide key (e.g. "ac") or custom uploaded icon URL.
+    icon: { type: String, required: true },
     images: { type: [String], required: true },
     services: { type: [serviceItemSchema], required: true },
     tags: { type: [String], default: [] },

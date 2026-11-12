@@ -24,6 +24,83 @@
   padding-bottom: 18px;
 }
 
+.admin-settings__card--wide {
+  width: 100%;
+}
+
+.admin-settings__hint {
+  margin: -4px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.admin-settings__faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-settings__faq-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.admin-settings__faq-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-settings__faq-item-head strong {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.admin-settings__faq-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: #fef3f2;
+  color: #b42318;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-settings__faq-remove:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.admin-settings__faq-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: #eef4ff;
+  color: var(--primary-blue);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-settings__faq-add:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .admin-settings-form {
   display: flex;
   flex-direction: column;
@@ -51,17 +128,30 @@
   color: var(--primary-navy);
 }
 
-.admin-settings-form input {
+.admin-settings-form input,
+.admin-settings-form select,
+.admin-settings-form textarea {
   min-height: 44px;
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: #fff;
   color: var(--text-primary);
+  font: inherit;
   font-size: 14px;
 }
 
-.admin-settings-form input:focus {
+.admin-settings-form select {
+  cursor: pointer;
+}
+
+.admin-settings-form textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.admin-settings-form input:focus,
+.admin-settings-form textarea:focus {
   outline: 2px solid rgba(6, 90, 221, 0.25);
   border-color: var(--primary-blue);
 }

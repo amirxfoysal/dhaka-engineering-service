@@ -2,19 +2,20 @@ import { Link } from 'react-router-dom';
 import { ServiceIcon } from '../components/ServiceIcon';
 import { PageHeader } from '../components/PageHeader';
 import { useServices } from '../context/ServicesContext';
+import { useSettings } from '../context/SettingsContext';
+import { DEFAULT_SERVICES_PAGE_INTRO } from '../data/settings';
 import './ServicesPage.css';
 
 export function ServicesPage() {
   const { categories } = useServices();
+  const { settings } = useSettings();
+  const intro = settings.servicesPageIntro?.trim() || DEFAULT_SERVICES_PAGE_INTRO;
 
   return (
     <div className="page services-page">
       <PageHeader title="Our Services" showBack={false} variant="white" />
       <div className="section-pad services-page__content">
-        <p className="services-page__intro">
-          Explore AC, electrical, lift, appliances, motor, and commercial engineering services
-          across Dhaka Metro. Choose a category to view details and book a technician online.
-        </p>
+        <p className="services-page__intro">{intro}</p>
         <div className="services-grid">
           {categories.map((cat) => (
             <Link key={cat.id} to={`/services/${cat.id}`} className="services-item card">

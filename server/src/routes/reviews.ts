@@ -9,10 +9,13 @@ const router = Router();
 const reviewSchema = z.object({
   bookingId: z.string().trim().min(1).optional(),
   customerName: z.string().trim().min(1),
-  mobile: z.string().trim().min(1),
-  serviceName: z.string().trim().min(1),
-  rating: z.number().int().min(1).max(5),
-  comment: z.string().trim().min(1),
+  companyName: z.string().trim().optional().default(''),
+  mobile: z.string().trim().optional().default(''),
+  email: z.string().trim().optional().default(''),
+  location: z.string().trim().optional().default(''),
+  serviceName: z.string().trim().optional().default(''),
+  rating: z.number().int().min(1).max(5).optional().default(5),
+  comment: z.string().trim().optional().default(''),
   fromAdmin: z.boolean().optional(),
 });
 
@@ -21,10 +24,13 @@ function mapReview(doc: Record<string, unknown>) {
     id: doc.id,
     bookingId: doc.bookingId,
     customerName: doc.customerName,
-    mobile: doc.mobile,
-    serviceName: doc.serviceName,
+    companyName: String(doc.companyName || ''),
+    mobile: String(doc.mobile || ''),
+    email: String(doc.email || ''),
+    location: String(doc.location || ''),
+    serviceName: String(doc.serviceName || 'Customer Review'),
     rating: doc.rating,
-    comment: doc.comment,
+    comment: String(doc.comment || ''),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -46,9 +52,11 @@ router.post('/', async (req, res) => {
     const adminIds = existing
       .map((r) => r.id)
       .concat(
-        (await Review.find({ bookingId: /^ADM/ }).select('bookingId').lean()).map((r) => r.bookingId),
+        (await Review.find({ bookingId: /^(ADM|PUB)/ }).select('bookingId').lean()).map(
+          (r) => r.bookingId,
+        ),
       );
-    bookingId = nextPrefixedId('ADM', adminIds);
+    bookingId = nextPrefixedId(parsed.data.fromAdmin ? 'ADM' : 'PUB', adminIds);
   }
 
   const conflict = await Review.findOne({ bookingId });
@@ -57,13 +65,19 @@ router.post('/', async (req, res) => {
   }
 
   const review = {
-    id: nextPrefixedId('REV', existing.map((r) => r.id)),
+    id: nextPrefixedId(
+      'REV',
+      existing.map((r) => r.id),
+    ),
     bookingId,
     customerName: parsed.data.customerName,
-    mobile: parsed.data.mobile,
-    serviceName: parsed.data.serviceName,
-    rating: parsed.data.rating,
-    comment: parsed.data.comment,
+    companyName: parsed.data.companyName?.trim() || '',
+    mobile: parsed.data.mobile?.replace(/\D/g, '') || '',
+    email: parsed.data.email?.trim() || '',
+    location: parsed.data.location?.trim() || '',
+    serviceName: parsed.data.serviceName?.trim() || 'Customer Review',
+    rating: parsed.data.rating ?? 5,
+    comment: parsed.data.comment?.trim() || '',
     createdAt: new Date().toISOString(),
   };
 
@@ -79,8 +93,13 @@ router.patch('/:id', requireAdmin, async (req, res) => {
   if (!existing) return res.status(404).json({ error: 'Review not found.' });
 
   if (parsed.data.customerName !== undefined) existing.customerName = parsed.data.customerName;
-  if (parsed.data.mobile !== undefined) existing.mobile = parsed.data.mobile;
-  if (parsed.data.serviceName !== undefined) existing.serviceName = parsed.data.serviceName;
+  if (parsed.data.companyName !== undefined) existing.companyName = parsed.data.companyName;
+  if (parsed.data.mobile !== undefined) existing.mobile = parsed.data.mobile.replace(/\D/g, '');
+  if (parsed.data.email !== undefined) existing.email = parsed.data.email;
+  if (parsed.data.location !== undefined) existing.location = parsed.data.location;
+  if (parsed.data.serviceName !== undefined) {
+    existing.serviceName = parsed.data.serviceName.trim() || 'Customer Review';
+  }
   if (parsed.data.rating !== undefined) existing.rating = parsed.data.rating;
   if (parsed.data.comment !== undefined) existing.comment = parsed.data.comment;
   existing.updatedAt = new Date().toISOString();

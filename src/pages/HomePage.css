@@ -124,6 +124,13 @@
   color: var(--primary-navy);
   display: grid;
   place-items: center;
+  overflow: hidden;
+}
+
+.service-card__icon .service-icon-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .service-card__label {
