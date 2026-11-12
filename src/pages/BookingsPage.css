@@ -206,8 +206,13 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  align-items: stretch;
+  align-items: center;
   padding-top: 48px;
+}
+
+.bookings-empty .btn-primary,
+.bookings-empty .btn-outline {
+  width: min(100%, 320px);
 }
 
 .bookings-grid {
