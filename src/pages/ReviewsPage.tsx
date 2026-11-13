@@ -69,6 +69,11 @@ export function ReviewsPage() {
                   <div>
                     <strong>{review.customerName}</strong>
                     {review.companyName?.trim() ? <em>{review.companyName.trim()}</em> : null}
+                    {review.serviceName?.trim() &&
+                    review.serviceName.trim().toLowerCase() !== 'customer review' &&
+                    review.serviceName.trim().toLowerCase() !== 'general feedback' ? (
+                      <em className="reviews-page__service">{review.serviceName.trim()}</em>
+                    ) : null}
                   </div>
                 </div>
               </li>

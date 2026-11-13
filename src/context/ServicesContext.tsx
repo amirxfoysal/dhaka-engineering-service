@@ -117,9 +117,13 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
       const category = await apiRequest<ServiceCategory>(`/api/categories/${id}`, {
         method: 'PATCH',
         auth: true,
-        body: patch,
+        body: {
+          ...patch,
+          ...(patch.images !== undefined ? { images: normalizeImages(patch.images) } : {}),
+        },
       });
-      setCategories((list) => list.map((cat) => (cat.id === id ? category : cat)));
+      const normalized = normalizeCategory(category) ?? category;
+      setCategories((list) => list.map((cat) => (cat.id === id ? normalized : cat)));
       showToast('Service category updated.');
     },
     [showToast],

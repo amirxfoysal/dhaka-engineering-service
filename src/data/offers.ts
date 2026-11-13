@@ -8,14 +8,5 @@ export type SpecialOffer = {
   linkTo?: string;
 };
 
-export const DEFAULT_OFFERS: SpecialOffer[] = [
-  {
-    id: 'OFFER001',
-    eyebrow: 'Special Offers',
-    title: 'AC Service Get 20% Discount',
-    badge: '20% OFF',
-    image: '/images/ac-offer.jpg',
-    active: true,
-    linkTo: '/book',
-  },
-];
+/** No bundled stock offers — add offers with uploaded images in admin. */
+export const DEFAULT_OFFERS: SpecialOffer[] = [];

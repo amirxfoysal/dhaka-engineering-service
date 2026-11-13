@@ -22,8 +22,14 @@ import { SEED_BOOKINGS } from './seedData/bookings.js';
 async function upsertMany<T extends { id: string }>(
   model: { updateOne: (filter: object, update: object, options?: object) => Promise<unknown> },
   items: T[],
+  options?: { insertOnly?: boolean },
 ) {
   for (const item of items) {
+    if (options?.insertOnly) {
+      // Do not overwrite admin edits (e.g. deleted default images) on re-seed.
+      await model.updateOne({ id: item.id }, { $setOnInsert: item }, { upsert: true });
+      continue;
+    }
     await model.updateOne({ id: item.id }, { $set: item }, { upsert: true });
   }
 }
@@ -53,23 +59,23 @@ async function seed() {
   );
   console.log('Settings upserted');
 
-  await upsertMany(Category, SERVICE_CATEGORIES);
-  console.log(`Categories upserted: ${SERVICE_CATEGORIES.length}`);
+  await upsertMany(Category, SERVICE_CATEGORIES, { insertOnly: true });
+  console.log(`Categories seeded (insert-only): ${SERVICE_CATEGORIES.length}`);
 
-  await upsertMany(Banner, DEFAULT_BANNERS);
-  console.log(`Banners upserted: ${DEFAULT_BANNERS.length}`);
+  await upsertMany(Banner, DEFAULT_BANNERS, { insertOnly: true });
+  console.log(`Banners seeded (insert-only): ${DEFAULT_BANNERS.length}`);
 
-  await upsertMany(Offer, DEFAULT_OFFERS);
-  console.log(`Offers upserted: ${DEFAULT_OFFERS.length}`);
+  await upsertMany(Offer, DEFAULT_OFFERS, { insertOnly: true });
+  console.log(`Offers seeded (insert-only): ${DEFAULT_OFFERS.length}`);
 
-  await upsertMany(Client, DEFAULT_CLIENTS);
-  console.log(`Clients upserted: ${DEFAULT_CLIENTS.length}`);
+  await upsertMany(Client, DEFAULT_CLIENTS, { insertOnly: true });
+  console.log(`Clients seeded (insert-only): ${DEFAULT_CLIENTS.length}`);
 
-  await upsertMany(Review, DEFAULT_REVIEWS);
-  console.log(`Reviews upserted: ${DEFAULT_REVIEWS.length}`);
+  await upsertMany(Review, DEFAULT_REVIEWS, { insertOnly: true });
+  console.log(`Reviews seeded (insert-only): ${DEFAULT_REVIEWS.length}`);
 
-  await upsertMany(Technician, ADMIN_TECHNICIANS);
-  console.log(`Technicians upserted: ${ADMIN_TECHNICIANS.length}`);
+  await upsertMany(Technician, ADMIN_TECHNICIANS, { insertOnly: true });
+  console.log(`Technicians seeded (insert-only): ${ADMIN_TECHNICIANS.length}`);
 
   const bookingCount = await Booking.countDocuments();
   if (bookingCount === 0) {

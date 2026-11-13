@@ -117,6 +117,8 @@ function buildBreadcrumbs(pathname: string, categoryName?: string) {
   if (pathname === '/clients') items.push({ name: 'Clients', path: '/clients' });
   if (pathname === '/reviews') items.push({ name: 'Customer Reviews', path: '/reviews' });
   if (pathname === '/review') items.push({ name: 'Leave a Review', path: '/review' });
+  if (pathname === '/privacy') items.push({ name: 'Privacy Policy', path: '/privacy' });
+  if (pathname === '/terms') items.push({ name: 'Terms and Conditions', path: '/terms' });
   if (pathname === '/book') items.push({ name: 'Book a Service', path: '/book' });
 
   if (items.length < 2) return null;

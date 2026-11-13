@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { apiRequest } from '../api/client';
 import { DEFAULT_OFFERS, type SpecialOffer } from '../data/offers';
+import { isUploadedMediaUrl } from '../utils/imageUpload';
 import { useToast } from './ToastContext';
 
 export type OfferInput = {
@@ -39,7 +40,14 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         const data = await apiRequest<SpecialOffer[]>('/api/offers');
-        if (!cancelled) setOffers(data);
+        if (!cancelled) {
+          setOffers(
+            data.map((offer) => ({
+              ...offer,
+              image: isUploadedMediaUrl(offer.image) ? offer.image : '',
+            })),
+          );
+        }
       } catch {
         if (!cancelled) showToast('Could not load offers from server.', 'danger');
       }
@@ -85,7 +93,10 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     [showToast],
   );
 
-  const activeOffers = useMemo(() => offers.filter((o) => o.active), [offers]);
+  const activeOffers = useMemo(
+    () => offers.filter((o) => o.active && isUploadedMediaUrl(o.image)),
+    [offers],
+  );
 
   const value = useMemo(
     () => ({

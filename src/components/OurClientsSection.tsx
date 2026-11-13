@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { OptimizedImage } from './OptimizedImage';
 import { useClients } from '../context/ClientsContext';
 import './OurClientsSection.css';
 
@@ -28,18 +29,17 @@ export function OurClientsSection() {
 
       <ul className="our-clients__grid">
         {visibleClients.map((client) => (
-          <li key={client.id} className="our-clients__item">
-            <div className="our-clients__logo">
-              <img
+          <li key={client.id} className="our-clients__card">
+            <span className="our-clients__media">
+              <OptimizedImage
                 src={client.logo}
                 alt={`${client.name} logo`}
-                width={160}
-                height={80}
-                loading="lazy"
-                decoding="async"
+                width={320}
+                height={220}
+                sizes="(max-width: 767px) 30vw, (max-width: 1023px) 28vw, 160px"
               />
-            </div>
-            <span className="our-clients__name">{client.name}</span>
+            </span>
+            <span className="our-clients__label">{client.name}</span>
           </li>
         ))}
       </ul>

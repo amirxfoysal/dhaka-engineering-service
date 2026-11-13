@@ -101,19 +101,34 @@ export function HomePage() {
           </Link>
         </div>
         <div className="home-services__grid">
-          {filtered.map((cat) => (
-            <Link
-              key={cat.id}
-              to={`/services/${cat.id}`}
-              className="service-card"
-              onClick={() => showToast(`Opening ${cat.shortName}.`, 'info')}
-            >
-              <span className="service-card__icon">
-                <ServiceIcon type={cat.icon} size={26} />
-              </span>
-              <span className="service-card__label">{cat.shortName}</span>
-            </Link>
-          ))}
+          {filtered.map((cat) => {
+            const cover = cat.images.find(Boolean) || '';
+            return (
+              <Link
+                key={cat.id}
+                to={`/services/${cat.id}`}
+                className="service-card"
+                onClick={() => showToast(`Opening ${cat.shortName}.`, 'info')}
+              >
+                <span className="service-card__media" aria-hidden={!cover}>
+                  {cover ? (
+                    <OptimizedImage
+                      src={cover}
+                      alt=""
+                      width={320}
+                      height={220}
+                      sizes="(max-width: 767px) 30vw, (max-width: 1023px) 28vw, 160px"
+                    />
+                  ) : (
+                    <span className="service-card__media-fallback">
+                      <ServiceIcon type={cat.icon} size={28} />
+                    </span>
+                  )}
+                </span>
+                <span className="service-card__label">{cat.shortName}</span>
+              </Link>
+            );
+          })}
           {filtered.length === 0 && (
             <p className="home-services__empty">No services match your search.</p>
           )}

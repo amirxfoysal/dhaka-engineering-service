@@ -64,6 +64,35 @@ export function isCloudinaryUrl(url: string) {
   }
 }
 
+/**
+ * Section media (service galleries, banners, offers, client logos) should only
+ * show images the admin uploaded — not bundled `/images/...` stock presets.
+ */
+export function isUploadedMediaUrl(url: string) {
+  const value = url.trim();
+  if (!value) return false;
+  if (value.startsWith('data:')) return false;
+
+  if (isCloudinaryUrl(value)) return true;
+
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+    // Absolute links to this site's stock image folder still count as presets.
+    if (parsed.pathname.startsWith('/images/')) return false;
+    return true;
+  } catch {
+    // Relative path
+  }
+
+  if (value.startsWith('/images/')) return false;
+  return value.startsWith('/');
+}
+
+export function filterUploadedMedia(urls: string[] | undefined) {
+  return (urls ?? []).map((url) => String(url).trim()).filter(isUploadedMediaUrl);
+}
+
 /** @deprecated Prefer uploadImage for Cloudinary-backed storage. */
 export async function readImageFile(file: File): Promise<string> {
   assertImageFile(file);

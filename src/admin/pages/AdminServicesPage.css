@@ -52,10 +52,21 @@
   cursor: not-allowed;
 }
 
-.admin-services__page-intro textarea {
+.admin-services__page-intro-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-services__page-intro-field span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.admin-services__page-intro-field input,
+.admin-services__page-intro-field textarea {
   width: 100%;
-  min-height: 84px;
-  resize: vertical;
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 12px;
@@ -63,6 +74,15 @@
   font-size: 14px;
   color: var(--text-primary);
   background: #fff;
+}
+
+.admin-services__page-intro-field input {
+  min-height: 42px;
+}
+
+.admin-services__page-intro-field textarea {
+  min-height: 84px;
+  resize: vertical;
 }
 
 .admin-services__header .admin-page-title {

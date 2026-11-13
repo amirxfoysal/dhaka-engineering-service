@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Building2,
   CheckCircle2,
@@ -8,32 +8,100 @@ import {
   Phone,
   Star,
   UserRound,
+  Wrench,
 } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { StarRating } from '../components/StarRating';
 import { useReviews } from '../context/ReviewsContext';
+import { useServices } from '../context/ServicesContext';
 import './ReviewPage.css';
 
-type Errors = Partial<Record<'customerName' | 'email', string>>;
+const GENERAL_SERVICE = 'General feedback';
+
+type Errors = Partial<Record<'customerName' | 'email' | 'serviceName', string>>;
 
 export function ReviewPage() {
   const { addReview } = useReviews();
+  const { categories } = useServices();
+  const [searchParams] = useSearchParams();
+
+  const serviceOptions = useMemo(() => {
+    const options: Array<{ value: string; label: string; group: string }> = [
+      { value: GENERAL_SERVICE, label: 'General feedback', group: 'General' },
+    ];
+
+    for (const category of categories) {
+      options.push({
+        value: category.name,
+        label: `${category.name} (overall)`,
+        group: category.name,
+      });
+      for (const service of category.services) {
+        options.push({
+          value: service.name,
+          label: service.name,
+          group: category.name,
+        });
+      }
+    }
+
+    return options;
+  }, [categories]);
+
+  const groupedOptions = useMemo(() => {
+    const groups = new Map<string, Array<{ value: string; label: string }>>();
+    for (const option of serviceOptions) {
+      const list = groups.get(option.group) ?? [];
+      list.push({ value: option.value, label: option.label });
+      groups.set(option.group, list);
+    }
+    return Array.from(groups.entries());
+  }, [serviceOptions]);
+
+  const initialService = useMemo(() => {
+    const fromQuery =
+      searchParams.get('service')?.trim() ||
+      searchParams.get('serviceName')?.trim() ||
+      '';
+    if (fromQuery) {
+      const exact = serviceOptions.find(
+        (option) => option.value.toLowerCase() === fromQuery.toLowerCase(),
+      );
+      if (exact) return exact.value;
+      return fromQuery;
+    }
+
+    const categoryId = searchParams.get('category')?.trim();
+    if (categoryId) {
+      const category = categories.find((item) => item.id === categoryId);
+      if (category) return category.name;
+    }
+
+    return GENERAL_SERVICE;
+  }, [categories, searchParams, serviceOptions]);
+
   const [customerName, setCustomerName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
   const [location, setLocation] = useState('');
+  const [serviceName, setServiceName] = useState(initialService);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  useEffect(() => {
+    setServiceName(initialService);
+  }, [initialService]);
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const next: Errors = {};
     if (!customerName.trim()) next.customerName = 'Name is required';
     if (email.trim() && !email.includes('@')) next.email = 'Enter a valid email';
+    if (!serviceName.trim()) next.serviceName = 'Select a service';
     setErrors(next);
     if (Object.keys(next).length) return;
 
@@ -44,6 +112,7 @@ export function ReviewPage() {
       mobile,
       email,
       location,
+      serviceName: serviceName.trim() || GENERAL_SERVICE,
       rating,
       comment,
     });
@@ -57,9 +126,15 @@ export function ReviewPage() {
     setMobile('');
     setEmail('');
     setLocation('');
+    setServiceName(initialService);
     setRating(5);
     setComment('');
   }
+
+  const knownServiceValues = useMemo(
+    () => new Set(serviceOptions.map((option) => option.value)),
+    [serviceOptions],
+  );
 
   return (
     <div className="page review-page">
@@ -74,7 +149,8 @@ export function ReviewPage() {
               <p className="review-page__eyebrow">Customer feedback</p>
               <h2>Share your experience</h2>
               <p>
-                Only your name is required. Company, phone, email, and location are optional.
+                Choose the service you used, then leave your rating. Only your name is required —
+                company, phone, email, and location are optional.
               </p>
             </div>
           </div>
@@ -86,19 +162,53 @@ export function ReviewPage() {
               </span>
               <div className="review-page__success-copy">
                 <h3>Thank you for your review</h3>
-                <p>Your feedback is now visible on our homepage for everyone to see.</p>
+                <p>Your feedback is now visible on our homepage and the related service page.</p>
               </div>
               <div className="review-page__success-actions">
                 <button type="button" className="btn-primary" onClick={() => setSubmitted(false)}>
                   Write another review
                 </button>
-                <Link to="/" className="btn-outline">
-                  Back to home
+                <Link to="/reviews" className="btn-outline">
+                  See all reviews
                 </Link>
               </div>
             </div>
           ) : (
             <form className="review-form" onSubmit={onSubmit} noValidate>
+              <label className="form-field review-form__span-2">
+                <span className="form-field__label">
+                  Service <em>*</em>
+                </span>
+                <div className="form-field__control form-field__control--select">
+                  <Wrench size={18} strokeWidth={2} aria-hidden />
+                  <select
+                    value={
+                      knownServiceValues.has(serviceName) ? serviceName : '__custom__'
+                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '__custom__') return;
+                      setServiceName(value);
+                    }}
+                    aria-label="Select a service"
+                  >
+                    {!knownServiceValues.has(serviceName) && serviceName.trim() ? (
+                      <option value="__custom__">{serviceName}</option>
+                    ) : null}
+                    {groupedOptions.map(([group, options]) => (
+                      <optgroup key={group} label={group}>
+                        {options.map((option) => (
+                          <option key={`${group}-${option.value}`} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
+                {errors.serviceName && <span className="field-error">{errors.serviceName}</span>}
+              </label>
+
               <label className="form-field review-form__span-2">
                 <span className="form-field__label">
                   Name <em>*</em>
@@ -198,7 +308,7 @@ export function ReviewPage() {
                 <div className="form-field__control form-field__control--textarea">
                   <textarea
                     rows={4}
-                    placeholder="Tell us about your experience with our service"
+                    placeholder="Tell us about your experience with this service"
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                   />

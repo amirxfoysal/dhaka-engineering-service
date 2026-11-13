@@ -1,14 +1,16 @@
 import { PhoneCall } from 'lucide-react';
+import { phoneTelHref, whatsappChatHref } from '../data/settings';
+import { useSettings } from '../context/SettingsContext';
 import { useToast } from '../context/ToastContext';
 import { WhatsAppIcon } from './SocialIcons';
 import './HelplineSection.css';
 
-const HELPLINE_DISPLAY = '+880 1789-746733';
-const HELPLINE_HREF = 'tel:+8801789746733';
-const WHATSAPP_HREF = 'https://wa.me/8801820165892';
-
 export function HelplineSection() {
+  const { settings } = useSettings();
   const { showToast } = useToast();
+  const helplineDisplay = settings.helplinePhone.trim();
+  const helplineHref = phoneTelHref(helplineDisplay);
+  const whatsappHref = whatsappChatHref(settings.whatsappPhone);
 
   return (
     <section className="helpline" aria-label="Helpline">
@@ -20,15 +22,15 @@ export function HelplineSection() {
         <div className="helpline__actions">
           <a
             className="helpline__call"
-            href={HELPLINE_HREF}
-            onClick={() => showToast(`Calling helpline ${HELPLINE_DISPLAY}…`, 'info')}
+            href={helplineHref || undefined}
+            onClick={() => showToast(`Calling helpline ${helplineDisplay}…`, 'info')}
           >
             <PhoneCall size={18} strokeWidth={2.2} aria-hidden />
-            <span>{HELPLINE_DISPLAY}</span>
+            <span>{helplineDisplay}</span>
           </a>
           <a
             className="helpline__whatsapp"
-            href={WHATSAPP_HREF}
+            href={whatsappHref || undefined}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => showToast('Opening WhatsApp…', 'info')}

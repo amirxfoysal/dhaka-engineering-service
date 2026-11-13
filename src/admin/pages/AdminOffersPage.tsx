@@ -14,13 +14,6 @@ import {
 } from '../../utils/imageUpload';
 import './AdminOffersPage.css';
 
-const IMAGE_OPTIONS = [
-  { value: '/images/ac-offer.jpg', label: 'AC Offer' },
-  { value: '/images/ac-indoor.jpg', label: 'AC Indoor' },
-  { value: '/images/ac-outdoor.jpg', label: 'AC Outdoor' },
-  { value: '/images/hero-technician.jpg', label: 'Technician' },
-];
-
 type Draft = {
   eyebrow: string;
   title: string;
@@ -34,7 +27,7 @@ const emptyDraft = (): Draft => ({
   eyebrow: 'Special Offers',
   title: '',
   badge: '',
-  image: '/images/ac-offer.jpg',
+  image: '',
   active: true,
   linkTo: '/book',
 });
@@ -118,8 +111,8 @@ export function AdminOffersPage() {
     }
 
     if (!draft.image.trim()) {
-      setImageError('Please upload an image or choose a preset.');
-      showToast('Please upload an image or choose a preset.', 'danger');
+      setImageError('Please upload an offer image.');
+      showToast('Please upload an offer image.', 'danger');
       return;
     }
 
@@ -205,15 +198,6 @@ export function AdminOffersPage() {
       showToast(message, 'danger');
     } finally {
       setImageBusy(false);
-    }
-  }
-
-  async function applyImageSelection(next: string) {
-    const previous = draft.image.trim();
-    setDraft((d) => ({ ...d, image: next }));
-    setImageError('');
-    if (previous && previous !== next) {
-      void deleteUploadedImage(previous).catch(() => undefined);
     }
   }
 
@@ -425,38 +409,6 @@ export function AdminOffersPage() {
                 </div>
 
                 <p className="admin-offers__image-hint">{getImageUploadHint('offers')}</p>
-
-                <div className="admin-offers__presets" role="listbox" aria-label="Preset images">
-                  {IMAGE_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      role="option"
-                      aria-selected={draft.image === option.value}
-                      className={`admin-offers__preset${draft.image === option.value ? ' is-active' : ''}`}
-                      disabled={imageBusy}
-                      onClick={() => {
-                        void applyImageSelection(option.value);
-                      }}
-                    >
-                      <img src={option.value} alt="" />
-                      <em>{option.label}</em>
-                    </button>
-                  ))}
-                </div>
-
-                <label className="admin-offers__url">
-                  <span>Or paste image URL / path</span>
-                  <input
-                    type="text"
-                    value={draft.image.startsWith('data:') ? '' : draft.image}
-                    placeholder="/images/ac-offer.jpg or https://..."
-                    onChange={(e) => {
-                      setDraft((d) => ({ ...d, image: e.target.value }));
-                      setImageError('');
-                    }}
-                  />
-                </label>
               </div>
 
               <label>

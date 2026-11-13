@@ -121,6 +121,11 @@
   color: var(--text-secondary);
 }
 
+.reviews-page__service {
+  color: var(--primary-blue) !important;
+  font-weight: 600;
+}
+
 @media (min-width: 768px) {
   .reviews-page .page-header {
     display: none;

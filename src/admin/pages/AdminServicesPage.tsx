@@ -8,7 +8,6 @@ import {
   CATEGORY_IMAGE_MAX,
   DEFAULT_SERVICES_HINT,
   DEFAULT_SERVICES_TITLE,
-  SERVICE_IMAGE_PRESETS,
   createServiceItem,
   formatTagsInput,
   isCustomServiceIcon,
@@ -16,7 +15,10 @@ import {
   type ServiceCategory,
   type ServiceItem,
 } from '../../data/services';
-import { DEFAULT_SERVICES_PAGE_INTRO } from '../../data/settings';
+import {
+  DEFAULT_SERVICES_PAGE_INTRO,
+  DEFAULT_SERVICES_PAGE_TITLE,
+} from '../../data/settings';
 import { ServiceIcon } from '../../components/ServiceIcon';
 import {
   IMAGE_UPLOAD_ACCEPT,
@@ -88,6 +90,9 @@ export function AdminServicesPage() {
   const [imageError, setImageError] = useState('');
   const [iconError, setIconError] = useState('');
   const [iconBusy, setIconBusy] = useState(false);
+  const [pageTitle, setPageTitle] = useState(
+    settings.servicesPageTitle || DEFAULT_SERVICES_PAGE_TITLE,
+  );
   const [pageIntro, setPageIntro] = useState(
     settings.servicesPageIntro || DEFAULT_SERVICES_PAGE_INTRO,
   );
@@ -95,8 +100,9 @@ export function AdminServicesPage() {
   const [pageIntroBusy, setPageIntroBusy] = useState(false);
 
   useEffect(() => {
+    setPageTitle(settings.servicesPageTitle || DEFAULT_SERVICES_PAGE_TITLE);
     setPageIntro(settings.servicesPageIntro || DEFAULT_SERVICES_PAGE_INTRO);
-  }, [settings.servicesPageIntro]);
+  }, [settings.servicesPageIntro, settings.servicesPageTitle]);
 
   const selected = useMemo(
     () => categories.find((c) => c.id === selectedId) ?? null,
@@ -230,18 +236,6 @@ export function AdminServicesPage() {
     }));
   }
 
-  function addPresetImage(image: string) {
-    setImageError('');
-    setDraft((d) => {
-      if (d.images.includes(image)) return d;
-      if (d.images.length >= CATEGORY_IMAGE_MAX) {
-        setImageError(`You can add up to ${CATEGORY_IMAGE_MAX} images for this service.`);
-        return d;
-      }
-      return { ...d, images: [...d.images, image] };
-    });
-  }
-
   async function handleUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = '';
@@ -269,15 +263,20 @@ export function AdminServicesPage() {
   async function removeImage(index: number) {
     const current = draft.images[index];
     setImageError('');
+    const nextImages = draft.images.filter((_, imageIndex) => imageIndex !== index);
     try {
       if (current) {
         const deleted = await deleteUploadedImage(current);
         if (deleted) showToast('Uploaded image deleted.', 'info');
       }
-      setDraft((d) => ({
-        ...d,
-        images: d.images.filter((_, imageIndex) => imageIndex !== index),
-      }));
+      setDraft((d) => ({ ...d, images: nextImages }));
+
+      // Persist immediately while editing so removed default/preset images stay gone.
+      if (mode === 'edit' && selectedId) {
+        await updateCategory(selectedId, { images: nextImages });
+      } else {
+        showToast('Image removed from this service.', 'info');
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not delete image.';
       setImageError(message);
@@ -361,11 +360,16 @@ export function AdminServicesPage() {
   async function handlePageIntroSave(e: FormEvent) {
     e.preventDefault();
     setPageIntroError('');
-    const next = pageIntro.trim() || DEFAULT_SERVICES_PAGE_INTRO;
+    const nextTitle = pageTitle.trim() || DEFAULT_SERVICES_PAGE_TITLE;
+    const nextIntro = pageIntro.trim() || DEFAULT_SERVICES_PAGE_INTRO;
     setPageIntroBusy(true);
     try {
-      await updateSettings({ servicesPageIntro: next });
-      setPageIntro(next);
+      await updateSettings({
+        servicesPageTitle: nextTitle,
+        servicesPageIntro: nextIntro,
+      });
+      setPageTitle(nextTitle);
+      setPageIntro(nextIntro);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not save page intro.';
       setPageIntroError(message);
@@ -419,9 +423,10 @@ export function AdminServicesPage() {
       <form className="admin-card admin-services__page-intro" onSubmit={handlePageIntroSave}>
         <div className="admin-services__page-intro-head">
           <div>
-            <h3>Services Page Intro</h3>
+            <h3>Edit Services Page Intro</h3>
             <p className="admin-muted">
-              Shown at the top of the public Services page above the category list.
+              Controls the headline and supporting text in the navy intro panel on the public
+              Services page.
             </p>
           </div>
           <button type="submit" className="admin-services__page-intro-save" disabled={pageIntroBusy}>
@@ -429,13 +434,26 @@ export function AdminServicesPage() {
             {pageIntroBusy ? 'Saving…' : 'Save Intro'}
           </button>
         </div>
-        <textarea
-          rows={3}
-          value={pageIntro}
-          onChange={(e) => setPageIntro(e.target.value)}
-          placeholder={DEFAULT_SERVICES_PAGE_INTRO}
-          aria-label="Services page intro"
-        />
+        <label className="admin-services__page-intro-field">
+          <span>Headline</span>
+          <input
+            type="text"
+            value={pageTitle}
+            onChange={(e) => setPageTitle(e.target.value)}
+            placeholder={DEFAULT_SERVICES_PAGE_TITLE}
+            aria-label="Services page intro headline"
+          />
+        </label>
+        <label className="admin-services__page-intro-field">
+          <span>Supporting text</span>
+          <textarea
+            rows={3}
+            value={pageIntro}
+            onChange={(e) => setPageIntro(e.target.value)}
+            placeholder={DEFAULT_SERVICES_PAGE_INTRO}
+            aria-label="Services page intro supporting text"
+          />
+        </label>
         {pageIntroError && <p className="admin-services__error">{pageIntroError}</p>}
       </form>
 
@@ -558,7 +576,8 @@ export function AdminServicesPage() {
                   <div>
                     <strong>{isCustomServiceIcon(draft.icon) ? 'Custom upload' : draft.icon}</strong>
                     <p className="admin-muted">
-                      Shown on the homepage Our Services cards and services list.
+                      Fallback only. Homepage Our Services cards use the first uploaded
+                      service image as a full-card cover.
                     </p>
                   </div>
                 </div>
@@ -639,8 +658,9 @@ export function AdminServicesPage() {
                   </em>
                 </div>
                 <p className="admin-services__hint">
-                  Upload up to {CATEGORY_IMAGE_MAX} images. You can save with fewer than{' '}
-                  {CATEGORY_IMAGE_MAX}.
+                  Upload up to {CATEGORY_IMAGE_MAX} images. The first image fills the Our Services
+                  card cover and the Services menu thumbnail. Only uploaded images are shown
+                  publicly.
                 </p>
 
                 <div className="admin-services__image-grid">
@@ -681,20 +701,6 @@ export function AdminServicesPage() {
                       onChange={handleUpload}
                     />
                   </label>
-                  <div className="admin-services__presets">
-                    {SERVICE_IMAGE_PRESETS.map((image) => (
-                      <button
-                        key={image}
-                        type="button"
-                        className="admin-services__preset"
-                        onClick={() => addPresetImage(image)}
-                        title="Add preset image"
-                        disabled={draft.images.length >= CATEGORY_IMAGE_MAX}
-                      >
-                        <img src={image} alt="" />
-                      </button>
-                    ))}
-                  </div>
                 </div>
                 <p className="admin-services__upload-hint">{getImageUploadHint('services')}</p>
               </div>

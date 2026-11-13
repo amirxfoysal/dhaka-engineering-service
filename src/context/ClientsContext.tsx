@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { apiRequest } from '../api/client';
 import { DEFAULT_CLIENTS, type ClientLogo } from '../data/clients';
+import { isUploadedMediaUrl } from '../utils/imageUpload';
 import { useToast } from './ToastContext';
 
 export type ClientInput = {
@@ -36,7 +37,14 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         const data = await apiRequest<ClientLogo[]>('/api/clients');
-        if (!cancelled) setClients(data);
+        if (!cancelled) {
+          setClients(
+            data.map((client) => ({
+              ...client,
+              logo: isUploadedMediaUrl(client.logo) ? client.logo : '',
+            })),
+          );
+        }
       } catch {
         if (!cancelled) showToast('Could not load clients from server.', 'danger');
       }
@@ -83,7 +91,10 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
   );
 
   const activeClients = useMemo(
-    () => clients.filter((client) => client.active && client.logo && client.name),
+    () =>
+      clients.filter(
+        (client) => client.active && client.name && isUploadedMediaUrl(client.logo),
+      ),
     [clients],
   );
 

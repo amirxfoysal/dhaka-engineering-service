@@ -37,17 +37,18 @@ const WHY_CHOOSE_ICON_MAP: Record<WhyChooseIconId, LucideIcon> = {
   warranty: ShieldCheck,
 };
 
-function matchesServiceReview(reviewServiceName: string, serviceNames: string[]) {
+function matchesServiceReview(reviewServiceName: string, candidates: string[]) {
   const review = reviewServiceName.trim().toLowerCase();
-  if (!review) return false;
-  return serviceNames.some((name) => {
+  if (!review || review === 'customer review' || review === 'general feedback') return false;
+  return candidates.some((name) => {
     const target = name.trim().toLowerCase();
+    if (!target) return false;
     return review === target || review.includes(target) || target.includes(review);
   });
 }
 
 function CategoryGallery({ title, images }: { title: string; images: string[] }) {
-  const gallery = images.length ? images : ['/images/ac-indoor.jpg'];
+  const gallery = images.filter(Boolean);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -55,8 +56,19 @@ function CategoryGallery({ title, images }: { title: string; images: string[] })
   }, [title, gallery.length]);
 
   const go = (direction: -1 | 1) => {
+    if (gallery.length === 0) return;
     setIndex((current) => (current + direction + gallery.length) % gallery.length);
   };
+
+  if (gallery.length === 0) {
+    return (
+      <div className="service-gallery">
+        <div className="service-gallery__main service-gallery__main--empty" role="img" aria-label={`${title} gallery`}>
+          <p>No photos uploaded for this service yet.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="service-gallery">
@@ -133,11 +145,28 @@ export function ServiceDetailsPage() {
 
   const serviceReviews = useMemo(() => {
     if (!category) return [];
-    const names = category.services.map((service) => service.name);
+    const names = [
+      category.name,
+      category.shortName,
+      ...category.services.map((service) => service.name),
+    ];
     return reviews
       .filter((review) => matchesServiceReview(review.serviceName, names))
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [category, reviews]);
+
+  const leaveReviewHref = useMemo(() => {
+    if (!category) return '/review';
+    const preferred =
+      selectedServices[0]?.name ||
+      category.services[0]?.name ||
+      category.name;
+    const params = new URLSearchParams({
+      category: category.id,
+      service: preferred,
+    });
+    return `/review?${params.toString()}`;
+  }, [category, selectedServices]);
 
   if (!category) return <Navigate to="/services" replace />;
 
@@ -309,10 +338,20 @@ export function ServiceDetailsPage() {
               )}
             </div>
 
+            <aside className="service-reviews__cta" aria-label="Leave a review for this service">
+              <div className="service-reviews__cta-copy">
+                <p className="service-reviews__cta-badge">Leave a Review</p>
+                <strong>Used this service? Tell others how it went.</strong>
+                <p>Your feedback helps more clients choose with confidence.</p>
+              </div>
+              <Link to={leaveReviewHref} className="service-reviews__cta-btn">
+                Leave a Review
+              </Link>
+            </aside>
+
             {serviceReviews.length === 0 ? (
               <div className="service-reviews__empty">
-                <p>No reviews for this service yet.</p>
-                <Link to="/review">Leave a review</Link>
+                <p>No reviews for this service yet. Be the first to share your experience.</p>
               </div>
             ) : (
               <ul className="service-reviews__list">
@@ -325,7 +364,10 @@ export function ServiceDetailsPage() {
                     {review.companyName?.trim() ? (
                       <em className="service-reviews__company">{review.companyName.trim()}</em>
                     ) : null}
-                    <p>{review.comment}</p>
+                    {review.serviceName?.trim() ? (
+                      <em className="service-reviews__service">{review.serviceName.trim()}</em>
+                    ) : null}
+                    {review.comment?.trim() ? <p>{review.comment.trim()}</p> : null}
                   </li>
                 ))}
               </ul>

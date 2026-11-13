@@ -148,6 +148,20 @@ export const PAGE_SEO: Record<string, SeoPageConfig> = {
       'Read customer reviews for Dhaka Engineering Service. See ratings and feedback from homes and businesses across Dhaka Metro.',
     keywords: DEFAULT_KEYWORDS,
   },
+  '/privacy': {
+    path: '/privacy',
+    title: `Privacy Policy | ${SITE_NAME}`,
+    description:
+      'Read how Dhaka Engineering Service collects, uses, and protects your personal information when you book services or use our website.',
+    keywords: DEFAULT_KEYWORDS,
+  },
+  '/terms': {
+    path: '/terms',
+    title: `Terms and Conditions | ${SITE_NAME}`,
+    description:
+      'Read the Terms and Conditions for booking and using Dhaka Engineering Service website and home engineering services in Dhaka.',
+    keywords: DEFAULT_KEYWORDS,
+  },
 };
 
 export const ADMIN_SEO: SeoPageConfig = {

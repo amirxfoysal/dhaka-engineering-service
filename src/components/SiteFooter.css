@@ -96,6 +96,23 @@
   color: rgba(255, 255, 255, 0.65);
 }
 
+.site-footer__legal {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-footer__legal a {
+  color: rgba(255, 255, 255, 0.86);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.site-footer__legal a:hover {
+  color: #fff;
+}
+
 @media (min-width: 768px) {
   .site-footer {
     padding: 36px 24px 28px;

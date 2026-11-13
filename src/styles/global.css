@@ -233,7 +233,8 @@ ul {
 }
 
 .form-field__control input,
-.form-field__control textarea {
+.form-field__control textarea,
+.form-field__control select {
   flex: 1;
   border: none;
   outline: none;
@@ -242,6 +243,19 @@ ul {
   font-size: 14px;
   color: var(--text-primary);
   min-width: 0;
+}
+
+.form-field__control--select {
+  padding-right: 8px;
+}
+
+.form-field__control--select select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
 }
 
 .form-field__control input::placeholder,

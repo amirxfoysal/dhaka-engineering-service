@@ -117,6 +117,149 @@
   color: var(--text-secondary);
 }
 
+.admin-settings__section {
+  --section-border: #d7e4ff;
+  --section-bg-top: #eef4ff;
+  --section-bg-bottom: #f8fafc;
+  --section-title: var(--primary-navy);
+  --section-accent: #065add;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--section-border);
+  border-left: 4px solid var(--section-accent);
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    var(--section-bg-top) 0%,
+    var(--section-bg-bottom) 100%
+  );
+}
+
+.admin-settings__section--about {
+  --section-border: #bfdbfe;
+  --section-bg-top: #dbeafe;
+  --section-bg-bottom: #eff6ff;
+  --section-title: #1e3a8a;
+  --section-accent: #2563eb;
+}
+
+.admin-settings__section--privacy {
+  --section-border: #fdba74;
+  --section-bg-top: #ffedd5;
+  --section-bg-bottom: #fff7ed;
+  --section-title: #9a3412;
+  --section-accent: #ea580c;
+}
+
+.admin-settings__section--terms {
+  --section-border: #93c5fd;
+  --section-bg-top: #dbeafe;
+  --section-bg-bottom: #eff6ff;
+  --section-title: #1e3a8a;
+  --section-accent: #2563eb;
+}
+
+.admin-settings__section--faq {
+  --section-border: #a7f3d0;
+  --section-bg-top: #d1fae5;
+  --section-bg-bottom: #ecfdf5;
+  --section-title: #065f46;
+  --section-accent: #059669;
+}
+
+.admin-settings__section--why {
+  --section-border: #fde68a;
+  --section-bg-top: #fef3c7;
+  --section-bg-bottom: #fffbeb;
+  --section-title: #92400e;
+  --section-accent: #d97706;
+}
+
+.admin-settings__section--brand {
+  --section-border: #c7d2fe;
+  --section-bg-top: #e0e7ff;
+  --section-bg-bottom: #eef2ff;
+  --section-title: #312e81;
+  --section-accent: #4f46e5;
+}
+
+.admin-settings__section--contact {
+  --section-border: #fecaca;
+  --section-bg-top: #fee2e2;
+  --section-bg-bottom: #fef2f2;
+  --section-title: #991b1b;
+  --section-accent: #dc2626;
+}
+
+.admin-settings__section--location {
+  --section-border: #99f6e4;
+  --section-bg-top: #ccfbf1;
+  --section-bg-bottom: #f0fdfa;
+  --section-title: #115e59;
+  --section-accent: #0d9488;
+}
+
+.admin-settings__section--services {
+  --section-border: #bae6fd;
+  --section-bg-top: #e0f2fe;
+  --section-bg-bottom: #f0f9ff;
+  --section-title: #075985;
+  --section-accent: #0284c7;
+}
+
+.admin-settings__section--social {
+  --section-border: #fbcfe8;
+  --section-bg-top: #fce7f3;
+  --section-bg-bottom: #fdf2f8;
+  --section-title: #9d174d;
+  --section-accent: #db2777;
+}
+
+.admin-settings__section--profile {
+  --section-border: #cbd5e1;
+  --section-bg-top: #e2e8f0;
+  --section-bg-bottom: #f8fafc;
+  --section-title: #1e293b;
+  --section-accent: #475569;
+}
+
+.admin-settings__section--password {
+  --section-border: #ddd6fe;
+  --section-bg-top: #ede9fe;
+  --section-bg-bottom: #f5f3ff;
+  --section-title: #5b21b6;
+  --section-accent: #7c3aed;
+}
+
+.admin-settings__section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--section-border);
+}
+
+.admin-settings__section-head h3 {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--section-title);
+}
+
+.admin-settings__section-head p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
 .admin-settings__section-label {
   margin: 4px 0 0;
   padding-top: 8px;
@@ -126,6 +269,20 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--primary-navy);
+}
+
+.admin-settings__divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid #eef2f7;
+  color: var(--primary-navy);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .admin-settings-form input,
@@ -159,20 +316,6 @@
 .admin-settings-form input:disabled {
   background: #f8fafc;
   color: var(--text-secondary);
-}
-
-.admin-settings__divider {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-  padding-top: 10px;
-  border-top: 1px solid #eef2f7;
-  color: var(--primary-navy);
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
 .admin-settings__error {

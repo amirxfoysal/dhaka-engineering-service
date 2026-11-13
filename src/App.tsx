@@ -33,6 +33,12 @@ const ReviewPage = lazy(() =>
 const ReviewsPage = lazy(() =>
   import('./pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })),
 );
+const PrivacyPolicyPage = lazy(() =>
+  import('./pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })),
+);
+const TermsConditionsPage = lazy(() =>
+  import('./pages/TermsConditionsPage').then((m) => ({ default: m.TermsConditionsPage })),
+);
 
 const AdminApp = lazy(() =>
   import('./admin/AdminApp').then((module) => ({ default: module.AdminApp })),
@@ -81,6 +87,8 @@ export default function App() {
             <Route path="/tracking" element={<TrackingPage />} />
             <Route path="/review" element={<ReviewPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms" element={<TermsConditionsPage />} />
             <Route path="/profile" element={<Navigate to="/tracking" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

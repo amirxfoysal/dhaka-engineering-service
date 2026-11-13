@@ -13,6 +13,8 @@ const quickLinks = [
   { to: '/tracking', label: 'Tracking' },
   { to: '/reviews', label: 'Customer Reviews' },
   { to: '/review', label: 'Leave a Review' },
+  { to: '/privacy', label: 'Privacy Policy' },
+  { to: '/terms', label: 'Terms and Conditions' },
 ];
 
 export function SiteFooter() {
@@ -97,7 +99,13 @@ export function SiteFooter() {
           <p>
             © {year} {settings.businessName}. All rights reserved.
           </p>
-          <p>Smart Service, Smart Dhaka.</p>
+          <p className="site-footer__legal">
+            <Link to="/privacy">Privacy Policy</Link>
+            <span aria-hidden>·</span>
+            <Link to="/terms">Terms and Conditions</Link>
+            <span aria-hidden>·</span>
+            <span>Smart Service, Smart Dhaka.</span>
+          </p>
         </div>
       </div>
     </footer>

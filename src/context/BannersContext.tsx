@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { apiRequest } from '../api/client';
 import { DEFAULT_BANNERS, type HeroBanner } from '../data/banners';
+import { isUploadedMediaUrl } from '../utils/imageUpload';
 import { useToast } from './ToastContext';
 
 export type BannerInput = {
@@ -38,7 +39,14 @@ export function BannersProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         const data = await apiRequest<HeroBanner[]>('/api/banners');
-        if (!cancelled) setBanners(data);
+        if (!cancelled) {
+          setBanners(
+            data.map((banner) => ({
+              ...banner,
+              image: isUploadedMediaUrl(banner.image) ? banner.image : '',
+            })),
+          );
+        }
       } catch {
         if (!cancelled) showToast('Could not load banners from server.', 'danger');
       }
@@ -84,7 +92,10 @@ export function BannersProvider({ children }: { children: ReactNode }) {
     [showToast],
   );
 
-  const activeBanners = useMemo(() => banners.filter((b) => b.active && b.image), [banners]);
+  const activeBanners = useMemo(
+    () => banners.filter((b) => b.active && isUploadedMediaUrl(b.image)),
+    [banners],
+  );
 
   const value = useMemo(
     () => ({

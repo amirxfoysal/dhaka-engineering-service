@@ -11,8 +11,15 @@ import { apiRequest } from '../api/client';
 import {
   DEFAULT_ABOUT_BODY,
   DEFAULT_ABOUT_TITLE,
+  DEFAULT_HELPLINE_PHONE,
+  DEFAULT_PRIVACY_POLICY_BODY,
+  DEFAULT_PRIVACY_POLICY_TITLE,
+  DEFAULT_TERMS_BODY,
+  DEFAULT_TERMS_TITLE,
   DEFAULT_SERVICES_PAGE_INTRO,
+  DEFAULT_SERVICES_PAGE_TITLE,
   DEFAULT_SETTINGS,
+  DEFAULT_WHATSAPP_PHONE,
   DEFAULT_WHY_CHOOSE_TITLE,
   normalizeExternalUrl,
   normalizeSiteFaqs,
@@ -33,10 +40,20 @@ function normalizeSettings(data: Partial<AppSettings> | null | undefined): AppSe
   return {
     ...DEFAULT_SETTINGS,
     ...data,
+    helplinePhone: String(data?.helplinePhone || '').trim() || DEFAULT_HELPLINE_PHONE,
+    whatsappPhone: String(data?.whatsappPhone || '').trim() || DEFAULT_WHATSAPP_PHONE,
+    servicesPageTitle:
+      String(data?.servicesPageTitle || '').trim() || DEFAULT_SERVICES_PAGE_TITLE,
     servicesPageIntro:
       String(data?.servicesPageIntro || '').trim() || DEFAULT_SERVICES_PAGE_INTRO,
     aboutTitle: String(data?.aboutTitle || '').trim() || DEFAULT_ABOUT_TITLE,
     aboutBody: String(data?.aboutBody || '').trim() || DEFAULT_ABOUT_BODY,
+    privacyPolicyTitle:
+      String(data?.privacyPolicyTitle || '').trim() || DEFAULT_PRIVACY_POLICY_TITLE,
+    privacyPolicyBody:
+      String(data?.privacyPolicyBody || '').trim() || DEFAULT_PRIVACY_POLICY_BODY,
+    termsTitle: String(data?.termsTitle || '').trim() || DEFAULT_TERMS_TITLE,
+    termsBody: String(data?.termsBody || '').trim() || DEFAULT_TERMS_BODY,
     siteFaqs: normalizeSiteFaqs(data?.siteFaqs),
     whyChooseTitle: String(data?.whyChooseTitle || '').trim() || DEFAULT_WHY_CHOOSE_TITLE,
     whyChooseItems: normalizeWhyChooseItems(data?.whyChooseItems),
@@ -69,6 +86,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         businessName: patch.businessName?.trim() ?? settings.businessName,
         tagline: patch.tagline?.trim() ?? settings.tagline,
         supportPhone: patch.supportPhone?.trim() ?? settings.supportPhone,
+        helplinePhone:
+          patch.helplinePhone === undefined
+            ? settings.helplinePhone
+            : patch.helplinePhone.trim() || DEFAULT_HELPLINE_PHONE,
+        whatsappPhone:
+          patch.whatsappPhone === undefined
+            ? settings.whatsappPhone
+            : patch.whatsappPhone.trim() || DEFAULT_WHATSAPP_PHONE,
         supportEmail: patch.supportEmail?.trim() ?? settings.supportEmail,
         serviceArea: patch.serviceArea?.trim() ?? settings.serviceArea,
         businessHours: patch.businessHours?.trim() ?? settings.businessHours,
@@ -91,6 +116,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
           patch.linkedinUrl === undefined
             ? settings.linkedinUrl
             : normalizeExternalUrl(patch.linkedinUrl),
+        servicesPageTitle:
+          patch.servicesPageTitle === undefined
+            ? settings.servicesPageTitle
+            : patch.servicesPageTitle.trim() || DEFAULT_SERVICES_PAGE_TITLE,
         servicesPageIntro:
           patch.servicesPageIntro === undefined
             ? settings.servicesPageIntro
@@ -103,6 +132,22 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
           patch.aboutBody === undefined
             ? settings.aboutBody
             : patch.aboutBody.trim() || DEFAULT_ABOUT_BODY,
+        privacyPolicyTitle:
+          patch.privacyPolicyTitle === undefined
+            ? settings.privacyPolicyTitle
+            : patch.privacyPolicyTitle.trim() || DEFAULT_PRIVACY_POLICY_TITLE,
+        privacyPolicyBody:
+          patch.privacyPolicyBody === undefined
+            ? settings.privacyPolicyBody
+            : patch.privacyPolicyBody.trim() || DEFAULT_PRIVACY_POLICY_BODY,
+        termsTitle:
+          patch.termsTitle === undefined
+            ? settings.termsTitle
+            : patch.termsTitle.trim() || DEFAULT_TERMS_TITLE,
+        termsBody:
+          patch.termsBody === undefined
+            ? settings.termsBody
+            : patch.termsBody.trim() || DEFAULT_TERMS_BODY,
         siteFaqs:
           patch.siteFaqs === undefined ? settings.siteFaqs : normalizeSiteFaqs(patch.siteFaqs),
         whyChooseTitle:

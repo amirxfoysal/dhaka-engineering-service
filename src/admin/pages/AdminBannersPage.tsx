@@ -14,17 +14,6 @@ import {
 } from '../../utils/imageUpload';
 import './AdminBannersPage.css';
 
-const IMAGE_OPTIONS = [
-  { value: '/images/hero-technician-banner.jpg', label: 'Technician Banner' },
-  { value: '/images/ac-indoor-banner.jpg', label: 'AC Indoor Banner' },
-  { value: '/images/ac-outdoor-banner.jpg', label: 'AC Outdoor Banner' },
-  { value: '/images/ac-offer-banner.jpg', label: 'AC Offer Banner' },
-  { value: '/images/hero-technician.jpg', label: 'Technician' },
-  { value: '/images/ac-indoor.jpg', label: 'AC Indoor' },
-  { value: '/images/ac-outdoor.jpg', label: 'AC Outdoor' },
-  { value: '/images/ac-offer.jpg', label: 'AC Offer' },
-];
-
 type Draft = {
   title: string;
   ctaLabel: string;
@@ -150,15 +139,6 @@ export function AdminBannersPage() {
     }
   }
 
-  async function applyImageSelection(next: string) {
-    const previous = draft.image.trim();
-    setDraft((d) => ({ ...d, image: next }));
-    setImageError('');
-    if (previous && previous !== next) {
-      void deleteUploadedImage(previous).catch(() => undefined);
-    }
-  }
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
@@ -170,8 +150,8 @@ export function AdminBannersPage() {
       return;
     }
     if (!draft.image.trim()) {
-      setImageError('Please upload an image or choose a preset.');
-      showToast('Please upload an image or choose a preset.', 'danger');
+      setImageError('Please upload a banner image.');
+      showToast('Please upload a banner image.', 'danger');
       return;
     }
 
@@ -412,38 +392,6 @@ export function AdminBannersPage() {
                 </div>
 
                 <p className="admin-banners__image-hint">{getImageUploadHint('banners')}</p>
-
-                <div className="admin-banners__presets" role="listbox" aria-label="Preset images">
-                  {IMAGE_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      role="option"
-                      aria-selected={draft.image === option.value}
-                      className={`admin-banners__preset${draft.image === option.value ? ' is-active' : ''}`}
-                      disabled={imageBusy}
-                      onClick={() => {
-                        void applyImageSelection(option.value);
-                      }}
-                    >
-                      <img src={option.value} alt="" />
-                      <em>{option.label}</em>
-                    </button>
-                  ))}
-                </div>
-
-                <label className="admin-banners__url">
-                  <span>Or paste image URL / path</span>
-                  <input
-                    type="text"
-                    value={draft.image.startsWith('data:') ? '' : draft.image}
-                    placeholder="/images/hero-technician.jpg or https://..."
-                    onChange={(e) => {
-                      setDraft((d) => ({ ...d, image: e.target.value }));
-                      setImageError('');
-                    }}
-                  />
-                </label>
               </div>
 
               <label className="admin-banners__toggle">

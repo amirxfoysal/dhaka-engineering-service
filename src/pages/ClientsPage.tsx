@@ -1,3 +1,4 @@
+import { OptimizedImage } from '../components/OptimizedImage';
 import { PageHeader } from '../components/PageHeader';
 import { useClients } from '../context/ClientsContext';
 import './ClientsPage.css';
@@ -18,11 +19,17 @@ export function ClientsPage() {
         ) : (
           <ul className="clients-page__grid">
             {activeClients.map((client) => (
-              <li key={client.id} className="clients-page__item">
-                <div className="clients-page__logo">
-                  <img src={client.logo} alt="" width={160} height={80} loading="lazy" decoding="async" />
-                </div>
-                <span className="clients-page__name">{client.name}</span>
+              <li key={client.id} className="clients-page__card">
+                <span className="clients-page__media">
+                  <OptimizedImage
+                    src={client.logo}
+                    alt={`${client.name} logo`}
+                    width={320}
+                    height={220}
+                    sizes="(max-width: 767px) 45vw, (max-width: 1023px) 30vw, 220px"
+                  />
+                </span>
+                <span className="clients-page__label">{client.name}</span>
               </li>
             ))}
           </ul>

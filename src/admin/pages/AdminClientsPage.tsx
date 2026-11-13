@@ -14,15 +14,6 @@ import {
 } from '../../utils/imageUpload';
 import './AdminClientsPage.css';
 
-const LOGO_PRESETS = [
-  '/images/clients/eastern-housing.svg',
-  '/images/clients/tech-valley.svg',
-  '/images/clients/metro-build.svg',
-  '/images/clients/green-plaza.svg',
-  '/images/clients/city-homes.svg',
-  '/images/clients/summit-corp.svg',
-];
-
 type Draft = {
   name: string;
   logo: string;
@@ -136,15 +127,6 @@ export function AdminClientsPage() {
     }
   }
 
-  async function applyLogoSelection(next: string) {
-    const previous = draft.logo.trim();
-    setDraft((d) => ({ ...d, logo: next }));
-    setImageError('');
-    if (previous && previous !== next) {
-      void deleteUploadedImage(previous).catch(() => undefined);
-    }
-  }
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
@@ -156,8 +138,8 @@ export function AdminClientsPage() {
       return;
     }
     if (!draft.logo.trim()) {
-      setImageError('Please upload a logo or choose a preset.');
-      showToast('Please upload a logo or choose a preset.', 'danger');
+      setImageError('Please upload a client logo.');
+      showToast('Please upload a client logo.', 'danger');
       return;
     }
 
@@ -346,22 +328,6 @@ export function AdminClientsPage() {
                   </button>
                 </div>
 
-                <div className="admin-clients__presets">
-                  {LOGO_PRESETS.map((logo) => (
-                    <button
-                      key={logo}
-                      type="button"
-                      className={`admin-clients__preset${draft.logo === logo ? ' is-active' : ''}`}
-                      disabled={imageBusy}
-                      onClick={() => {
-                        void applyLogoSelection(logo);
-                      }}
-                      title="Use preset logo"
-                    >
-                      <img src={logo} alt="" />
-                    </button>
-                  ))}
-                </div>
                 <p className="admin-clients__upload-hint">{getImageUploadHint('clients')}</p>
                 {imageError && <p className="admin-clients__error">{imageError}</p>}
               </div>

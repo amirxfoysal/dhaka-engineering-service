@@ -1,3 +1,4 @@
+import { whatsappChatHref } from '../data/settings';
 import { useSettings } from '../context/SettingsContext';
 import { useToast } from '../context/ToastContext';
 import {
@@ -8,8 +9,6 @@ import {
   YoutubeIcon,
 } from './SocialIcons';
 import './SocialMediaSection.css';
-
-const WHATSAPP_HREF = 'https://wa.me/8801820165892';
 
 export function SocialMediaSection() {
   const { settings } = useSettings();
@@ -37,7 +36,7 @@ export function SocialMediaSection() {
       icon: LinkedinIcon,
     },
     {
-      href: WHATSAPP_HREF,
+      href: whatsappChatHref(settings.whatsappPhone),
       label: 'WhatsApp',
       icon: WhatsAppIcon,
     },

@@ -146,22 +146,46 @@ export function AdminBookingsPage() {
       </div>
 
       <div className="admin-bookings__filters" role="tablist" aria-label="Filter by status">
-        {STATUS_FILTERS.map((status) => (
-          <button
-            key={status}
-            type="button"
-            role="tab"
-            aria-selected={statusFilter === status}
-            className={`admin-bookings__chip${statusFilter === status ? ' is-active' : ''}`}
-            onClick={() => setStatusFilter(status)}
-          >
-            {status === 'Booked' ? 'Pending' : status}
-            <span>{counts[status] ?? 0}</span>
-          </button>
-        ))}
+        {STATUS_FILTERS.map((status) => {
+          const tone =
+            status === 'All'
+              ? 'all'
+              : status === 'Booked'
+                ? 'pending'
+                : status === 'In Progress'
+                  ? 'progress'
+                  : status.toLowerCase();
+          return (
+            <button
+              key={status}
+              type="button"
+              role="tab"
+              aria-selected={statusFilter === status}
+              className={`admin-bookings__chip admin-bookings__chip--${tone}${
+                statusFilter === status ? ' is-active' : ''
+              }`}
+              onClick={() => setStatusFilter(status)}
+            >
+              {status === 'Booked' ? 'Pending' : status}
+              <span>{counts[status] ?? 0}</span>
+            </button>
+          );
+        })}
       </div>
 
-      <div className="admin-card admin-table-wrap">
+      <div className="admin-card admin-table-wrap admin-bookings__panel">
+        <div className="admin-bookings__panel-head">
+          <h3>Booking list</h3>
+          <p>
+            {statusFilter === 'All'
+              ? 'All bookings'
+              : statusFilter === 'Booked'
+                ? 'Pending bookings'
+                : `${statusFilter} bookings`}
+            {' · '}
+            {filtered.length} shown
+          </p>
+        </div>
         <table className="admin-table">
           <thead>
             <tr>
@@ -182,8 +206,15 @@ export function AdminBookingsPage() {
                 </td>
               </tr>
             )}
-            {filtered.map((booking) => (
-              <tr key={booking.id}>
+            {filtered.map((booking) => {
+              const rowTone =
+                booking.status === 'Booked'
+                  ? 'pending'
+                  : booking.status === 'In Progress'
+                    ? 'progress'
+                    : booking.status.toLowerCase();
+              return (
+              <tr key={booking.id} className={`admin-bookings__row admin-bookings__row--${rowTone}`}>
                 <td>
                   <strong>#{booking.id}</strong>
                 </td>
@@ -237,7 +268,8 @@ export function AdminBookingsPage() {
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -272,96 +304,131 @@ export function AdminBookingsPage() {
             </div>
 
             <div className="admin-bookings__drawer-body">
-              <div className="admin-bookings__detail-grid">
-                <div>
-                  <span>Customer</span>
-                  <strong>{selected.customerName}</strong>
-                  <em>{selected.mobile}</em>
-                </div>
-                <div>
-                  <span>Service</span>
-                  <strong>{selected.serviceName}</strong>
-                  <em>{selected.categoryName}</em>
-                </div>
-                <div>
-                  <span>Schedule</span>
-                  <strong>
-                    {selected.preferredDate} · {selected.preferredTime}
-                  </strong>
-                </div>
-                <div>
-                  <span>Address</span>
-                  <strong>{selected.address}</strong>
+              <div className="admin-bookings__section admin-bookings__section--details">
+                <header className="admin-bookings__section-head">
+                  <h4>Booking details</h4>
+                  <p>Customer, service, schedule, and address.</p>
+                </header>
+                <div className="admin-bookings__detail-grid">
+                  <div>
+                    <span>Customer</span>
+                    <strong>{selected.customerName}</strong>
+                    <em>{selected.mobile}</em>
+                  </div>
+                  <div>
+                    <span>Service</span>
+                    <strong>{selected.serviceName}</strong>
+                    <em>{selected.categoryName}</em>
+                  </div>
+                  <div>
+                    <span>Schedule</span>
+                    <strong>
+                      {selected.preferredDate} · {selected.preferredTime}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Address</span>
+                    <strong>{selected.address}</strong>
+                  </div>
                 </div>
               </div>
 
-              <div className="admin-bookings__notes">
-                <span>Problem Description</span>
-                <p>{selected.problemDescription || 'No description provided.'}</p>
+              <div className="admin-bookings__section admin-bookings__section--notes">
+                <header className="admin-bookings__section-head">
+                  <h4>Problem description</h4>
+                  <p>What the customer reported for this job.</p>
+                </header>
+                <div className="admin-bookings__notes">
+                  <p>{selected.problemDescription || 'No description provided.'}</p>
+                </div>
               </div>
 
-              <label className="admin-bookings__field">
-                <span>Status</span>
-                <select
-                  value={selected.status}
-                  onChange={(e) => applyStatus(selected, e.target.value as BookingStatus)}
-                >
-                  {STATUS_OPTIONS.map((status) => (
-                    <option key={status} value={status}>
-                      {status === 'Booked' ? 'Pending' : status}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="admin-bookings__section admin-bookings__section--assign">
+                <header className="admin-bookings__section-head">
+                  <h4>Status &amp; technician</h4>
+                  <p>Update progress and assign who will handle the job.</p>
+                </header>
+                <label className="admin-bookings__field">
+                  <span>Status</span>
+                  <select
+                    value={selected.status}
+                    onChange={(e) => applyStatus(selected, e.target.value as BookingStatus)}
+                  >
+                    {STATUS_OPTIONS.map((status) => (
+                      <option key={status} value={status}>
+                        {status === 'Booked' ? 'Pending' : status}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              <label className="admin-bookings__field">
-                <span>Assign Technician</span>
-                <select
-                  value={
-                    technicians.find((t) => t.name === selected.technician?.name)?.id ?? ''
-                  }
-                  onChange={(e) => applyTechnician(selected, e.target.value)}
-                >
-                  <option value="" disabled>
-                    Select technician
-                  </option>
-                  {technicians.map((tech) => (
-                    <option key={tech.id} value={tech.id}>
-                      {tech.name} · {tech.specialty}
+                <label className="admin-bookings__field">
+                  <span>Assign Technician</span>
+                  <select
+                    value={
+                      technicians.find((t) => t.name === selected.technician?.name)?.id ?? ''
+                    }
+                    onChange={(e) => applyTechnician(selected, e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Select technician
                     </option>
-                  ))}
-                </select>
-              </label>
+                    {technicians.map((tech) => (
+                      <option key={tech.id} value={tech.id}>
+                        {tech.name} · {tech.specialty}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
 
               {actionError && <p className="admin-bookings__error">{actionError}</p>}
 
-              <div className="admin-bookings__quick">
-                <button type="button" onClick={() => applyStatus(selected, 'Confirmed')}>
-                  Confirm
-                </button>
-                <button type="button" onClick={() => applyStatus(selected, 'In Progress')}>
-                  Start Job
-                </button>
-                <button type="button" onClick={() => applyStatus(selected, 'Completed')}>
-                  Complete
-                </button>
+              <div className="admin-bookings__section admin-bookings__section--actions">
+                <header className="admin-bookings__section-head">
+                  <h4>Quick actions</h4>
+                  <p>Jump the booking to a common status in one tap.</p>
+                </header>
+                <div className="admin-bookings__quick">
+                  <button
+                    type="button"
+                    className="admin-bookings__quick-btn admin-bookings__quick-btn--confirm"
+                    onClick={() => applyStatus(selected, 'Confirmed')}
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-bookings__quick-btn admin-bookings__quick-btn--progress"
+                    onClick={() => applyStatus(selected, 'In Progress')}
+                  >
+                    Start Job
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-bookings__quick-btn admin-bookings__quick-btn--complete"
+                    onClick={() => applyStatus(selected, 'Completed')}
+                  >
+                    Complete
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-bookings__quick-btn admin-bookings__quick-btn--cancel"
+                    onClick={() => applyStatus(selected, 'Cancelled')}
+                  >
+                    Cancel
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  className="is-danger"
-                  onClick={() => applyStatus(selected, 'Cancelled')}
+                  className="admin-bookings__delete"
+                  disabled={deletingId === selected.id}
+                  onClick={() => void handleDeleteBooking(selected)}
                 >
-                  Cancel
+                  {deletingId === selected.id ? 'Deleting…' : 'Delete Booking'}
                 </button>
               </div>
-
-              <button
-                type="button"
-                className="admin-bookings__delete"
-                disabled={deletingId === selected.id}
-                onClick={() => void handleDeleteBooking(selected)}
-              >
-                {deletingId === selected.id ? 'Deleting…' : 'Delete Booking'}
-              </button>
             </div>
           </aside>
         </div>

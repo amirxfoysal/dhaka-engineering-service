@@ -307,6 +307,11 @@
 
 .tracking-review {
   padding: 16px;
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  background:
+    radial-gradient(circle at top right, rgba(250, 204, 21, 0.14), transparent 48%),
+    #fff;
+  box-shadow: 0 10px 24px rgba(4, 39, 91, 0.08);
 }
 
 .tracking-review__head {
@@ -319,8 +324,8 @@
 
 .tracking-review__head h3 {
   font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-weight: 800;
+  color: var(--primary-navy);
 }
 
 .tracking-review__head p {
