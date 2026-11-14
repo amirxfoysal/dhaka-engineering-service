@@ -11,6 +11,7 @@ import { useBanners } from '../context/BannersContext';
 import { useOffers } from '../context/OffersContext';
 import { useReviews } from '../context/ReviewsContext';
 import { useServices } from '../context/ServicesContext';
+import { isCustomServiceIcon } from '../data/services';
 import { useToast } from '../context/ToastContext';
 import { resolveOfferThumb } from '../utils/imageDelivery';
 import './HomePage.css';
@@ -102,7 +103,8 @@ export function HomePage() {
         </div>
         <div className="home-services__grid">
           {filtered.map((cat) => {
-            const cover = cat.images.find(Boolean) || '';
+            const hasCustomIcon = isCustomServiceIcon(cat.icon);
+            const cover = hasCustomIcon ? '' : cat.images.find(Boolean) || '';
             return (
               <Link
                 key={cat.id}
@@ -121,7 +123,11 @@ export function HomePage() {
                     />
                   ) : (
                     <span className="service-card__media-fallback">
-                      <ServiceIcon type={cat.icon} size={28} />
+                      {hasCustomIcon ? (
+                        <img src={cat.icon} alt="" loading="lazy" decoding="async" />
+                      ) : (
+                        <ServiceIcon type={cat.icon} size={28} />
+                      )}
                     </span>
                   )}
                 </span>
@@ -135,47 +141,45 @@ export function HomePage() {
         </div>
       </section>
 
-      <div className="home-lower">
-        {activeOffers.length > 0 && (
-          <section className="section-pad home-offer" aria-label="Special offers">
-            <div className="home-offer__list">
-              {activeOffers.map((offer) => (
-                <button
-                  key={offer.id}
-                  type="button"
-                  className="home-offer__banner"
-                  onClick={() => {
-                    showToast(offer.title, 'info');
-                    navigate(offer.linkTo || '/book');
-                  }}
-                >
-                  <div className="home-offer__copy">
-                    <span className="home-offer__eyebrow">{offer.eyebrow}</span>
-                    <p>{offer.title}</p>
-                  </div>
-                  <div className="home-offer__media">
-                    <OptimizedImage
-                      src={resolveOfferThumb(offer.image)}
-                      alt={offer.title}
-                      width={216}
-                      height={144}
-                      sizes="108px"
-                    />
-                    <span className="home-offer__badge">{offer.badge}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <div className="section-pad home-book-cta">
-          <button type="button" className="btn-primary" onClick={() => navigate('/book')}>
-            <CalendarDays size={18} strokeWidth={2.2} />
-            Book a Service
-          </button>
-        </div>
+      <div className="section-pad home-book-cta">
+        <button type="button" className="btn-primary" onClick={() => navigate('/book')}>
+          <CalendarDays size={18} strokeWidth={2.2} />
+          Book a Service
+        </button>
       </div>
+
+      {activeOffers.length > 0 && (
+        <section className="section-pad home-offer" aria-label="Special offers">
+          <div className="home-offer__list">
+            {activeOffers.map((offer) => (
+              <button
+                key={offer.id}
+                type="button"
+                className="home-offer__banner"
+                onClick={() => {
+                  showToast(offer.title, 'info');
+                  navigate(offer.linkTo || '/book');
+                }}
+              >
+                <div className="home-offer__copy">
+                  <span className="home-offer__eyebrow">{offer.eyebrow}</span>
+                  <p>{offer.title}</p>
+                </div>
+                <div className="home-offer__media">
+                  <OptimizedImage
+                    src={resolveOfferThumb(offer.image)}
+                    alt={offer.title}
+                    width={216}
+                    height={144}
+                    sizes="108px"
+                  />
+                  <span className="home-offer__badge">{offer.badge}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <OurClientsSection />
 

@@ -282,7 +282,13 @@
   touch-action: pan-y;
   user-select: none;
   cursor: grab;
-  padding: 0 42px;
+  padding: 0 36px;
+}
+
+@media (min-width: 400px) {
+  .reviews-showcase__viewport {
+    padding: 0 42px;
+  }
 }
 
 .reviews-showcase__viewport:active {
@@ -416,7 +422,7 @@
   padding-top: 4px;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
   .reviews-showcase__summary {
     grid-template-columns: 1fr;
   }

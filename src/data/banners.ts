@@ -1,5 +1,6 @@
 export type HeroBanner = {
   id: string;
+  /** Empty strings mean the headline, button label, or button link is hidden. */
   title: string;
   ctaLabel: string;
   linkTo: string;

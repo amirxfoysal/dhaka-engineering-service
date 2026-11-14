@@ -25,6 +25,11 @@ export type CategoryInput = {
   shortName: string;
   description: string;
   details: string;
+  pageTitle: string;
+  pageIntro: string;
+  pageIntroEnabled: boolean;
+  seoTitle: string;
+  seoDescription: string;
   servicesTitle: string;
   servicesHint: string;
   icon: ServiceIconType;
@@ -44,6 +49,7 @@ type ServicesContextValue = {
   getCategoryById: (id: string) => ServiceCategory | undefined;
   addCategory: (input: CategoryInput) => Promise<ServiceCategory>;
   updateCategory: (id: string, patch: Partial<CategoryInput>) => Promise<void>;
+  reorderCategories: (ids: string[]) => Promise<void>;
   removeCategory: (id: string) => Promise<void>;
   addServiceItem: (categoryId: string, input: ServiceItemInput) => Promise<void>;
   updateServiceItem: (
@@ -138,6 +144,34 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
     [showToast],
   );
 
+  const reorderCategories = useCallback(
+    async (ids: string[]) => {
+      const previous = categories;
+      const byId = new Map(categories.map((category) => [category.id, category]));
+      const next = ids
+        .map((id) => byId.get(id))
+        .filter((category): category is ServiceCategory => Boolean(category));
+      if (next.length === categories.length) setCategories(next);
+
+      try {
+        const data = await apiRequest<ServiceCategory[]>('/api/categories/reorder', {
+          method: 'PATCH',
+          auth: true,
+          body: { ids },
+        });
+        const normalized = data
+          .map((item) => normalizeCategory(item))
+          .filter((item): item is ServiceCategory => Boolean(item));
+        if (normalized.length) setCategories(normalized);
+        showToast('Service category order updated.', 'info');
+      } catch (error) {
+        setCategories(previous);
+        throw error;
+      }
+    },
+    [categories, showToast],
+  );
+
   const addServiceItem = useCallback(
     async (categoryId: string, input: ServiceItemInput) => {
       const category = categories.find((c) => c.id === categoryId);
@@ -187,6 +221,7 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
       getCategoryById,
       addCategory,
       updateCategory,
+      reorderCategories,
       removeCategory,
       addServiceItem,
       updateServiceItem,
@@ -199,6 +234,7 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
       getCategoryById,
       addCategory,
       updateCategory,
+      reorderCategories,
       removeCategory,
       addServiceItem,
       updateServiceItem,

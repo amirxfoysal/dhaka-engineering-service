@@ -55,6 +55,10 @@
   font-weight: 700;
   color: var(--primary-navy);
   line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: min(260px, 32vw);
 }
 
 .top-nav__brand-text span {

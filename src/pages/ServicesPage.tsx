@@ -5,6 +5,7 @@ import { ServiceIcon } from '../components/ServiceIcon';
 import { PageHeader } from '../components/PageHeader';
 import { useServices } from '../context/ServicesContext';
 import { useSettings } from '../context/SettingsContext';
+import { isCustomServiceIcon } from '../data/services';
 import {
   DEFAULT_SERVICES_PAGE_INTRO,
   DEFAULT_SERVICES_PAGE_TITLE,
@@ -45,7 +46,8 @@ export function ServicesPage() {
 
         <div className="services-grid">
           {categories.map((cat) => {
-            const cover = cat.images.find(Boolean) || '';
+            const hasCustomIcon = isCustomServiceIcon(cat.icon);
+            const cover = hasCustomIcon ? '' : cat.images.find(Boolean) || '';
             return (
               <Link key={cat.id} to={`/services/${cat.id}`} className="services-item card">
                 <span className="services-item__media" aria-hidden={!cover}>
@@ -59,7 +61,11 @@ export function ServicesPage() {
                     />
                   ) : (
                     <span className="services-item__media-fallback">
-                      <ServiceIcon type={cat.icon} size={26} />
+                      {hasCustomIcon ? (
+                        <img src={cat.icon} alt="" loading="lazy" decoding="async" />
+                      ) : (
+                        <ServiceIcon type={cat.icon} size={26} />
+                      )}
                     </span>
                   )}
                 </span>

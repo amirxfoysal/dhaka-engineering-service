@@ -126,34 +126,45 @@ export function HeroCarousel({ banners }: Props) {
       onClickCapture={onClickCapture}
     >
       <div className="home-hero__track">
-        {banners.map((banner, i) => (
-          <article
-            key={banner.id}
-            className={`home-hero__slide${i === index ? ' is-active' : ''}`}
-            aria-hidden={i !== index}
-          >
-            <OptimizedImage
-              src={resolveHeroImage(banner.image)}
-              alt={banner.title}
-              width={960}
-              height={320}
-              sizes="(max-width: 767px) 92vw, (max-width: 1024px) 720px, 1120px"
-              priority={i === 0}
-              loading={i === 0 ? 'eager' : 'lazy'}
-            />
-            <div className="home-hero__overlay">
-              <p>{banner.title}</p>
-              <button
-                type="button"
-                className="home-hero__cta"
-                tabIndex={i === index ? 0 : -1}
-                onClick={() => navigate(banner.linkTo || '/book')}
-              >
-                {banner.ctaLabel || 'Book a Service'} <span aria-hidden>→</span>
-              </button>
-            </div>
-          </article>
-        ))}
+        {banners.map((banner, i) => {
+          const title = banner.title?.trim() ?? '';
+          const ctaLabel = banner.ctaLabel?.trim() ?? '';
+          const linkTo = banner.linkTo?.trim() ?? '';
+          const showButton = Boolean(ctaLabel && linkTo);
+
+          return (
+            <article
+              key={banner.id}
+              className={`home-hero__slide${i === index ? ' is-active' : ''}`}
+              aria-hidden={i !== index}
+            >
+              <OptimizedImage
+                src={resolveHeroImage(banner.image)}
+                alt={title}
+                width={960}
+                height={320}
+                sizes="(max-width: 767px) 92vw, (max-width: 1024px) 720px, 1120px"
+                priority={i === 0}
+                loading={i === 0 ? 'eager' : 'lazy'}
+              />
+              {(title || showButton) && (
+                <div className="home-hero__overlay">
+                  {title && <p>{title}</p>}
+                  {showButton && (
+                    <button
+                      type="button"
+                      className="home-hero__cta"
+                      tabIndex={i === index ? 0 : -1}
+                      onClick={() => navigate(linkTo)}
+                    >
+                      {ctaLabel} <span aria-hidden>→</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </article>
+          );
+        })}
       </div>
 
       {banners.length > 1 && (
@@ -178,7 +189,7 @@ export function HeroCarousel({ banners }: Props) {
       )}
 
       <span className="sr-only" aria-live="polite">
-        Slide {index + 1} of {banners.length}: {current.title}
+        Slide {index + 1} of {banners.length}: {current.title?.trim() || 'Banner'}
       </span>
     </section>
   );

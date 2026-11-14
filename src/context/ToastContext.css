@@ -2,7 +2,7 @@
   position: fixed;
   z-index: 1200;
   left: 50%;
-  bottom: calc(18px + var(--safe-bottom, 0px));
+  bottom: calc(18px + var(--nav-height, 0px) + var(--safe-bottom, 0px));
   transform: translateX(-50%);
   width: min(calc(100% - 24px), 420px);
   display: flex;

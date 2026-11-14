@@ -29,6 +29,7 @@ import {
   type SeoPageConfig,
 } from './config';
 import { getServiceSeo, serviceCategorySeo } from './serviceSeo';
+import { richTextToPlainText } from '../utils/richText';
 
 function categoryIdFromPath(pathname: string) {
   const match = pathname.match(/^\/services\/([^/]+)\/?$/);
@@ -82,11 +83,15 @@ function resolvePageSeo(
   categoryId?: string,
   categoryTags: string[] = [],
   siteTags: string[] = [],
+  categoryOverrides?: { title?: string; description?: string; details?: string },
 ): SeoPageConfig {
   if (pathname.startsWith('/admin')) return ADMIN_SEO;
 
   if (categoryId && categoryName) {
-    return serviceCategorySeo(categoryName, categoryId, categoryTags);
+    return serviceCategorySeo(categoryName, categoryId, categoryTags, categoryOverrides?.details, {
+      title: categoryOverrides?.title,
+      description: categoryOverrides?.description,
+    });
   }
 
   const exact = PAGE_SEO[pathname];
@@ -163,7 +168,11 @@ export function Seo() {
   }, [reviews]);
 
   useEffect(() => {
-    const page = resolvePageSeo(pathname, category?.name, categoryId, categoryTags, siteTags);
+    const page = resolvePageSeo(pathname, category?.name, categoryId, categoryTags, siteTags, {
+      title: category?.seoTitle,
+      description: category?.seoDescription,
+      details: category?.details,
+    });
     const url = absoluteUrl(page.path);
     const robots = page.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
     const keywords = page.keywords ?? DEFAULT_KEYWORDS;
@@ -390,10 +399,13 @@ export function Seo() {
       upsertJsonLd('seo-service', {
         '@context': 'https://schema.org',
         '@type': 'Service',
-        name: serviceProfile?.headline || category.name,
+        name: category.pageTitle?.trim() || serviceProfile?.headline || category.name,
         alternateName: category.name,
         description:
-          serviceProfile?.description || category.details?.trim() || category.description,
+          category.seoDescription?.trim() ||
+          serviceProfile?.description ||
+          richTextToPlainText(category.details || '') ||
+          category.description,
         serviceType: category.name,
         provider: {
           '@id': localBusinessId,

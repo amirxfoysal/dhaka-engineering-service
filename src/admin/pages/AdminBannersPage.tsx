@@ -24,17 +24,17 @@ type Draft = {
 
 const emptyDraft = (): Draft => ({
   title: '',
-  ctaLabel: 'Book a Service',
-  linkTo: '/book',
+  ctaLabel: '',
+  linkTo: '',
   image: '',
   active: true,
 });
 
 function toDraft(banner: HeroBanner): Draft {
   return {
-    title: banner.title,
-    ctaLabel: banner.ctaLabel,
-    linkTo: banner.linkTo,
+    title: banner.title ?? '',
+    ctaLabel: banner.ctaLabel ?? '',
+    linkTo: banner.linkTo ?? '',
     image: banner.image,
     active: banner.active,
   };
@@ -66,9 +66,9 @@ export function AdminBannersPage() {
       if (!q) return true;
       return (
         banner.id.toLowerCase().includes(q) ||
-        banner.title.toLowerCase().includes(q) ||
-        banner.ctaLabel.toLowerCase().includes(q) ||
-        banner.linkTo.toLowerCase().includes(q)
+        (banner.title ?? '').toLowerCase().includes(q) ||
+        (banner.ctaLabel ?? '').toLowerCase().includes(q) ||
+        (banner.linkTo ?? '').toLowerCase().includes(q)
       );
     });
   }, [banners, query, filter]);
@@ -144,11 +144,6 @@ export function AdminBannersPage() {
     setError('');
     setImageError('');
 
-    if (!draft.title.trim()) {
-      setError('Banner title is required.');
-      showToast('Banner title is required.', 'danger');
-      return;
-    }
     if (!draft.image.trim()) {
       setImageError('Please upload a banner image.');
       showToast('Please upload a banner image.', 'danger');
@@ -156,9 +151,9 @@ export function AdminBannersPage() {
     }
 
     const payload = {
-      title: draft.title,
-      ctaLabel: draft.ctaLabel,
-      linkTo: draft.linkTo,
+      title: draft.title.trim(),
+      ctaLabel: draft.ctaLabel.trim(),
+      linkTo: draft.linkTo.trim(),
       image: draft.image.trim(),
       active: draft.active,
     };
@@ -239,7 +234,7 @@ export function AdminBannersPage() {
       </div>
 
       <div className="admin-card admin-table-wrap">
-        <table className="admin-table">
+        <table className="admin-table admin-banners__table">
           <thead>
             <tr>
               <th>Banner</th>
@@ -252,25 +247,39 @@ export function AdminBannersPage() {
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="admin-muted" style={{ textAlign: 'center', padding: 28 }}>
+                <td
+                  colSpan={5}
+                  className="admin-muted admin-banners__empty"
+                  style={{ textAlign: 'center', padding: 28 }}
+                >
                   No banners match your filters.
                 </td>
               </tr>
             )}
             {filtered.map((banner) => (
               <tr key={banner.id}>
-                <td>
+                <td className="admin-banners__cell-banner">
                   <div className="admin-banners__row">
-                    <img src={banner.image} alt="" width={72} height={44} />
-                    <div>
-                      <strong>{banner.title}</strong>
+                    {banner.image ? (
+                      <img src={banner.image} alt="" width={72} height={44} />
+                    ) : (
+                      <span className="admin-banners__row-placeholder" aria-hidden="true" />
+                    )}
+                    <div className="admin-banners__row-text">
+                      <strong className={banner.title?.trim() ? undefined : 'admin-muted'}>
+                        {banner.title?.trim() || 'No headline'}
+                      </strong>
                       <div className="admin-muted">{banner.id}</div>
                     </div>
                   </div>
                 </td>
-                <td>{banner.ctaLabel}</td>
-                <td>{banner.linkTo}</td>
-                <td>
+                <td className="admin-banners__cell-cta" data-label="CTA">
+                  {banner.ctaLabel?.trim() || <span className="admin-muted">—</span>}
+                </td>
+                <td className="admin-banners__cell-link" data-label="Link">
+                  {banner.linkTo?.trim() || <span className="admin-muted">—</span>}
+                </td>
+                <td className="admin-banners__cell-status" data-label="Status">
                   <select
                     aria-label={`Update status for ${banner.id}`}
                     className="admin-banners__status-select"
@@ -283,7 +292,7 @@ export function AdminBannersPage() {
                     <option value="inactive">Inactive</option>
                   </select>
                 </td>
-                <td>
+                <td className="admin-banners__cell-actions" data-label="Actions">
                   <div className="admin-banners__row-actions">
                     <StatusBadge status={banner.active ? 'Active' : 'Inactive'} />
                     <button
@@ -322,7 +331,7 @@ export function AdminBannersPage() {
 
             <form className="admin-banners__form" onSubmit={handleSubmit}>
               <label>
-                <span>Headline</span>
+                <span>Headline (optional)</span>
                 <textarea
                   rows={3}
                   value={draft.title}
@@ -332,24 +341,31 @@ export function AdminBannersPage() {
               </label>
 
               <label>
-                <span>Button Label</span>
+                <span>Button Label (optional)</span>
                 <input
                   type="text"
                   value={draft.ctaLabel}
                   onChange={(e) => setDraft((d) => ({ ...d, ctaLabel: e.target.value }))}
                   placeholder="Book a Service"
+                  aria-describedby="banner-button-hint"
                 />
               </label>
 
               <label>
-                <span>Button Link</span>
+                <span>Button Link (optional)</span>
                 <input
                   type="text"
                   value={draft.linkTo}
                   onChange={(e) => setDraft((d) => ({ ...d, linkTo: e.target.value }))}
                   placeholder="/book"
+                  aria-describedby="banner-button-hint"
                 />
               </label>
+
+              <p id="banner-button-hint" className="admin-banners__field-hint">
+                The button appears only when both the label and link are filled. Leave either blank
+                to hide it.
+              </p>
 
               <div className="admin-banners__image-field">
                 <span>Banner Image</span>

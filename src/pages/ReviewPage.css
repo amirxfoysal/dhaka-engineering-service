@@ -71,11 +71,12 @@
 
 .review-form__rating {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
   min-height: 48px;
-  padding: 0 14px;
+  padding: 10px 14px;
   background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -86,6 +87,7 @@
   font-weight: 600;
   color: var(--primary-navy);
   white-space: nowrap;
+  margin-left: auto;
 }
 
 .review-form__submit {

@@ -1,0 +1,138 @@
+.rich-text-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.rich-text-editor__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.rich-text-editor__frame {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.rich-text-editor__frame:focus-within {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(15, 82, 186, 0.12);
+}
+
+.rich-text-editor__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 5px 6px;
+  border-bottom: 1px solid #eef2f7;
+  background: #fafbfd;
+}
+
+.rich-text-editor__tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.rich-text-editor__tool:hover {
+  background: #eef4ff;
+  color: var(--primary-blue);
+}
+
+.rich-text-editor__tool[aria-pressed='true'] {
+  background: #e8f0ff;
+  color: var(--primary-blue);
+}
+
+.rich-text-editor__tool:focus-visible {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 1px;
+}
+
+.rich-text-editor__divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: #e4eaf3;
+}
+
+.rich-text-editor__input-wrap {
+  position: relative;
+}
+
+.rich-text-editor__placeholder {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #98a2b3;
+  pointer-events: none;
+}
+
+.rich-text-editor__input {
+  padding: 12px;
+  max-height: 420px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-primary);
+  outline: none;
+  overflow-wrap: anywhere;
+}
+
+.rich-text-editor__input p {
+  margin: 0 0 8px;
+}
+
+.rich-text-editor__input p:last-child {
+  margin-bottom: 0;
+}
+
+.rich-text-editor__input ul,
+.rich-text-editor__input ol {
+  margin: 0 0 8px;
+  padding-left: 22px;
+}
+
+.rich-text-editor__input ul:last-child,
+.rich-text-editor__input ol:last-child {
+  margin-bottom: 0;
+}
+
+.rich-text-editor__input li {
+  margin: 2px 0;
+}
+
+.rich-text-editor__input a {
+  color: var(--primary-blue);
+  text-decoration: underline;
+}
+
+.rich-text-editor__input strong,
+.rich-text-editor__input b {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.rich-text-editor__input s,
+.rich-text-editor__input strike {
+  text-decoration: line-through;
+}

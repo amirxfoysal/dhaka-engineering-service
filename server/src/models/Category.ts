@@ -13,6 +13,7 @@ const categorySchema = new Schema(
   {
     id: { type: String, required: true, unique: true },
     name: { type: String, required: true },
+    sortOrder: { type: Number, default: 0, index: true },
     shortName: { type: String, required: true },
     description: { type: String, required: true },
     details: { type: String, required: true },
@@ -21,6 +22,12 @@ const categorySchema = new Schema(
       type: String,
       default: 'Choose one or more service items to book.',
     },
+    // Optional admin overrides for the public service details page + SEO.
+    pageTitle: { type: String, default: '' },
+    pageIntro: { type: String, default: '' },
+    pageIntroEnabled: { type: Boolean, default: true },
+    seoTitle: { type: String, default: '' },
+    seoDescription: { type: String, default: '' },
     // Built-in Lucide key (e.g. "ac") or custom uploaded icon URL.
     icon: { type: String, required: true },
     images: { type: [String], required: true },

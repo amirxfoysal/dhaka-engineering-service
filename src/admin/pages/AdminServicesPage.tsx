@@ -1,5 +1,12 @@
-import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
-import { ImagePlus, Plus, Save, Search, Trash2, X } from 'lucide-react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+  type FormEvent,
+} from 'react';
+import { GripVertical, ImagePlus, Plus, Save, Search, Trash2, X } from 'lucide-react';
 import { useServices, type ServiceIconType } from '../../context/ServicesContext';
 import { useSettings } from '../../context/SettingsContext';
 import { useToast } from '../../context/ToastContext';
@@ -20,6 +27,10 @@ import {
   DEFAULT_SERVICES_PAGE_TITLE,
 } from '../../data/settings';
 import { ServiceIcon } from '../../components/ServiceIcon';
+import { getServiceSeo, serviceCategorySeo } from '../../seo/serviceSeo';
+import { RichTextEditor } from '../components/RichTextEditor';
+import { richTextToHtml } from '../../utils/sanitizeRichHtml';
+import { richTextToPlainText } from '../../utils/richText';
 import {
   IMAGE_UPLOAD_ACCEPT,
   IMAGE_UPLOAD_SPECS,
@@ -35,6 +46,11 @@ type Draft = {
   shortName: string;
   description: string;
   details: string;
+  detailTitle: string;
+  detailIntro: string;
+  detailIntroEnabled: boolean;
+  detailSeoTitle: string;
+  detailSeoDescription: string;
   servicesTitle: string;
   servicesHint: string;
   icon: ServiceIconType;
@@ -44,11 +60,21 @@ type Draft = {
   newService: string;
 };
 
+type DragTarget = {
+  id: string;
+  position: 'before' | 'after';
+};
+
 const emptyDraft = (): Draft => ({
   name: '',
   shortName: '',
   description: '',
   details: '',
+  detailTitle: '',
+  detailIntro: '',
+  detailIntroEnabled: true,
+  detailSeoTitle: '',
+  detailSeoDescription: '',
   servicesTitle: DEFAULT_SERVICES_TITLE,
   servicesHint: DEFAULT_SERVICES_HINT,
   icon: 'ac',
@@ -59,11 +85,29 @@ const emptyDraft = (): Draft => ({
 });
 
 function toDraft(category: ServiceCategory): Draft {
+  const profile = getServiceSeo(category.id);
+  const fallbackTitle = profile?.headline || (category.name ? `${category.name} in Dhaka` : '');
+  const fallbackIntro = profile?.intro || category.description;
+  const fallbackSeo = serviceCategorySeo(
+    category.name,
+    category.id,
+    category.tags,
+    richTextToPlainText(category.details),
+  );
+
   return {
     name: category.name,
     shortName: category.shortName,
     description: category.description,
-    details: category.details,
+    details: richTextToHtml(category.details),
+    detailTitle: category.pageTitle || fallbackTitle,
+    detailIntro:
+      category.pageIntroEnabled === false
+        ? category.pageIntro || ''
+        : category.pageIntro || fallbackIntro,
+    detailIntroEnabled: category.pageIntroEnabled !== false,
+    detailSeoTitle: category.seoTitle || fallbackSeo.title,
+    detailSeoDescription: category.seoDescription || fallbackSeo.description,
     servicesTitle: category.servicesTitle || DEFAULT_SERVICES_TITLE,
     servicesHint: category.servicesHint || DEFAULT_SERVICES_HINT,
     icon: category.icon,
@@ -78,7 +122,7 @@ function toDraft(category: ServiceCategory): Draft {
 }
 
 export function AdminServicesPage() {
-  const { categories, addCategory, updateCategory, removeCategory } = useServices();
+  const { categories, addCategory, updateCategory, reorderCategories, removeCategory } = useServices();
   const { settings, updateSettings } = useSettings();
   const { showToast } = useToast();
 
@@ -90,6 +134,9 @@ export function AdminServicesPage() {
   const [imageError, setImageError] = useState('');
   const [iconError, setIconError] = useState('');
   const [iconBusy, setIconBusy] = useState(false);
+  const [categoryOrderBusy, setCategoryOrderBusy] = useState(false);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragTarget, setDragTarget] = useState<DragTarget | null>(null);
   const [pageTitle, setPageTitle] = useState(
     settings.servicesPageTitle || DEFAULT_SERVICES_PAGE_TITLE,
   );
@@ -125,6 +172,8 @@ export function AdminServicesPage() {
     );
   }, [categories, query]);
 
+  const canReorder = !query.trim() && !categoryOrderBusy;
+
   function openCreate() {
     setMode('create');
     setSelectedId(null);
@@ -149,6 +198,90 @@ export function AdminServicesPage() {
     setError('');
     setImageError('');
     setIconError('');
+  }
+
+  async function saveOrder(next: ServiceCategory[]) {
+    setCategoryOrderBusy(true);
+    try {
+      await reorderCategories(next.map((category) => category.id));
+    } catch {
+      showToast('Could not update category order.', 'danger');
+    } finally {
+      setCategoryOrderBusy(false);
+    }
+  }
+
+  async function moveCategory(categoryId: string, direction: -1 | 1) {
+    if (!canReorder) return;
+    const index = categories.findIndex((category) => category.id === categoryId);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= categories.length) return;
+
+    const next = [...categories];
+    const [moved] = next.splice(index, 1);
+    next.splice(target, 0, moved);
+    await saveOrder(next);
+  }
+
+  function handleDragStart(event: DragEvent<HTMLSpanElement>, categoryId: string) {
+    if (!canReorder) {
+      event.preventDefault();
+      return;
+    }
+    setDraggingId(categoryId);
+    setDragTarget(null);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', categoryId);
+    const row = event.currentTarget.closest('tr');
+    if (row) event.dataTransfer.setDragImage(row, 24, 24);
+  }
+
+  function handleDragOver(event: DragEvent<HTMLTableRowElement>, categoryId: string) {
+    if (!canReorder || !draggingId || draggingId === categoryId) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    const rect = event.currentTarget.getBoundingClientRect();
+    const position = event.clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+    setDragTarget((current) =>
+      current?.id === categoryId && current.position === position
+        ? current
+        : { id: categoryId, position },
+    );
+  }
+
+  function handleDragLeave(event: DragEvent<HTMLTableRowElement>, categoryId: string) {
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+    setDragTarget((current) => (current?.id === categoryId ? null : current));
+  }
+
+  function handleDrop(event: DragEvent<HTMLTableRowElement>, categoryId: string) {
+    event.preventDefault();
+    const sourceId = draggingId;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const position = event.clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+    setDraggingId(null);
+    setDragTarget(null);
+    if (!canReorder || !sourceId || sourceId === categoryId) return;
+
+    const moved = categories.find((category) => category.id === sourceId);
+    if (!moved) return;
+    const remaining = categories.filter((category) => category.id !== sourceId);
+    const targetIndex = remaining.findIndex((category) => category.id === categoryId);
+    if (targetIndex < 0) return;
+    remaining.splice(targetIndex + (position === 'after' ? 1 : 0), 0, moved);
+
+    if (
+      remaining.map((category) => category.id).join('|') ===
+      categories.map((category) => category.id).join('|')
+    ) {
+      return;
+    }
+    void saveOrder(remaining);
+  }
+
+  function handleDragEnd() {
+    setDraggingId(null);
+    setDragTarget(null);
   }
 
   async function applyIconSelection(next: ServiceIconType) {
@@ -296,6 +429,12 @@ export function AdminServicesPage() {
       return;
     }
 
+    if (!richTextToPlainText(draft.details)) {
+      setError('Service description is required.');
+      showToast('Service description is required.', 'danger');
+      return;
+    }
+
     if (!draft.icon.trim()) {
       setIconError('Choose a built-in icon or upload a custom one.');
       showToast('Choose a built-in icon or upload a custom one.', 'danger');
@@ -329,6 +468,11 @@ export function AdminServicesPage() {
       shortName: draft.shortName || draft.name,
       description: draft.description,
       details: draft.details,
+      pageTitle: draft.detailTitle.trim(),
+      pageIntro: draft.detailIntro.trim(),
+      pageIntroEnabled: draft.detailIntroEnabled,
+      seoTitle: draft.detailSeoTitle.trim(),
+      seoDescription: draft.detailSeoDescription.trim(),
       servicesTitle: draft.servicesTitle.trim() || DEFAULT_SERVICES_TITLE,
       servicesHint: draft.servicesHint.trim() || DEFAULT_SERVICES_HINT,
       icon: draft.icon,
@@ -458,9 +602,17 @@ export function AdminServicesPage() {
       </form>
 
       <div className="admin-card admin-table-wrap">
+        <p className="admin-services__table-hint">
+          {categoryOrderBusy
+            ? 'Saving category order…'
+            : query.trim()
+              ? 'Clear the search to reorder categories.'
+              : 'Drag a category by its handle to set the order shown on the public site. Keyboard: focus a handle and press ↑ or ↓.'}
+        </p>
         <table className="admin-table">
           <thead>
             <tr>
+              <th className="admin-services__drag-col">Order</th>
               <th>Category</th>
               <th>Description</th>
               <th>Services</th>
@@ -470,37 +622,77 @@ export function AdminServicesPage() {
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={4} className="admin-muted" style={{ textAlign: 'center', padding: 28 }}>
+                <td colSpan={5} className="admin-muted" style={{ textAlign: 'center', padding: 28 }}>
                   No services match your search.
                 </td>
               </tr>
             )}
-            {filtered.map((category) => (
-              <tr key={category.id}>
-                <td>
-                  <div className="admin-services__cat">
-                    <span className="admin-services__icon">
-                      <ServiceIcon type={category.icon} size={20} />
+            {filtered.map((category) => {
+              const isDragging = draggingId === category.id;
+              const dropPosition = dragTarget?.id === category.id ? dragTarget.position : null;
+              return (
+                <tr
+                  key={category.id}
+                  className={[
+                    isDragging ? 'is-dragging' : '',
+                    dropPosition === 'before' ? 'is-drop-before' : '',
+                    dropPosition === 'after' ? 'is-drop-after' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onDragOver={(event) => handleDragOver(event, category.id)}
+                  onDragLeave={(event) => handleDragLeave(event, category.id)}
+                  onDrop={(event) => handleDrop(event, category.id)}
+                >
+                  <td className="admin-services__drag-cell">
+                    <span
+                      role="button"
+                      tabIndex={canReorder ? 0 : -1}
+                      draggable={canReorder}
+                      className="admin-services__drag-handle"
+                      aria-label={`Reorder ${category.name}. Drag, or press Arrow Up or Arrow Down.`}
+                      aria-disabled={!canReorder}
+                      title={canReorder ? 'Drag to reorder' : 'Clear search to reorder'}
+                      onDragStart={(event) => handleDragStart(event, category.id)}
+                      onDragEnd={handleDragEnd}
+                      onKeyDown={(event) => {
+                        if (event.key === 'ArrowUp') {
+                          event.preventDefault();
+                          void moveCategory(category.id, -1);
+                        } else if (event.key === 'ArrowDown') {
+                          event.preventDefault();
+                          void moveCategory(category.id, 1);
+                        }
+                      }}
+                    >
+                      <GripVertical size={18} />
                     </span>
-                    <div>
-                      <strong>{category.name}</strong>
-                      <div className="admin-muted">{category.id}</div>
+                  </td>
+                  <td>
+                    <div className="admin-services__cat">
+                      <span className="admin-services__icon">
+                        <ServiceIcon type={category.icon} size={20} />
+                      </span>
+                      <div>
+                        <strong>{category.name}</strong>
+                        <div className="admin-muted">{category.id}</div>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td className="admin-muted">{category.description}</td>
-                <td>{category.services.length} items</td>
-                <td>
-                  <button
-                    type="button"
-                    className="admin-services__manage"
-                    onClick={() => openEdit(category)}
-                  >
-                    Manage
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="admin-muted">{category.description}</td>
+                  <td>{category.services.length} items</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="admin-services__manage"
+                      onClick={() => openEdit(category)}
+                    >
+                      Manage
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -527,6 +719,102 @@ export function AdminServicesPage() {
             </div>
 
             <form className="admin-services__form" onSubmit={handleSubmit}>
+              <section
+                className="admin-services__detail-overrides"
+                aria-label="Service details page settings"
+              >
+                <div className="admin-services__detail-overrides-head">
+                  <strong>Service Details Page</strong>
+                  <p className="admin-muted">
+                    These fields are pre-filled with what is currently live. Edit them and click{' '}
+                    <b>Save Changes</b> to apply. Clear the intro or untick its box to hide it;
+                    clearing the title or SEO fields restores the automatic fallback.
+                  </p>
+                </div>
+
+                <label>
+                  <span>Service Details Title</span>
+                  <input
+                    type="text"
+                    value={draft.detailTitle}
+                    onChange={(e) => setDraft((d) => ({ ...d, detailTitle: e.target.value }))}
+                    placeholder={
+                      draft.name ? `${draft.name} in Dhaka` : 'e.g. AC Service & Repair in Dhaka'
+                    }
+                  />
+                  <em className="admin-services__seo-note">
+                    Main heading on the public service page. Pre-filled with the current title;
+                    clear it to use the automatic fallback.
+                  </em>
+                </label>
+
+                <label>
+                  <span>Service Details Intro</span>
+                  <textarea
+                    rows={2}
+                    value={draft.detailIntro}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setDraft((d) => ({
+                        ...d,
+                        detailIntro: value,
+                        detailIntroEnabled: value.trim().length > 0,
+                      }));
+                    }}
+                    placeholder="Short intro shown under the page title"
+                  />
+                  <em className="admin-services__seo-note">
+                    Paragraph under the main heading. Deleting the text hides it; untick the box
+                    below to hide it while keeping the text.
+                  </em>
+                </label>
+
+                <label className="admin-services__checkbox">
+                  <input
+                    type="checkbox"
+                    checked={draft.detailIntroEnabled}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, detailIntroEnabled: e.target.checked }))
+                    }
+                  />
+                  <span>Show intro paragraph on the service page</span>
+                </label>
+
+                <label>
+                  <span>SEO Title</span>
+                  <input
+                    type="text"
+                    value={draft.detailSeoTitle}
+                    onChange={(e) => setDraft((d) => ({ ...d, detailSeoTitle: e.target.value }))}
+                    placeholder={
+                      draft.name
+                        ? `${draft.name} in Dhaka | Book Online`
+                        : 'Browser tab and search title'
+                    }
+                  />
+                  <em className="admin-services__seo-note">
+                    Browser tab and search result title. Pre-filled with the current SEO title;
+                    clear it to use the automatic fallback.
+                  </em>
+                </label>
+
+                <label>
+                  <span>SEO Description</span>
+                  <textarea
+                    rows={3}
+                    value={draft.detailSeoDescription}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, detailSeoDescription: e.target.value }))
+                    }
+                    placeholder="One or two sentences describing this service for search results"
+                  />
+                  <em className="admin-services__seo-note">
+                    Meta description for search engines. Pre-filled with the current description;
+                    clear it to use the automatic fallback.
+                  </em>
+                </label>
+              </section>
+
               <label>
                 <span>Category Name</span>
                 <input
@@ -557,15 +845,12 @@ export function AdminServicesPage() {
                 />
               </label>
 
-              <label>
-                <span>Service Description</span>
-                <textarea
-                  rows={5}
-                  value={draft.details}
-                  onChange={(e) => setDraft((d) => ({ ...d, details: e.target.value }))}
-                  placeholder="Full details shown in the service description section"
-                />
-              </label>
+              <RichTextEditor
+                label="Service Description"
+                value={draft.details}
+                onChange={(details) => setDraft((d) => ({ ...d, details }))}
+                placeholder="Full details shown in the service description section"
+              />
 
               <div className="admin-services__icon-field">
                 <span>Icon</span>
@@ -576,8 +861,9 @@ export function AdminServicesPage() {
                   <div>
                     <strong>{isCustomServiceIcon(draft.icon) ? 'Custom upload' : draft.icon}</strong>
                     <p className="admin-muted">
-                      Fallback only. Homepage Our Services cards use the first uploaded
-                      service image as a full-card cover.
+                      Shown on the homepage and Services list. A custom uploaded image fills the
+                      card media area there; Service Images are used for the gallery and as card
+                      covers when no custom icon is uploaded.
                     </p>
                   </div>
                 </div>

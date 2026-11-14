@@ -1,3 +1,4 @@
+import { richTextToPlainText } from '../utils/richText';
 import { SITE_NAME, mergeKeywords, type SeoFaqItem, type SeoPageConfig } from './config';
 
 export type ServiceSeoProfile = {
@@ -272,23 +273,28 @@ export function serviceCategorySeo(
   categoryId: string,
   seoTags: string[] = [],
   details?: string,
+  overrides?: { title?: string; description?: string },
 ): SeoPageConfig {
   const profile = getServiceSeo(categoryId);
+  const customTitle = overrides?.title?.trim();
+  const customDescription = overrides?.description?.trim();
   if (profile) {
     return {
       path: `/services/${categoryId}`,
-      title: profile.title,
-      description: profile.description,
+      title: customTitle || profile.title,
+      description: customDescription || profile.description,
       keywords: mergeKeywords(profile.keywords, categoryName, seoTags),
     };
   }
 
   const lower = categoryName.toLowerCase();
+  const detailsText = richTextToPlainText(details ?? '');
   return {
     path: `/services/${categoryId}`,
-    title: `${categoryName} in Dhaka | Book Online | ${SITE_NAME}`,
+    title: customTitle || `${categoryName} in Dhaka | Book Online | ${SITE_NAME}`,
     description:
-      details?.trim() ||
+      customDescription ||
+      detailsText ||
       `Professional ${lower} across Dhaka Metro. Book trusted technicians online with ${SITE_NAME} for fast, reliable home and commercial support.`,
     keywords: mergeKeywords(categoryName, `${categoryName} Dhaka`, seoTags),
   };

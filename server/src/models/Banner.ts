@@ -3,9 +3,9 @@ import { Schema, model } from 'mongoose';
 const bannerSchema = new Schema(
   {
     id: { type: String, required: true, unique: true },
-    title: { type: String, required: true },
-    ctaLabel: { type: String, required: true },
-    linkTo: { type: String, required: true },
+    title: { type: String, default: '' },
+    ctaLabel: { type: String, default: '' },
+    linkTo: { type: String, default: '' },
     image: { type: String, required: true },
     active: { type: Boolean, default: true },
   },

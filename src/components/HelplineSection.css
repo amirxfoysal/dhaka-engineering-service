@@ -47,6 +47,7 @@
   align-items: center;
   gap: 10px;
   min-height: 44px;
+  max-width: 100%;
   padding: 10px 16px;
   border-radius: 999px;
   font-size: 15px;
@@ -58,6 +59,22 @@
 .helpline__call {
   background: #fff;
   color: var(--primary-navy);
+  min-width: 0;
+}
+
+.helpline__call span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+  .helpline__call,
+  .helpline__whatsapp {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
 }
 
 .helpline__call:hover {

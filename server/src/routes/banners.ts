@@ -7,7 +7,7 @@ import { nextPrefixedId } from '../utils/ids.js';
 const router = Router();
 
 const bannerSchema = z.object({
-  title: z.string().trim().min(1),
+  title: z.string().trim().optional(),
   ctaLabel: z.string().trim().optional(),
   linkTo: z.string().trim().optional(),
   image: z.string().trim().min(1),
@@ -17,9 +17,9 @@ const bannerSchema = z.object({
 function mapBanner(doc: Record<string, unknown>) {
   return {
     id: doc.id,
-    title: doc.title,
-    ctaLabel: doc.ctaLabel,
-    linkTo: doc.linkTo,
+    title: String(doc.title ?? '').trim(),
+    ctaLabel: String(doc.ctaLabel ?? '').trim(),
+    linkTo: String(doc.linkTo ?? '').trim(),
     image: doc.image,
     active: doc.active,
   };
@@ -37,15 +37,15 @@ router.post('/', requireAdmin, async (req, res) => {
   const existing = await Banner.find().select('id').lean();
   const banner = {
     id: nextPrefixedId('BANNER', existing.map((b) => b.id)),
-    title: parsed.data.title,
-    ctaLabel: parsed.data.ctaLabel?.trim() || 'Book a Service',
-    linkTo: parsed.data.linkTo?.trim() || '/book',
+    title: parsed.data.title ?? '',
+    ctaLabel: parsed.data.ctaLabel ?? '',
+    linkTo: parsed.data.linkTo ?? '',
     image: parsed.data.image,
     active: parsed.data.active,
   };
 
   await Banner.create(banner);
-  return res.status(201).json(banner);
+  return res.status(201).json(mapBanner(banner));
 });
 
 router.patch('/:id', requireAdmin, async (req, res) => {
@@ -57,7 +57,7 @@ router.patch('/:id', requireAdmin, async (req, res) => {
 
   if (parsed.data.title !== undefined) existing.title = parsed.data.title;
   if (parsed.data.ctaLabel !== undefined) existing.ctaLabel = parsed.data.ctaLabel;
-  if (parsed.data.linkTo !== undefined) existing.linkTo = parsed.data.linkTo || '/book';
+  if (parsed.data.linkTo !== undefined) existing.linkTo = parsed.data.linkTo;
   if (parsed.data.image !== undefined) existing.image = parsed.data.image;
   if (parsed.data.active !== undefined) existing.active = parsed.data.active;
 

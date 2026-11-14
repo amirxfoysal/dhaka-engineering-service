@@ -7,10 +7,14 @@
   background:
     radial-gradient(circle at top right, rgba(6, 90, 221, 0.22), transparent 36%),
     linear-gradient(160deg, #04275b 0%, #002147 48%, #031a3d 100%);
+  overflow-x: hidden;
 }
 
 .admin-login__panel {
   width: min(100%, 420px);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   background: #fff;
   border-radius: 18px;
   padding: 28px 26px 30px;
@@ -22,16 +26,21 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 22px;
+  min-width: 0;
 }
 
 .admin-login__logo {
   display: block;
   height: 52px;
   width: auto;
-  max-width: 210px;
+  max-width: min(210px, 42vw);
   object-fit: contain;
   object-position: left center;
   flex-shrink: 0;
+}
+
+.admin-login__brand > div {
+  min-width: 0;
 }
 
 .admin-login__brand h1 {
@@ -39,6 +48,29 @@
   font-weight: 700;
   color: var(--primary-navy);
   line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 380px) {
+  .admin-login {
+    padding: 20px 12px;
+  }
+
+  .admin-login__panel {
+    padding: 22px 16px 24px;
+  }
+
+  .admin-login__brand {
+    flex-wrap: wrap;
+  }
+
+  .admin-login__logo {
+    height: 44px;
+  }
+
+  .admin-login__brand h1 {
+    font-size: 16px;
+  }
 }
 
 .admin-login__brand p {

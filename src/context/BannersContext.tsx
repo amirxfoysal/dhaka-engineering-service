@@ -43,6 +43,9 @@ export function BannersProvider({ children }: { children: ReactNode }) {
           setBanners(
             data.map((banner) => ({
               ...banner,
+              title: banner.title ?? '',
+              ctaLabel: banner.ctaLabel ?? '',
+              linkTo: banner.linkTo ?? '',
               image: isUploadedMediaUrl(banner.image) ? banner.image : '',
             })),
           );

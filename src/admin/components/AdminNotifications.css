@@ -160,3 +160,15 @@
   font-size: 11px;
   color: #98a2b3;
 }
+
+@media (max-width: 560px) {
+  .admin-notifications__panel {
+    position: fixed;
+    top: 62px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-height: min(420px, calc(100vh - 74px));
+    max-height: min(420px, calc(100dvh - 74px));
+  }
+}

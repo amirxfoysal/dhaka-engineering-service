@@ -110,7 +110,13 @@ export function AdminLayout() {
 
           <div className="admin-topbar__right">
             <AdminNotifications />
-            <button type="button" className="admin-topbar__profile" onClick={handleLogout}>
+            <button
+              type="button"
+              className="admin-topbar__profile"
+              aria-label="Log out"
+              title="Log out"
+              onClick={handleLogout}
+            >
               <span className="admin-topbar__avatar">
                 {(session?.displayName ?? 'A').charAt(0)}
               </span>

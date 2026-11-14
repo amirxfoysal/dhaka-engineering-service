@@ -36,6 +36,16 @@ export type ServiceCategory = {
   shortName: string;
   description: string;
   details: string;
+  /** Optional override for the main heading on the public service details page. */
+  pageTitle?: string;
+  /** Optional override for the intro paragraph under the main heading. */
+  pageIntro?: string;
+  /** Set to false to hide the intro paragraph entirely. */
+  pageIntroEnabled?: boolean;
+  /** Optional meta title override for the service details page. */
+  seoTitle?: string;
+  /** Optional meta description override for the service details page. */
+  seoDescription?: string;
   /** Heading shown above the selectable service items. */
   servicesTitle: string;
   /** Supporting line shown above the selectable service items. */
@@ -360,6 +370,11 @@ export function normalizeCategory(raw: Partial<ServiceCategory> & { id?: string 
     shortName: raw.shortName?.trim() || name,
     description: raw.description?.trim() || seed?.description || '',
     details: raw.details?.trim() || seed?.details || '',
+    pageTitle: raw.pageTitle?.trim() || '',
+    pageIntro: raw.pageIntro?.trim() || '',
+    pageIntroEnabled: raw.pageIntroEnabled !== false,
+    seoTitle: raw.seoTitle?.trim() || '',
+    seoDescription: raw.seoDescription?.trim() || '',
     servicesTitle:
       raw.servicesTitle?.trim() || seed?.servicesTitle || DEFAULT_SERVICES_TITLE,
     servicesHint: raw.servicesHint?.trim() || seed?.servicesHint || DEFAULT_SERVICES_HINT,

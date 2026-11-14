@@ -26,6 +26,7 @@ import {
   type WhyChooseIconId,
 } from '../data/settings';
 import { getServiceSeo } from '../seo/serviceSeo';
+import { richTextToHtml } from '../utils/sanitizeRichHtml';
 import './ServiceDetailsPage.css';
 
 const WHY_CHOOSE_ICON_MAP: Record<WhyChooseIconId, LucideIcon> = {
@@ -168,6 +169,8 @@ export function ServiceDetailsPage() {
     return `/review?${params.toString()}`;
   }, [category, selectedServices]);
 
+  const detailsHtml = useMemo(() => richTextToHtml(category?.details ?? ''), [category?.details]);
+
   if (!category) return <Navigate to="/services" replace />;
 
   function toggleService(serviceId: string) {
@@ -207,13 +210,15 @@ export function ServiceDetailsPage() {
   }
 
   const seo = getServiceSeo(category.id);
-  const detailsText = category.details.trim();
   const categoryName = category.name;
-  const headline = seo?.headline || `${categoryName} in Dhaka`;
-  const introText = seo?.intro || category.description;
+  const headline = category.pageTitle?.trim() || seo?.headline || `${categoryName} in Dhaka`;
+  const introText =
+    category.pageIntroEnabled === false
+      ? ''
+      : category.pageIntro?.trim() || seo?.intro || category.description;
 
   function renderAbout(slot: 'desktop' | 'mobile') {
-    if (!detailsText) return null;
+    if (!detailsHtml) return null;
     const titleId = `service-about-title-${slot}`;
     return (
       <section
@@ -221,14 +226,10 @@ export function ServiceDetailsPage() {
         aria-labelledby={titleId}
       >
         <h3 id={titleId}>About {categoryName} in Dhaka</h3>
-        <p>{detailsText}</p>
-        {seo?.highlights?.length ? (
-          <ul className="service-details__highlights">
-            {seo.highlights.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        ) : null}
+        <div
+          className="service-details__about-body"
+          dangerouslySetInnerHTML={{ __html: detailsHtml }}
+        />
       </section>
     );
   }
@@ -253,7 +254,7 @@ export function ServiceDetailsPage() {
           </nav>
           <p className="service-details__eyebrow">{category.shortName} in Dhaka</p>
           <h2 className="service-details__title">{headline}</h2>
-          <p className="service-details__intro">{introText}</p>
+          {introText ? <p className="service-details__intro">{introText}</p> : null}
 
           <section className="service-details__picker-section" aria-labelledby="service-items-title">
             <div className="service-details__section-head">

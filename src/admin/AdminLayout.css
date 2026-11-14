@@ -269,3 +269,38 @@
     padding: 16px;
   }
 }
+
+@media (max-width: 480px) {
+  .admin-topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .admin-topbar__left {
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .admin-topbar__left h1 {
+    min-width: 0;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .admin-topbar__right {
+    flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .admin-topbar__profile {
+    padding: 4px;
+    gap: 0;
+  }
+
+  .admin-topbar__profile > span:not(.admin-topbar__avatar),
+  .admin-topbar__profile > svg {
+    display: none;
+  }
+}

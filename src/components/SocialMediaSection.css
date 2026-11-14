@@ -40,9 +40,15 @@
 
 .social-media__list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 10px;
   list-style: none;
+}
+
+@media (min-width: 380px) {
+  .social-media__list {
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  }
 }
 
 .social-media__link {
@@ -58,6 +64,14 @@
   font-size: 13.5px;
   font-weight: 600;
   box-shadow: 0 8px 18px rgba(4, 39, 91, 0.05);
+  min-width: 0;
+}
+
+.social-media__link span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .social-media__link:hover {

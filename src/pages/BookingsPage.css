@@ -21,6 +21,11 @@
   margin-bottom: 14px;
 }
 
+.booking-summary__top > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
 .booking-summary__label {
   display: block;
   font-size: 11px;
@@ -29,16 +34,33 @@
 }
 
 .booking-summary__top strong {
+  display: block;
   font-size: 15px;
   color: var(--primary-navy);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .booking-summary__date {
+  flex-shrink: 0;
   font-size: 12px;
   color: var(--text-secondary);
   font-weight: 500;
   text-align: right;
   white-space: nowrap;
+}
+
+@media (max-width: 380px) {
+  .booking-summary__top {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .booking-summary__date {
+    text-align: left;
+    white-space: normal;
+  }
 }
 
 .booking-summary__note {
@@ -68,6 +90,7 @@
 
 .tech-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   padding: 12px;
@@ -107,6 +130,7 @@
 .tech-card__call {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
   background: var(--primary-navy);
   color: #fff;
@@ -114,7 +138,15 @@
   font-weight: 600;
   padding: 8px 12px;
   border-radius: 8px;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+@media (max-width: 360px) {
+  .tech-card__call {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 
 .tech-card__call:hover {

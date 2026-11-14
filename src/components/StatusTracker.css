@@ -1,6 +1,6 @@
 .status-tracker {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
   padding: 4px 0 2px;
 }
@@ -60,7 +60,10 @@
   color: var(--text-secondary);
   text-align: center;
   line-height: 1.2;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  padding: 0 2px;
 }
 
 .status-tracker__label.is-done {
