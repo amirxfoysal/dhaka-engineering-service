@@ -19,7 +19,6 @@ const bookingSchema = new Schema(
     serviceName: { type: String, required: true },
     address: { type: String, required: true },
     preferredDate: { type: String, required: true },
-    preferredTime: { type: String, required: true },
     problemDescription: { type: String, default: '' },
     status: {
       type: String,

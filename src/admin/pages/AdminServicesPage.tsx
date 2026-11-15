@@ -15,11 +15,15 @@ import {
   CATEGORY_IMAGE_MAX,
   DEFAULT_SERVICES_HINT,
   DEFAULT_SERVICES_TITLE,
+  DEFAULT_SERVICE_ICON_POSITION,
+  SERVICE_ICON_POSITIONS,
   createServiceItem,
   formatTagsInput,
   isCustomServiceIcon,
   parseTagsInput,
+  serviceIconObjectPosition,
   type ServiceCategory,
+  type ServiceIconPosition,
   type ServiceItem,
 } from '../../data/services';
 import {
@@ -54,6 +58,7 @@ type Draft = {
   servicesTitle: string;
   servicesHint: string;
   icon: ServiceIconType;
+  iconPosition: ServiceIconPosition;
   images: string[];
   services: ServiceItem[];
   tagsInput: string;
@@ -63,6 +68,14 @@ type Draft = {
 type DragTarget = {
   id: string;
   position: 'before' | 'after';
+};
+
+const ICON_POSITION_LABELS: Record<ServiceIconPosition, string> = {
+  center: 'Center',
+  top: 'Top',
+  right: 'Right',
+  bottom: 'Bottom',
+  left: 'Left',
 };
 
 const emptyDraft = (): Draft => ({
@@ -78,6 +91,7 @@ const emptyDraft = (): Draft => ({
   servicesTitle: DEFAULT_SERVICES_TITLE,
   servicesHint: DEFAULT_SERVICES_HINT,
   icon: 'ac',
+  iconPosition: DEFAULT_SERVICE_ICON_POSITION,
   images: [],
   services: [],
   tagsInput: '',
@@ -111,6 +125,7 @@ function toDraft(category: ServiceCategory): Draft {
     servicesTitle: category.servicesTitle || DEFAULT_SERVICES_TITLE,
     servicesHint: category.servicesHint || DEFAULT_SERVICES_HINT,
     icon: category.icon,
+    iconPosition: category.iconPosition ?? DEFAULT_SERVICE_ICON_POSITION,
     images: [...category.images],
     services: category.services.map((service) => ({
       ...service,
@@ -476,6 +491,7 @@ export function AdminServicesPage() {
       servicesTitle: draft.servicesTitle.trim() || DEFAULT_SERVICES_TITLE,
       servicesHint: draft.servicesHint.trim() || DEFAULT_SERVICES_HINT,
       icon: draft.icon,
+      iconPosition: draft.iconPosition,
       images,
       services,
       tags: parseTagsInput(draft.tagsInput),
@@ -895,6 +911,62 @@ export function AdminServicesPage() {
                     Remove upload
                   </button>
                 </div>
+
+                {isCustomServiceIcon(draft.icon) && (
+                  <div className="admin-services__icon-position">
+                    <span>Card alignment</span>
+                    <div className="admin-services__icon-position-body">
+                      <div
+                        className="admin-services__icon-position-options"
+                        role="group"
+                        aria-label="Custom icon alignment inside the card"
+                      >
+                        {SERVICE_ICON_POSITIONS.map((position) => (
+                          <button
+                            key={position}
+                            type="button"
+                            className={
+                              draft.iconPosition === position
+                                ? 'admin-services__icon-position-option is-active'
+                                : 'admin-services__icon-position-option'
+                            }
+                            aria-pressed={draft.iconPosition === position}
+                            onClick={() =>
+                              setDraft((d) => ({ ...d, iconPosition: position }))
+                            }
+                          >
+                            <span
+                              className={`admin-services__icon-position-frame is-${position}`}
+                              aria-hidden
+                            >
+                              <span className="admin-services__icon-position-dot" />
+                            </span>
+                            {ICON_POSITION_LABELS[position]}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="admin-services__icon-card-preview" aria-hidden>
+                        <span className="admin-services__icon-card-media">
+                          <img
+                            src={draft.icon}
+                            alt=""
+                            style={{
+                              objectPosition: serviceIconObjectPosition(draft.iconPosition),
+                            }}
+                          />
+                        </span>
+                        <span className="admin-services__icon-card-label">
+                          {draft.shortName.trim() || draft.name.trim() || 'Service card'}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="admin-services__upload-hint">
+                      Fills the card media area. Choose top, bottom, left, or right to control
+                      which edge stays in view when the image is cropped—homepage and Services
+                      cards use the same placement.
+                    </p>
+                  </div>
+                )}
 
                 <div className="admin-services__icon-presets" role="group" aria-label="Built-in icons">
                   {BUILT_IN_SERVICE_ICONS.map((icon) => (

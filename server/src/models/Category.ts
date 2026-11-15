@@ -30,6 +30,12 @@ const categorySchema = new Schema(
     seoDescription: { type: String, default: '' },
     // Built-in Lucide key (e.g. "ac") or custom uploaded icon URL.
     icon: { type: String, required: true },
+    // Alignment of a custom uploaded icon inside the public card media area.
+    iconPosition: {
+      type: String,
+      enum: ['center', 'top', 'right', 'bottom', 'left'],
+      default: 'center',
+    },
     images: { type: [String], required: true },
     services: { type: [serviceItemSchema], required: true },
     tags: { type: [String], default: [] },

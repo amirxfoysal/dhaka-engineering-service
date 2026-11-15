@@ -2,7 +2,6 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   CalendarDays,
-  Clock3,
   FileText,
   LayoutGrid,
   MapPin,
@@ -26,7 +25,7 @@ type LocState = {
 };
 
 type Errors = Partial<
-  Record<'customerName' | 'mobile' | 'address' | 'preferredDate' | 'preferredTime' | 'serviceNames', string>
+  Record<'customerName' | 'mobile' | 'address' | 'preferredDate' | 'serviceNames', string>
 >;
 
 type SubmittedBooking = {
@@ -66,7 +65,6 @@ export function BookingPage() {
   );
   const [address, setAddress] = useState(user.savedAddress ?? '');
   const [preferredDate, setPreferredDate] = useState('');
-  const [preferredTime, setPreferredTime] = useState('');
   const [problemDescription, setProblemDescription] = useState('');
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -94,7 +92,6 @@ export function BookingPage() {
     if (serviceNames.length === 0) next.serviceNames = 'Select at least one service';
     if (!address.trim()) next.address = 'Address is required';
     if (!preferredDate) next.preferredDate = 'Select a preferred date';
-    if (!preferredTime) next.preferredTime = 'Select a preferred time';
     return next;
   };
 
@@ -118,7 +115,6 @@ export function BookingPage() {
         serviceName,
         address,
         preferredDate,
-        preferredTime,
         problemDescription,
       });
       pushBookingNotification({
@@ -245,19 +241,6 @@ export function BookingPage() {
             />
           </div>
           {errors.preferredDate && <span className="field-error">{errors.preferredDate}</span>}
-        </label>
-
-        <label className="form-field">
-          <span className="form-field__label">Preferred Time</span>
-          <div className="form-field__control">
-            <Clock3 size={18} strokeWidth={2} aria-hidden />
-            <input
-              type="time"
-              value={preferredTime}
-              onChange={(e) => setPreferredTime(e.target.value)}
-            />
-          </div>
-          {errors.preferredTime && <span className="field-error">{errors.preferredTime}</span>}
         </label>
 
         <label className="form-field">

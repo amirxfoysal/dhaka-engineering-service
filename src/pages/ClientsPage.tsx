@@ -25,7 +25,7 @@ export function ClientsPage() {
                     src={client.logo}
                     alt={`${client.name} logo`}
                     width={320}
-                    height={220}
+                    height={320}
                     sizes="(max-width: 767px) 45vw, (max-width: 1023px) 30vw, 220px"
                   />
                 </span>

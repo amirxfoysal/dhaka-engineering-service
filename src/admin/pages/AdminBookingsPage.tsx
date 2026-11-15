@@ -228,7 +228,6 @@ export function AdminBookingsPage() {
                 </td>
                 <td>
                   <div>{booking.preferredDate}</div>
-                  <div className="admin-muted">{booking.preferredTime}</div>
                 </td>
                 <td>{booking.technician?.name ?? <span className="admin-muted">Unassigned</span>}</td>
                 <td>
@@ -321,10 +320,8 @@ export function AdminBookingsPage() {
                     <em>{selected.categoryName}</em>
                   </div>
                   <div>
-                    <span>Schedule</span>
-                    <strong>
-                      {selected.preferredDate} · {selected.preferredTime}
-                    </strong>
+                    <span>Preferred date</span>
+                    <strong>{selected.preferredDate}</strong>
                   </div>
                   <div>
                     <span>Address</span>

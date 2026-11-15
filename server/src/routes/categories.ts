@@ -5,6 +5,7 @@ import {
   DEFAULT_SERVICES_HINT,
   DEFAULT_SERVICES_TITLE,
   clampCategoryImages,
+  normalizeServiceIconPosition,
   normalizeTags,
 } from '../../../src/data/services.ts';
 import { Category } from '../models/Category.js';
@@ -34,6 +35,7 @@ const categorySchema = z.object({
   seoDescription: z.string().trim().optional(),
   // Built-in Lucide key or custom uploaded icon URL / path.
   icon: z.string().trim().min(1),
+  iconPosition: z.enum(['center', 'top', 'right', 'bottom', 'left']).optional(),
   images: z.array(z.string()).max(CATEGORY_IMAGE_MAX).default([]),
   services: z.array(serviceItemSchema).default([]),
   tags: z.array(z.string()).optional(),
@@ -69,6 +71,7 @@ function mapCategory(doc: Record<string, unknown>) {
     seoTitle: String(doc.seoTitle || '').trim(),
     seoDescription: String(doc.seoDescription || '').trim(),
     icon: doc.icon,
+    iconPosition: normalizeServiceIconPosition(doc.iconPosition),
     images: clampCategoryImages(doc.images as string[] | undefined),
     services,
     tags: normalizeTags(doc.tags),
@@ -120,6 +123,7 @@ router.post('/', requireAdmin, async (req, res) => {
     seoTitle: parsed.data.seoTitle?.trim() || '',
     seoDescription: parsed.data.seoDescription?.trim() || '',
     icon: parsed.data.icon,
+    iconPosition: normalizeServiceIconPosition(parsed.data.iconPosition),
     images: clampCategoryImages(parsed.data.images),
     tags: normalizeTags(parsed.data.tags),
     services: parsed.data.services.map((service, index) => ({
@@ -203,6 +207,9 @@ router.patch('/:id', requireAdmin, async (req, res) => {
     existing.seoDescription = parsed.data.seoDescription.trim();
   }
   if (parsed.data.icon !== undefined) existing.icon = parsed.data.icon;
+  if (parsed.data.iconPosition !== undefined) {
+    existing.iconPosition = normalizeServiceIconPosition(parsed.data.iconPosition);
+  }
   if (parsed.data.images !== undefined) existing.images = clampCategoryImages(parsed.data.images);
   if (parsed.data.tags !== undefined) existing.tags = normalizeTags(parsed.data.tags);
   if (parsed.data.services !== undefined) {

@@ -35,7 +35,7 @@ export function OurClientsSection() {
                 src={client.logo}
                 alt={`${client.name} logo`}
                 width={320}
-                height={220}
+                height={320}
                 sizes="(max-width: 767px) 30vw, (max-width: 1023px) 28vw, 160px"
               />
             </span>

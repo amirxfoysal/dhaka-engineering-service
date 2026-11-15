@@ -26,7 +26,6 @@ type BookingInput = {
   serviceName: string;
   address: string;
   preferredDate: string;
-  preferredTime: string;
   problemDescription: string;
 };
 
@@ -36,7 +35,6 @@ type BookingUpdate = Partial<
     | 'status'
     | 'technician'
     | 'preferredDate'
-    | 'preferredTime'
     | 'address'
     | 'problemDescription'
     | 'serviceName'
@@ -183,7 +181,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           serviceName: input.serviceName,
           address: input.address.trim(),
           preferredDate: input.preferredDate,
-          preferredTime: input.preferredTime,
           problemDescription: input.problemDescription.trim(),
         },
       });

@@ -33,6 +33,7 @@ export type CategoryInput = {
   servicesTitle: string;
   servicesHint: string;
   icon: ServiceIconType;
+  iconPosition: ServiceCategory['iconPosition'];
   images: string[];
   services: ServiceItem[];
   tags: string[];

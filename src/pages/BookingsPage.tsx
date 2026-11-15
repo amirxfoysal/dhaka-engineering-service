@@ -16,23 +16,18 @@ function isValidBdMobile(value: string) {
   return /^01\d{9}$/.test(normalizeMobile(value));
 }
 
-function formatDisplayDate(date: string, time: string) {
-  const d = new Date(`${date}T${time || '00:00'}`);
-  if (Number.isNaN(d.getTime())) return `${date}${time ? ` • ${time}` : ''}`;
+function formatDisplayDate(date: string) {
+  const d = new Date(`${date}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return date;
   const day = d.toLocaleDateString('en-GB', { day: '2-digit' });
   const month = d.toLocaleDateString('en-GB', { month: 'short' });
   const year = d.getFullYear();
-  const timePart = d.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
-  return `${day} ${month}, ${year} • ${timePart}`;
+  return `${day} ${month}, ${year}`;
 }
 
 function formatCompleted(booking: Booking) {
   if (!booking.completedAt) {
-    return formatDisplayDate(booking.preferredDate, booking.preferredTime);
+    return formatDisplayDate(booking.preferredDate);
   }
   const d = new Date(booking.completedAt);
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -163,7 +158,7 @@ export function BookingsPage() {
               <strong>#{current.id}</strong>
             </div>
             <span className="booking-summary__date">
-              {formatDisplayDate(current.preferredDate, current.preferredTime)}
+              {formatDisplayDate(current.preferredDate)}
             </span>
           </div>
 

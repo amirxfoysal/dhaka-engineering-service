@@ -17,8 +17,8 @@ export const IMAGE_UPLOAD_SPECS: Record<
   },
   icons: {
     ratio: '1:1',
-    size: '256×256',
-    label: 'service icon',
+    size: '512×512',
+    label: 'service card icon',
   },
   banners: {
     ratio: '8:3',
@@ -31,8 +31,8 @@ export const IMAGE_UPLOAD_SPECS: Record<
     label: 'special offer',
   },
   clients: {
-    ratio: '2:1',
-    size: '480×240',
+    ratio: '1:1',
+    size: '512×512',
     label: 'client logo',
   },
 };

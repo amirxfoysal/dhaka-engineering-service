@@ -11,7 +11,7 @@ import { useBanners } from '../context/BannersContext';
 import { useOffers } from '../context/OffersContext';
 import { useReviews } from '../context/ReviewsContext';
 import { useServices } from '../context/ServicesContext';
-import { isCustomServiceIcon } from '../data/services';
+import { isCustomServiceIcon, serviceIconObjectPosition } from '../data/services';
 import { useToast } from '../context/ToastContext';
 import { resolveOfferThumb } from '../utils/imageDelivery';
 import './HomePage.css';
@@ -118,20 +118,28 @@ export function HomePage() {
                       src={cover}
                       alt=""
                       width={320}
-                      height={220}
+                      height={320}
                       sizes="(max-width: 767px) 30vw, (max-width: 1023px) 28vw, 160px"
                     />
                   ) : (
                     <span className="service-card__media-fallback">
                       {hasCustomIcon ? (
-                        <img src={cat.icon} alt="" loading="lazy" decoding="async" />
+                        <img
+                          src={cat.icon}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          style={{ objectPosition: serviceIconObjectPosition(cat.iconPosition) }}
+                        />
                       ) : (
                         <ServiceIcon type={cat.icon} size={28} />
                       )}
                     </span>
                   )}
                 </span>
-                <span className="service-card__label">{cat.shortName}</span>
+                <span className="service-card__label">
+                  <span className="service-card__label-text">{cat.shortName}</span>
+                </span>
               </Link>
             );
           })}

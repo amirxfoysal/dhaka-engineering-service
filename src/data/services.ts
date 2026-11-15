@@ -20,6 +20,35 @@ export function isCustomServiceIcon(icon: string): boolean {
   return Boolean(icon) && !isBuiltInServiceIcon(icon);
 }
 
+export const SERVICE_ICON_POSITIONS = ['center', 'top', 'right', 'bottom', 'left'] as const;
+
+export type ServiceIconPosition = (typeof SERVICE_ICON_POSITIONS)[number];
+
+export const DEFAULT_SERVICE_ICON_POSITION: ServiceIconPosition = 'center';
+
+export function normalizeServiceIconPosition(value: unknown): ServiceIconPosition {
+  const position = String(value ?? '').trim().toLowerCase();
+  return (SERVICE_ICON_POSITIONS as readonly string[]).includes(position)
+    ? (position as ServiceIconPosition)
+    : DEFAULT_SERVICE_ICON_POSITION;
+}
+
+/** CSS object-position for a custom icon filling the card media area. */
+export function serviceIconObjectPosition(value: unknown): string {
+  switch (normalizeServiceIconPosition(value)) {
+    case 'top':
+      return 'center top';
+    case 'bottom':
+      return 'center bottom';
+    case 'left':
+      return 'left center';
+    case 'right':
+      return 'right center';
+    default:
+      return 'center';
+  }
+}
+
 export type ServiceItem = {
   id: string;
   name: string;
@@ -51,6 +80,8 @@ export type ServiceCategory = {
   /** Supporting line shown above the selectable service items. */
   servicesHint: string;
   icon: ServiceIconId;
+  /** How a custom uploaded icon is aligned inside the card media area. */
+  iconPosition: ServiceIconPosition;
   images: string[];
   services: ServiceItem[];
   /** SEO-only tags; never shown in the public UI. */
@@ -172,6 +203,7 @@ function makeCategory(
     servicesTitle: DEFAULT_SERVICES_TITLE,
     servicesHint: DEFAULT_SERVICES_HINT,
     icon,
+    iconPosition: DEFAULT_SERVICE_ICON_POSITION,
     images: [],
     services: items.map((item) => {
       if (typeof item === 'string') {
@@ -379,6 +411,7 @@ export function normalizeCategory(raw: Partial<ServiceCategory> & { id?: string 
       raw.servicesTitle?.trim() || seed?.servicesTitle || DEFAULT_SERVICES_TITLE,
     servicesHint: raw.servicesHint?.trim() || seed?.servicesHint || DEFAULT_SERVICES_HINT,
     icon: String(raw.icon || '').trim() || seed?.icon || 'ac',
+    iconPosition: normalizeServiceIconPosition(raw.iconPosition ?? seed?.iconPosition),
     images,
     services: services.length
       ? services.map((service) => {

@@ -5,7 +5,7 @@ import { ServiceIcon } from '../components/ServiceIcon';
 import { PageHeader } from '../components/PageHeader';
 import { useServices } from '../context/ServicesContext';
 import { useSettings } from '../context/SettingsContext';
-import { isCustomServiceIcon } from '../data/services';
+import { isCustomServiceIcon, serviceIconObjectPosition } from '../data/services';
 import {
   DEFAULT_SERVICES_PAGE_INTRO,
   DEFAULT_SERVICES_PAGE_TITLE,
@@ -62,7 +62,13 @@ export function ServicesPage() {
                   ) : (
                     <span className="services-item__media-fallback">
                       {hasCustomIcon ? (
-                        <img src={cat.icon} alt="" loading="lazy" decoding="async" />
+                        <img
+                          src={cat.icon}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          style={{ objectPosition: serviceIconObjectPosition(cat.iconPosition) }}
+                        />
                       ) : (
                         <ServiceIcon type={cat.icon} size={26} />
                       )}

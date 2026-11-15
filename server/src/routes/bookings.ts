@@ -33,14 +33,12 @@ const createSchema = z.object({
   serviceName: z.string().trim().min(1),
   address: z.string().trim().min(1),
   preferredDate: z.string().trim().min(1),
-  preferredTime: z.string().trim().min(1),
   problemDescription: z.string().trim().optional().default(''),
 });
 
 const updateSchema = z.object({
   status: z.enum(['Booked', 'Confirmed', 'In Progress', 'Completed', 'Cancelled']).optional(),
   preferredDate: z.string().trim().optional(),
-  preferredTime: z.string().trim().optional(),
   address: z.string().trim().optional(),
   problemDescription: z.string().trim().optional(),
   serviceName: z.string().trim().optional(),
@@ -64,7 +62,6 @@ function mapBooking(doc: Record<string, unknown>) {
     serviceName: doc.serviceName,
     address: doc.address,
     preferredDate: doc.preferredDate,
-    preferredTime: doc.preferredTime,
     problemDescription: doc.problemDescription,
     status: doc.status,
     createdAt: doc.createdAt,
@@ -112,7 +109,6 @@ router.post('/', async (req, res) => {
     serviceName: parsed.data.serviceName,
     address: parsed.data.address,
     preferredDate: parsed.data.preferredDate,
-    preferredTime: parsed.data.preferredTime,
     problemDescription: parsed.data.problemDescription || '',
     status: 'Booked' as const,
     createdAt: new Date().toISOString(),
@@ -158,7 +154,6 @@ router.patch('/:id', requireAdmin, async (req, res) => {
     }
   }
   if (parsed.data.preferredDate !== undefined) existing.preferredDate = parsed.data.preferredDate;
-  if (parsed.data.preferredTime !== undefined) existing.preferredTime = parsed.data.preferredTime;
   if (parsed.data.address !== undefined) existing.address = parsed.data.address;
   if (parsed.data.problemDescription !== undefined) {
     existing.problemDescription = parsed.data.problemDescription;

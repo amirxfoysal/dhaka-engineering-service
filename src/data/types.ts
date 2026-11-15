@@ -9,7 +9,6 @@ export type Booking = {
   serviceName: string;
   address: string;
   preferredDate: string;
-  preferredTime: string;
   problemDescription: string;
   status: BookingStatus;
   createdAt: string;
