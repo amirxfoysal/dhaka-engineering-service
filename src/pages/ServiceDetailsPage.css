@@ -14,18 +14,22 @@
   border-radius: var(--radius-xl);
   overflow: hidden;
   background: linear-gradient(180deg, #e8f1fb 0%, #f7fafc 100%);
-  height: 210px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
 }
 
 .service-gallery__main picture,
 .service-gallery__main img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
 }
 
 .service-gallery__main img {
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
 }
 
@@ -659,9 +663,11 @@
   }
 
   .service-gallery__main {
-    height: auto;
     min-height: 360px;
-    aspect-ratio: 4 / 3;
+  }
+
+  .service-gallery__main img {
+    object-fit: cover;
   }
 
   .service-details__body {
