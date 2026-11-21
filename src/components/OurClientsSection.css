@@ -31,15 +31,14 @@
   padding: 0;
   overflow: hidden;
   color: inherit;
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
   outline: none;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition: transform 0.12s ease;
 }
 
 .our-clients__card:hover {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
 }
 
 .our-clients__media {
@@ -47,7 +46,7 @@
   inset: 8px 8px 26px;
   width: auto;
   height: auto;
-  background: linear-gradient(160deg, #dce8ff 0%, #eef4ff 100%);
+  background: #fff;
   border-radius: 4px;
   overflow: hidden;
   isolation: isolate;
